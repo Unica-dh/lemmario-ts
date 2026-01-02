@@ -1,0 +1,1 @@
+La cartella /old_website contiene il codice sorgente del sito web https://lemmario.netlify.app/ che rappresenta l'applicazione in versione "statica" che si intende far evolvere e migrare su piattaforma dinamica

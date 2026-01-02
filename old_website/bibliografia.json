@@ -1,0 +1,500 @@
+{
+    "Stat.fornai.1339": {
+        "title": "Statuto dell’Arte dei fornai e dei vinattieri di Firenze",
+        "date": "1339",
+        "reference": "Statuti dell’Arte dei fornai e dei vinattieri di Firenze (1337-1339), a cura di F. Morandini, Leo S. Olschki Editore, Firenze, 1956."
+    },
+
+    "Stat.fornai.1337": {
+        "title": "Statuto dell’Arte dei fornai e dei vinattieri di Firenze",
+        "date": "1337",
+        "reference": "Statuti dell’Arte dei fornai e dei vinattieri di Firenze (1337-1339), a cura di F. Morandini, Leo S. Olschki Editore, Firenze, 1956."
+    },
+    
+    "Stat.correggiai.1338": {
+        "title": "Statuto dell'arte dei correggiai, tavolacciai e scudai",
+        "date": "1338-1345",
+        "reference": "Statuti dell'arte dei correggiai, tavolacciai e scudai (1338-1345), Archivio di Stato di Firenze, fondo Arte dei Correggiai, reg. 1."
+    },
+
+    "Stat.rigattieri.1324": {
+        "title": "Statuto dei rigattieri di Firenze",
+        "date": "1324",
+        "reference": "Statuti dell'arte dei rigattieri e linaioli di Firenze (1296-1340), a cura di F. Sartini, Felice Le Monnier, Firenze, 1940."
+    },
+    
+    "Cap.Conserv.G14": {
+        "title": "Capitula conservatorum di Genova (XIV secolo, prima metà)",
+        "date": "XIV secolo, prima metà",
+        "reference": "Historiae Patriae Monumenta, vol. XVIII, Leges Genuenses, Torino, 1901."
+    },
+    
+    "Cap.Conserv.G83": {
+        "title": "Capitula conservatorum di Genova (1383-1386)",
+        "date": "1383-1386",
+        "reference": "Historiae Patriae Monumenta, vol. XVIII, Leges Genuenses, Torino, 1901."
+    },
+    
+    "Reg.Comper.G14": {
+        "title": "Regulae Comperarum Capituli di Genova",
+        "date": "XIV secolo, prima metà",
+        "reference": "Historiae Patriae Monumenta, vol. XVIII, Leges Genuenses, Torino, 1901."
+    },
+
+    "Leges_Genuenses_1157": {
+        "title": "Breve della Compagna",
+        "date": "1157",
+        "reference": "Historiae Patriae Monumenta, vol. XVIII, Leges Genuenses, Torino, 1901"
+    },
+
+    "Leges_Genuenses_14c": {
+        "title": "Regulae comperarum capituli",
+        "date": "XIV secolo, prima metà",
+        "reference": "Historiae Patriae Monumenta, vol. XVIII, Leges Genuenses, Torino, 1901"
+    },
+
+    "Leges_Genuenses_1375": {
+        "title": "Statutorum Civilium, Pars tercia",
+        "date": "1375",
+        "reference": "Historiae Patriae Monumenta, vol. XVIII, Leges Genuenses, Torino, 1901"
+    },
+
+    "Leges_Genuenses_1383": {
+        "title": "Capitula conservatorum seu ministrorum communis Ianue",
+        "date": "1383-1386",
+        "reference": "Historiae Patriae Monumenta, vol. XVIII, Leges Genuenses, Torino, 1901"
+    },
+
+    "Leges_Genuenses_1403": {
+        "title": "Volumen magnum capitulorum civitatis Ianue, Statutorum Patrum Communis",
+        "date": "1403-1407",
+        "reference": "Historiae Patriae Monumenta, vol. XVIII, Leges Genuenses, Torino, 1901"
+    },
+
+    "Statuto_Mercanzia_Siena": {
+        "title": "Statuto dell'Arte della Mercanzia di Siena",
+        "date": "1342-1343",
+        "reference": "Quinto Senigallia, Lo statuto dell’arte della Mercanzia senese (1342-1343), Commissione senese di Storia patria, 1911"
+    },
+    
+    "Leges_Genuenses_1363": {
+        "title": "Regulae communis Ianue",
+        "date": "1363",
+        "reference": "Historiae Patriae Monumenta, vol. XVIII, Leges Genuenses, Torino, 1901"
+    },
+
+        "Trattato_alcibra_amuchabile": {
+                "title": "Anonimo, Trattato dell'alcibra amuchabile",
+                "date": "1350-1400",
+                "reference": "Firenze, Biblioteca Riccardiana, ms. 2263 (ed. in Anonimo, Trattato dell'alcibra amuchabile. Dal Codice Ricc. 2263 della Biblioteca Riccardiana di Firenze, a cura di A. Simi, Siena 1994)"
+        },
+
+        "Libro_arixmetricha_zemetria": {
+                "title": "Pier Giacomo Capellani, Libro del arixmetricha e zemetria",
+                "date": "1464",
+                "reference": "Bologna, Biblioteca Universitaria, ms. 1612"
+        },
+                
+        "tractatus_algorismi_1307": {
+            "title": "Tractatus Algorismi",
+            "date": "1307",
+            "reference": "J. Høyrup, Jacopo da Firenze. Tractatus algorismi. An edition of the manuscript Milan, Trivulziana MS 90 collated with Florence, Riccardiana MS 2236, Roskilde 2007"
+        },
+
+        "Lettere_abaco": {
+                "title": "Anonimo, Le lettere del abaco",
+                "date": "1450-1500",
+                "reference": "Milano, Biblioteca Trivulziana, ms. Arch. F 2"
+        },
+
+        "Ragioni_arismetrica": {
+                "title": "Anonimo, Ragioni apartenente all'arismetricha",
+                "date": "1400-1430",
+                "reference": "Firenze, Biblioteca Nazionale Centrale, ms. Magliabechiano XI 119"
+        },
+        
+        "Libbro_danbaco": {
+                "title": "Cristofano di Gherardo, Libbro d'anbaco",
+                "date": "1442",
+                "reference": "Firenze, Biblioteca Riccardiana, ms. 2186"
+        },
+
+        "Tractato_algorisimus": {
+                "title": "Anonimo, Tractato algorisimus",
+                "date": "1485 circa",
+                "reference": "Firenze, Biblioteca Riccardiana, ms. 2991"
+        },
+
+        "Summa_pacioli": {
+                "title": "Luca Pacioli, Summa de arithmetica, geometria, proportioni et proportionalità",
+                "date": "1494",
+                "reference": "Luca Pacioli, Summa de arithmetica, geometria, proportioni et proportionalità, Venezia 1494"
+        },
+
+        "Computista_san_ludovico": {
+                "title": "Libro contabile del convento di San Ludovico di Montevarchi",
+                "date": "1482",
+                "reference": "Firenze, Archivio di Stato, Corporazioni religiose soppresse 170, reg. 30"
+        },
+
+        "Trattato_praticha_arismetrica": {
+                "title": "Benedetto da Firenze, Trattato di praticha d'arismetricha",
+                "date": "1450 circa",
+                "reference": "Firenze, Biblioteca Nazionale Centrale, ms. Palatino 573"
+        },        
+
+        "Arte_arismetrica": {
+                "title": "Anonimo, Arte d'arismetrica",
+                "date": "1450 circa",
+                "reference": "Firenze, Biblioteca Riccardiana, ms. 2369"
+        },
+
+        "Vaticano_latino": {
+                "title": "Anonimo, Trattato di geometria",
+                "date": "1420 circa",
+                "reference": "Città del Vaticano, ms. Vaticano Latino 10488"
+        },
+        
+        "Istratto_ragioni": {
+                "title": "Anonimo, Istratto di ragioni",
+                "date": "1450 circa",
+                "reference": "Firenze, Biblioteca Nazionale Centrale, ms. Magliabechiano XI 86 (ed. in Paolo dell'Abbaco, Trattato d'aritmetica. Secondo la lezione del Codice Magliabechiano XI, 86 della Biblioteca Nazionale di Firenze, a cura di G. Arrighi, Pisa 1964)"
+            },
+
+        "Operetta_abbaco": {
+                "title": "Antonio Grassini, Operetta d'abacho",
+                "date": "1479",
+                "reference": "Bologna, Biblioteca Universitaria, ms. 595 Miscellanea N. 4"
+        },
+
+        "Prova_riccardiana": {
+        "title": "Anonimo, Arte d'arismetricha",
+        "date": "1450 circa",
+        "reference": "Firenze, Biblioteca Riccardiana, ms. 2369"
+        },
+
+        "Prova_lucca": {
+        "title": "Anonimo, Libro di molte ragioni d'abacho",
+        "date": "1330-1350",
+        "reference": "Lucca, Biblioteca Statale, ms. 1754 (ed. in Scuola Lucchese, Libro d'abaco. Dal Codice 1754 della Biblioteca Statale di Lucca, a cura di G. Arrighi, Lucca 1973)"
+        },
+
+        "Libro_molte_ragioni_abaco": {
+        "title": "Anonimo, Libro di molte ragioni d'abacho",
+        "date": "1330-1350",
+        "reference": "Lucca, Biblioteca Statale, ms. 1754 (ed. in Scuola Lucchese, Libro d'abaco. Dal Codice 1754 della Biblioteca Statale di Lucca, a cura di G. Arrighi, Lucca 1973)"
+        },
+
+        "Corporazioni_religiose": {
+        "title": "Archivio di Stato di Firenze, Corporazioni religiose soppresse dal governo francese",
+        "date": "1507",
+        "reference": "Firenze, Archivio di Stato, Corporazioni religiose soppresse dal governo francese 106, n. 220"
+         },
+
+        "Calandri_abbaco": {
+        "title": "P. M. Calandri, Tractato d'abacho",
+        "date": "1480 ca.",
+        "reference": "Firenze, Biblioteca Medicea Laurenziana, ms. Acquisti e doni 154 (ed. in P. M. Calandri, Tractato d'abacho. Dal Codice Acq. e doni 154 della Biblioteca Medicea Laurenziana, a cura di G. Arrighi, Pisa 1974)"
+        },
+
+        "Trattato_abacho": {
+        "title": "Benedetto da Firenze, Trattato d'abacho",
+        "date": "1465 ca.",
+        "reference": "Parigi, Bibliothèque nationale de France, ms. Italien 947"
+        },
+
+        "Cose_abbaco": {
+        "title": "Anonimo, Cose appartenenti all'abbaco",
+        "date": "1450 circa",
+        "reference": "Firenze, Biblioteca Riccardiana, ms. 2358"
+        },
+
+        "Tractatus_algorismi": {
+        "title": "Jacopo da Firenze, Tractatus algorismi",
+        "date": "1307",
+        "reference": "Milano, Biblioteca Trivulziana, ms. 90 (ed. in J. Høyrup, Jacopo da Firenze. Tractatus algorismi. An edition of the manuscript Milan, Trivulziana MS 90, collated with Florence, Riccardiana MS 2236, Roskilde 2007)"
+        },
+
+        "Arte_giamata_aresmetica": {
+        "title": "Anonimo, Arte giamata aresmetica",
+        "date": "1400-1420",
+        "reference": "Torino, Biblioteca Nazionale, ms. N. III. 53 (ed. in Anonimo Maestro Lombardo, Arte giamata aresmetica. Un'antologia dal codice N. III. 53 della Biblioteca Nazionale di Torino, a cura di M. T. Rivolo, Siena 1983)"
+        },
+
+        "Libro_ragioni": {
+        "title": "Matteo Cerretani, Libro di ragioni",
+        "date": "1461",
+        "reference": "Firenze, Biblioteca Nazionale Centrale, ms. Palatino Baldovinetti 229"
+        },
+
+        "Libro_arismetrica": {
+        "title": "Mariotto Guiducci, Libro d'arismetricha",
+        "date": "1465 circa",
+        "reference": "Firenze, Biblioteca Nazionale Centrale, ms. Conventi Soppressi J X 36"
+        },
+
+        "Libro_di_raxoni": {
+        "title": "Anonimo, Libro di raxoni merchatatesche",
+        "date": "1398",
+        "reference": "Palermo, Biblioteca comunale, ms. 2 Qq E 13 (ed. in Fragomeli, Quanto contava far di conto? Sul lessico matematico dei libri d’abaco, Tesi di dottorato, Università di Siena-Universitat de Barcelona 2023, p. 215)"
+        },
+
+        "Calandri_aritmetica": {
+        "title": "F. Calandri, Aritmetica",
+        "date": "1485 circa",
+        "reference": "Firenze, Biblioteca Riccardiana, ms. 2669 (ed. in Aritmetica. Secondo la lezione del Codice 2669 (sec. XV) della Biblioteca Riccardiana di Firenze, a cura di G. Arrighi, Firenze 1969)"
+        },
+
+        "libro_abaco_1442": {
+            "title": "Libro d'abaco",
+            "date": "1442",
+            "reference": "Firenze, Biblioteca Riccardiana, ms. 2186."
+        },
+    
+        "libro_abaco_1420": {
+            "title": "Libro d'abaco",
+            "date": "1400-1420",
+            "reference": "Anonimo Maestro Lombardo, Arte giamata aresmetica. Un'antologia dal codice N. III. 53 della Biblioteca Nazionale di Torino, a cura di M. T. Rivolo, Siena 1983."
+        },
+    
+        "libro_abaco_1330": {
+            "title": "Libro d'abaco",
+            "date": "1330-1350",
+            "reference": "Scuola Lucchese, Libro d'abaco. Dal Codice 1754 (sec. XIV) della Biblioteca Statale di Lucca, a cura di G. Arrighi, Lucca 1973."
+        },
+    
+        "libro_abaco_1350": {
+            "title": "Libro d'abaco",
+            "date": "1350-1400",
+            "reference": "Anonimo, Trattato dell'alcibra amuchabile. Dal Codice Ricc. 2263 della Biblioteca Riccardiana di Firenze, a cura di A. Simi, Siena 1994."
+        },
+    
+        "libro_abaco_1450": {
+            "title": "Libro d'abaco",
+            "date": "1450 circa",
+            "reference": "Firenze, Biblioteca Riccardiana, ms. 2369."
+        },
+    
+        "libro_abaco_1464": {
+            "title": "Libro d'abaco",
+            "date": "1464",
+            "reference": "Firenze, Biblioteca Riccardiana, ms. 2263."
+        },
+    
+        "libro_abaco_1400": {
+            "title": "Libro d'abaco",
+            "date": "1400-1430",
+            "reference": "Firenze, Biblioteca Nazionale Centrale, ms. Magliabechiano XI 119."
+        },
+    
+        "libro_abaco_1500": {
+            "title": "Libro d'abaco",
+            "date": "XV secolo",
+            "reference": "Milano, Archivio Storico Civico e Biblioteca Trivulziana, ms. Arch. F 2."
+        },
+    
+        "libro_abaco_1494": {
+            "title": "Libro d'abaco",
+            "date": "1494",
+            "reference": "L. Pacioli, Summa de arithmetica, geometria, proportioni et proportionalità, Venezia 1494."
+        },
+    
+        "libro_contabile_1482": {
+            "title": "Libro contabile",
+            "date": "1482",
+            "reference": "Firenze, Archivio di Stato, Corporazioni religiose soppresse 170, reg. 30."
+        },
+    
+        "libro_abaco_1470": {
+            "title": "Libro d'abaco",
+            "date": "1470 circa",
+            "reference": "Paris, Bibliothèque Nationale de France, ms. Italien 947."
+        },
+    
+        "libro_abaco_1465": {
+            "title": "Libro d'abaco",
+            "date": "1465 circa",
+            "reference": "Firenze, Biblioteca Nazionale Centrale, ms. Conventi Soppressi J X 36."
+        },
+    
+        "libro_abaco_1307": {
+            "title": "Libro d'abaco",
+            "date": "1307",
+            "reference": "J. Høyrup, Jacopo da Firenze. Tractatus algorismi. An edition of the manuscript Milan, Trivulziana MS 90, collated with Florence, Riccardiana MS 2236, Roskilde 2007."
+        },
+    
+        "libro_abaco_1986": {
+            "title": "Libro d'abaco",
+            "date": "1986",
+            "reference": "R. Franci, La rivoluzione commerciale e l'introduzione delle cifre indo-arabiche in Italia, in Storicità e attualità della cultura scientifica e insegnamento delle scienze, a cura del C.I.D.I., Casale Monferrato-Fiesole 1986."
+        },
+    
+        "libro_abaco_1494_2": {
+            "title": "Libro d'abaco",
+            "date": "1494",
+            "reference": "L. Pacioli, Summa de arithmetica, geometria, proportioni et proportionalità, Venezia 1494."
+        },
+    
+        "libro_abaco_1350_2": {
+            "title": "Libro d'abaco",
+            "date": "1330-1350",
+            "reference": "Scuola Lucchese, Libro d'abaco. Dal Codice 1754 (sec. XIV) della Biblioteca Statale di Lucca, a cura di G. Arrighi, Lucca 1973."
+        },
+    
+        "libro_abaco_1450_2": {
+            "title": "Libro d'abaco",
+            "date": "1450 circa",
+            "reference": "Firenze, Biblioteca Nazionale Centrale, ms. Palatino 573."
+        },
+    
+        "libro_abaco_1485": {
+            "title": "Libro d'abaco",
+            "date": "1485 ca.",
+            "reference": "Firenze, Biblioteca Riccardiana, ms. 2991."
+        },
+    
+        "libro_abaco_1470_3": {
+            "title": "Libro d'abaco",
+            "date": "1470 circa",
+            "reference": "Paris, Bibliothèque Nationale de France, ms. Italien 947."
+        },
+
+    "statuto_mercanzia_siena_1342": {
+        "title": "Statuto dell'Arte della Mercanzia Senese",
+        "date": "1342-1343",
+        "reference": "Quinto Senigallia, Lo statuto dell’arte della Mercanzia senese (1342-1343), Commissione senese di Storia patria, 1911."
+        },
+    
+    "regulae_comperarum_genova_XIV": {
+        "title": "Regulae Comperarum Capituli di Genova",
+        "date": "XIV secolo, prima metà",
+        "reference": "Historiae Patriae Monumenta, vol. XVIII, Leges Genuenses, Torino, 1901."
+        },
+    
+    "volumen_magnum_genova_1403": {
+        "title": "Volumen Magnum Capitulorum Civitatis Ianue",
+        "date": "1403-1407",
+        "reference": "Historiae Patriae Monumenta, vol. XVIII, Leges Genuenses, Torino, 1901."
+        },
+            
+    "Costituzioni.Vallombrosa.1323": {
+        "title": "Costituzioni della congregazione monastica di Vallombrosa",
+        "date": "1323",
+        "reference": "Costituzioni della congregazione monastica di Vallombrosa (1323), edite in C. Piras, I benedettini di Vallombrosa in Sardegna (secoli XII-XVI), «Archivio Storico Sardo», XLVII, 2012, pp. 9-543: 319-366."
+            },
+
+    "Costituzioni.MonteOliveto.1350ca": {
+        "title": "Costituzioni della congregazione monastica di Monte Oliveto",
+        "date": "1350-1360 ca.",
+        "reference": "Costituzioni della congregazione monastica di Monte Oliveto (1350-1360 ca.), edite in Constitutios de la Congrégation du Mont-Olivet de 1350/60, a cura di M.-P. Dickson, in Regardez le Rocher d’où lon vous a taillés. Documents primitifs de la Congrégation Bénédictine de Sainte Marie du Mont-Olivet, Maylis, Abbaye Notre Dame de Maylis, 1996, pp. 125-203."
+            },
+
+    "Firenze.Ospedale.Santa.Maria.Nuova": {
+    "title": "Firenze, Archivio di Stato, Ospedale di Santa Maria Nuova",
+    "date": "***",
+    "reference": "Firenze, Archivio di Stato, Ospedale di Santa Maria Nuova, reg. 4450, edito in E. Ulivi, Maestri e scuole d’abaco a Firenze: la Bottega di Santa Trinita, «Bollettino di Storia delle Scienze Matematiche», 24/1 (2004)."
+            },
+
+    "Bologna.Riformatori.dello.Studio": {
+    "title": "Bologna, Archivio di Stato, Riformatori dello Studio",
+    "date": "***",
+    "reference": "Bologna, Archivio di Stato, Riformatori dello Studio, Rotuli dello Studio, editi in U. Dallari, I rotuli dei lettori legisti e artisti dello Studio bolognese dal 1384 al 1799, Bologna, F.lli Merlani, vol. I, 1888."
+            },
+
+    "BNCF.Panchiatichi.134": {
+        "title": "Ricordi di Bartolomeo di Niccolò di Taldo Valori",
+        "date": "1354-1368",
+        "reference": "Firenze, Biblioteca Nazionale Centrale, ms. Panchiatichi 134, f. 1r (Ricordi di Bartolomeo di Niccolò di Taldo Valori, 1354-1368), edito in R.D. Black, Education and Society in Florentine Tuscany. Teachers, Pupils and Schools, c. 1250-1500, Leiden-Boston, Brill, 2007."
+            },
+
+    "ASBo.RotuliStudio.1384": {
+        "title": "Rotuli dello Studio di Bologna",
+        "date": "1384",
+        "reference": "Bologna, Archivio di Stato, Riformatori dello Studio, Rotuli dello Studio, editi in U. Dallari, I rotuli dei lettori legisti e artisti dello Studio bolognese dal 1384 al 1799, Bologna, F.lli Merlani, vol. I, 1888."
+            },
+
+    "Villani.NuovaCronica.XII.106": {
+        "title": "Nuova Cronica di Giovanni Villani",
+        "date": "XIV secolo",
+        "reference": "Giovanni Villani, Nuova Cronica, a cura di G. Porta, 3 voll., Parma, Guanda, 1991, XII, 106."
+            },
+
+    "ASF.Diplomatico.Arcetri.1318": {
+        "title": "San Matteo in Arcetri (1 dicembre 1318)",
+        "date": "1318",
+        "reference": "Firenze, Archivio di Stato, Diplomatico, normali, San Matteo in Arcetri (1 dicembre 1318), edito in E. Ulivi, Maestri e scuole d’abaco a Firenze: la Bottega di Santa Trinita, «Bollettino di Storia delle Scienze Matematiche», 24/1 (2004)."
+            },
+
+    "ASF.CarteStrozziane.4.1385": {
+        "title": "Ricordi di Paolo di Alessandro Sassetti",
+        "date": "1385",
+        "reference": "Firenze, Archivio di Stato, Carte Strozziane, s. II, 4: Ricordi di Paolo di Alessandro Sassetti, c. 91r (28 settembre 1385), edito in E. Ulivi, Maestri e scuole d’abaco a Firenze: la Bottega di Santa Trinita, «Bollettino di Storia delle Scienze Matematiche», 24/1 (2004)."
+            },
+
+    "AAV.Regesta.19.1434": {
+        "title": "Regesta Diversarum Cameralium, reg. 19",
+        "date": "1434",
+        "reference": "Città del Vaticano, Archivio Apostolico Vaticano, Regesta Diversarum Cameralium, reg. 19, f. 14r (6 luglio 1434), edito in Pagolo di Matteo Petriboni, Matteo di Borgo Rinaldi, Priorista (1407-1459) with two appendices (1282-1406), edited by J.A. Gutwirth and G. Battista, Roma, Edizioni di Storia e Letteratura, 2001"
+            },
+
+    "Riccardiana.2374.1455": {
+        "title": "Manoscritto Riccardiana 2374",
+        "date": "1455 ca.",
+        "reference": "Firenze, Biblioteca Riccardiana, ms. 2374, c. 2v (anno 1455 ca.)."
+            },
+
+    "Pratica.mercatura.30.26": {
+        "title": "Pratica di mercatura. Firenze, Biblioteca Laurenziana, Plut. 30.26",
+        "date": "ultimo quarto del XIV secolo",
+        "reference": "Andrea Bocchi, Pratiche di mercatura toscane del Trecento, Udine, Forum, 2022."
+            },
+
+    "Pratica.mercatura.II.I.319": {
+        "title": "Pratica di mercatura. Firenze, Biblioteca Nazionale Centrale, II.I.319",
+        "date": "fine XIV-inizio XV secolo",
+        "reference": "Andrea Bocchi, Pratiche di mercatura toscane del Trecento, Udine, Forum, 2022."
+        },
+
+    "Pratica.mercatura.139": {
+        "title": "Pratica di mercatura. Firenze, Biblioteca Nazionale Centrale, Fondo Tordi 139",
+        "date": "ultimo quarto del XIV secolo",
+        "reference": "Andrea Bocchi, Pratiche di mercatura toscane del Trecento, Udine, Forum, 2022."
+        },
+
+    "Libro.arte.mercatura": {
+        "title": "Benedetto Cotrugli, Libro de l'arte de la mercatura",
+        "date": "1460 ca.",
+        "reference": "Benedetto Cotrugli. Libro de l'arte de la mercatura, a cura di V. Ribaudo, Venezia, Ca' Foscari, 2016."
+        },
+
+    "Riccardiana.2580": {
+        "title": "Trattato dell'Arte della Lana. Firenze, Biblioteca Riccardiana, ms. 2580 (1418-1421)",
+        "date": "1418-1421 (attribuito)",
+        "reference": "Trattato dell'Arte della Lana, edizione a cura di Mathieu Harsh, in corso di stampa."
+        },
+
+    "Statuti_Bologna_1250": {
+        "title": "Statuti del comune di Bologna (1250)",
+        "date": "1250",
+        "reference": "L. Frati, Statuti di Bologna dall’anno 1245 all’anno 1267, Bologna, Regia Tipografia, 1869."
+        },
+
+    "Libro.arancio.Alberti": {
+        "title": "Libro Arancio DD dell'Avere e del Dare di Iacopo e Bartolomeo di Caroccio degli Alberti e compagni. Genova, Archivio Gaslini, n. 6",
+        "date": "1348-50",
+        "reference": "Due libri mastri degli Alberti. Una grande compagnia di calmala, 1348-1358, a cura di R.A. Goldthwaite, E. Settesoldi, M. Spallanzani, Firenze, Cassa di Risparmio di Firenze, 1995."
+        },
+
+    "Libro.avere.Alberti": {
+        "title": "Libro dell'Avere e del Dare di Bartolomeo di Caroccio degli Alberti e compagni. Genova, Archivio Gaslini, n. 7",
+        "date": "1352-58",
+        "reference": "Due libri mastri degli Alberti. Una grande compagnia di calmala, 1348-1358, a cura di R.A. Goldthwaite, E. Settesoldi, M. Spallanzani, Firenze, Cassa di Risparmio di Firenze, 1995."
+        },
+
+    "Firenze.Statuti.1355.volg": {
+        "title": "Statuti della Repubblica fiorentina",
+        "date": "1355",
+        "reference": "Gli statuti della Repubblica fiorentina del 1355 in volgare, a cura di Federigo Bambi, Francesco Salvestrini, Lorenzo Tanzini, 3: Indici, a cura di Federigo Bambi e Piero Gualtieri, Firenze, Olschki, 2023."
+            }
+    
+}
