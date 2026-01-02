@@ -48,6 +48,12 @@ Each lemma (dictionary entry) in [old_website/lemmi/](old_website/lemmi/) contai
 }
 ```
 
+**Important:** The new database structure preserves these shorthand IDs in the `Fonte.shorthand_id` field for:
+- Compatibility with legacy data during migration
+- Creating user-friendly URLs (e.g., `/fonte/Stat.fornai.1339`)
+- Academic citations and external references
+- The HTML files link to bibliography entries via `data-biblio` attributes that reference these shorthand IDs
+
 ## Development Architecture Considerations
 
 When building the TypeScript migration:
