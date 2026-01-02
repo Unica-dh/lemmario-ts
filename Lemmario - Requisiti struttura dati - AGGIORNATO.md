@@ -1,40 +1,205 @@
 # Specifiche della struttura dati del lemmario
 
 **Data:** 02/01/2026
-**Versione:** 3.0 FINALE
-**Precedente versione:** 03/11/2025 (v1.0)
+**Versione:** 4.0 FINALE (Multi-Tenancy + Payload CMS)
+**Precedente versione:** 3.0 (02/01/2026)
 
-**Obiettivo:** Definire un modello logico dei dati per sviluppare una applicazione e relativo database per il Lemmario basato sull'analisi del sito web https://lemmario.netlify.app/
+**Obiettivo:** Definire un modello logico dei dati per sviluppare un'applicazione **multi-lemmario** con gestione tramite **Payload CMS** basata sull'analisi del sito web https://lemmario.netlify.app/
 
-**Nota:** Questo documento incorpora le modifiche richieste dal report di analisi del 02/01/2026 e **TUTTE** le risposte del cliente alle domande di chiarimento. Documento completo e pronto per la fase di design database fisico.
+**Nota:** Questo documento incorpora:
+- ✅ Tutte le risposte del cliente alle domande di chiarimento
+- ✅ Architettura multi-tenancy per gestire più lemmari
+- ✅ Integrazione con Payload CMS (TypeScript headless CMS)
+- ✅ Deployment Docker Compose con CI/CD GitHub Actions
 
-**Status:** ✅ COMPLETO - Nessuna domanda aperta
+**Status:** ✅ COMPLETO - Architettura Multi-Lemmario Definita
 
 ---
 
 ## 1. Entità Principali
 
-Il modello dati è composto da **10 entità principali** (corrispondenti a 10 tabelle del database):
+Il modello dati è composto da **13 entità principali** (corrispondenti a 13 tabelle del database):
+
+### Entità Multi-Tenancy *(NUOVE)*
+
+1. **Lemmario** - Container principale per ogni lemmario (es. "Lemmario Razionale", "Lemmario Mercantile")
+2. **CampoCustomLemmario** - Campi aggiuntivi specifici per ciascun lemmario *(opzionale, estensibile)*
+3. **UtenteRuoloLemmario** - Tabella di associazione per permessi utente-lemmario *(junction table)*
 
 ### Entità Core (Gestione Lemmi)
-1. **Lemma** - Il termine principale (es. "ADDITIO", "AGGIUNGERE")
-2. **VarianteGrafica** - Le varianti ortografiche alternative del lemma *(NUOVA)*
-3. **Definizione** - Una delle possibili definizioni/significati di un lemma
-4. **Livello di Razionalità** - La categoria che classifica una definizione (es. "2. Operazioni")
-5. **Ricorrenza** - L'esempio di citazione specifica che collega una definizione a una fonte
-6. **Fonte** - Il documento sorgente da cui è tratta una ricorrenza
-7. **RiferimentoIncrociato** - Collegamenti tra lemmi correlati (CFR, VEDI, SINONIMO, CONTRARIO) *(NUOVA)*
+
+4. **Lemma** - Il termine principale (es. "ADDITIO", "AGGIUNGERE") *[ora associato a un Lemmario]*
+5. **VarianteGrafica** - Le varianti ortografiche alternative del lemma
+6. **Definizione** - Una delle possibili definizioni/significati di un lemma
+7. **Livello di Razionalità** - La categoria che classifica una definizione (es. "2. Operazioni") *[ora opzionale e lemmario-specific]*
+8. **Ricorrenza** - L'esempio di citazione specifica che collega una definizione a una fonte
+9. **Fonte** - Il documento sorgente da cui è tratta una ricorrenza *[ora condivisibile tra lemmari]*
+10. **RiferimentoIncrociato** - Collegamenti tra lemmi correlati *[supporta cross-lemmario]*
 
 ### Entità di Supporto (CMS e Sistema)
-8. **ContenutoStatico** - Contenuti delle sezioni statiche (Progetto, Saggi, Legenda, ecc.) *(NUOVA)*
-9. **Utente** - Utenti del sistema (amministratori e redattori) *(NUOVA)*
-10. **StoricoModifiche** - Tracking completo di tutte le modifiche al database *(NUOVA)*
+
+11. **ContenutoStatico** - Contenuti delle sezioni statiche *[ora con scope globale o per-lemmario]*
+12. **Utente** - Utenti del sistema con ruoli multipli per lemmari diversi
+13. **StoricoModifiche** - Tracking completo di tutte le modifiche al database
 
 ---
 
 ## 2. Struttura e Attributi delle Entità
 
-### 2.1. Entità: Lemma
+### 2.0. Entità Multi-Tenancy
+
+#### 2.0.1. Entità: Lemmario *(NUOVA)*
+
+Rappresenta un singolo lemmario all'interno del sistema multi-tenancy. Ogni lemmario è un container isolato di lemmi, definizioni e configurazioni.
+
+**Attributi:**
+- `lemmario_id` - Identificatore univoco (Primary Key)
+- `slug` - Identificatore URL-friendly (VARCHAR, UNIQUE, NOT NULL)
+  - Esempi: "lemmario-razionale", "lemmario-mercantile", "lemmario-matematico"
+  - Utilizzato per routing: `/lemmario-mercantile/lemmi/ADDITIO`
+- `titolo` - Nome completo del lemmario (VARCHAR, NOT NULL)
+  - Esempi: "Lemmario Razionale", "Lemmario Mercantile Genovese"
+- `descrizione` - Descrizione breve del lemmario (TEXT, nullable)
+- `periodo_storico` - Periodo coperto dal lemmario (VARCHAR, nullable)
+  - Esempi: "XIV-XV secolo", "Medioevo italiano"
+- `attivo` - Flag se il lemmario è attivo e visibile (BOOLEAN, default TRUE)
+- `ordine` - Numero per ordinamento nella home page (INT, default 0)
+- `configurazione` - Configurazioni specifiche del lemmario (JSONB, nullable)
+  - Esempio: `{"has_livelli_razionalita": true, "lingua_default": "latino"}`
+- `data_creazione` - Timestamp di creazione (TIMESTAMP, auto-generato)
+- `data_pubblicazione` - Data di pubblicazione pubblica (TIMESTAMP, nullable)
+
+**Esempi:**
+```
+Lemmario Razionale (da migrare):
+- lemmario_id: 1
+  slug: "lemmario-razionale"
+  titolo: "Lemmario Razionale"
+  descrizione: "Terminologia matematico-economica medievale"
+  periodo_storico: "XIV-XV secolo"
+  attivo: TRUE
+  configurazione: {"has_livelli_razionalita": true}
+
+Lemmario Mercantile:
+- lemmario_id: 2
+  slug: "lemmario-mercantile"
+  titolo: "Lemmario Mercantile Genovese"
+  periodo_storico: "XIII-XIV secolo"
+  attivo: TRUE
+  configurazione: {"has_livelli_razionalita": false}
+```
+
+**Note implementative:**
+- UNIQUE index su `slug` per garantire URL univoci
+- I campi in `configurazione` JSONB permettono estensibilità futura
+- Ogni lemmario può avere caratteristiche specifiche (es. alcuni hanno livelli di razionalità, altri no)
+
+**Relazioni:**
+- `Lemmario (1) → (N) Lemma`
+- `Lemmario (1) → (N) ContenutoStatico` (contenuti specifici del lemmario)
+- `Lemmario (1) → (N) UtenteRuoloLemmario` (permessi utente)
+- `Lemmario (N) ↔ (N) Fonte` (fonti condivise tra lemmari)
+
+---
+
+#### 2.0.2. Entità: CampoCustomLemmario *(NUOVA - OPZIONALE)*
+
+Tabella EAV (Entity-Attribute-Value) per aggiungere campi custom a entità specifiche per lemmario.
+
+**Attributi:**
+- `campo_id` - Identificatore univoco (Primary Key)
+- `lemmario_id` - Lemmario a cui appartiene il campo (Foreign Key → Lemmario)
+- `entita` - Entità a cui si applica il campo (VARCHAR)
+  - Valori: "Lemma", "Definizione", "Fonte", etc.
+- `nome_campo` - Nome del campo custom (VARCHAR)
+  - Esempi: "categoria_merceologica", "area_geografica", "tipologia_contratto"
+- `tipo_campo` - Tipo di dato (ENUM)
+  - Valori: 'text', 'number', 'boolean', 'date', 'select'
+- `opzioni` - Opzioni per campi select (JSONB, nullable)
+  - Esempio: `["Genova", "Venezia", "Firenze"]` per area_geografica
+- `obbligatorio` - Se il campo è obbligatorio (BOOLEAN, default FALSE)
+- `ordine` - Ordinamento visualizzazione (INT)
+
+**Esempio:**
+```
+Lemmario Mercantile aggiunge campo "area_geografica" ai Lemmi:
+- campo_id: 1
+  lemmario_id: 2 (Lemmario Mercantile)
+  entita: "Lemma"
+  nome_campo: "area_geografica"
+  tipo_campo: 'select'
+  opzioni: ["Genova", "Venezia", "Firenze", "Milano"]
+  obbligatorio: FALSE
+```
+
+**Valori custom memorizzati in:**
+- Tabella separata `ValoreCampoCustom` con: `(campo_id, entita_id, valore_json)`
+- Oppure: campo JSONB `campi_custom` su ciascuna entità principale
+
+**Note implementative:**
+- Sistema opzionale, da implementare solo se necessario
+- Permette estensibilità massima per lemmari con esigenze specifiche
+- Può essere sostituito da semplici campi JSONB se i requisiti sono limitati
+
+**Relazioni:**
+- `CampoCustomLemmario (N) → (1) Lemmario`
+
+---
+
+#### 2.0.3. Entità: UtenteRuoloLemmario *(NUOVA - Junction Table)*
+
+Tabella di associazione many-to-many tra Utenti e Lemmari, che definisce i permessi specifici.
+
+**Attributi:**
+- `assegnazione_id` - Identificatore univoco (Primary Key)
+- `utente_id` - Riferimento all'utente (Foreign Key → Utente)
+- `lemmario_id` - Riferimento al lemmario (Foreign Key → Lemmario)
+- `ruolo` - Ruolo dell'utente su questo lemmario specifico (ENUM)
+  - Valori possibili:
+    - `'lemmario_admin'` - Amministratore del lemmario (può tutto su questo lemmario)
+    - `'redattore'` - Può creare/modificare lemmi e contenuti
+    - `'lettore'` - Può solo consultare (utile per lemmari privati)
+- `data_assegnazione` - Timestamp di quando è stato assegnato (TIMESTAMP, auto-generato)
+- `assegnato_da` - Utente che ha fatto l'assegnazione (Foreign Key → Utente, nullable)
+
+**Vincoli:**
+- UNIQUE INDEX su (`utente_id`, `lemmario_id`) - un utente può avere un solo ruolo per lemmario
+- Un utente può essere assegnato a più lemmari con ruoli diversi
+
+**Esempi:**
+```
+Utente "Mario Rossi" (super_admin globale):
+- Non ha record in questa tabella (accesso globale a tutti i lemmari)
+
+Utente "Giulia Bianchi" (redattore multi-lemmario):
+- assegnazione_id: 1
+  utente_id: 2 (Giulia)
+  lemmario_id: 1 (Lemmario Razionale)
+  ruolo: 'lemmario_admin'
+
+- assegnazione_id: 2
+  utente_id: 2 (Giulia)
+  lemmario_id: 2 (Lemmario Mercantile)
+  ruolo: 'redattore'
+```
+
+**Logica di permessi:**
+1. **Super Admin** (ruolo globale in tabella `Utente`): accesso completo a tutti i lemmari
+2. **Lemmario Admin**: può gestire tutto (lemmi, fonti, contenuti, utenti) sul suo lemmario
+3. **Redattore**: può CRUD su lemmi e contenuti del suo lemmario, ma non gestire utenti
+4. **Lettore**: solo lettura (per lemmari privati)
+
+**Note implementative:**
+- Query permessi: `SELECT lemmario_id FROM UtenteRuoloLemmario WHERE utente_id = ? AND ruolo IN ('lemmario_admin', 'redattore')`
+- Payload CMS Access Control può implementare questa logica direttamente
+
+**Relazioni:**
+- `UtenteRuoloLemmario (N) → (1) Utente`
+- `UtenteRuoloLemmario (N) → (1) Lemmario`
+
+---
+
+### 2.1. Entità: Lemma (MODIFICATA per Multi-Tenancy)
 
 Rappresenta una singola voce del lemmario presente nella lista di sinistra.
 
