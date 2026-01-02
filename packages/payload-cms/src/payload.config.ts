@@ -57,8 +57,9 @@ export default buildConfig({
   },
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.DATABASE_URI,
+      connectionString: String(process.env.DATABASE_URI),
     },
+    push: false,
   }),
   cors: [
     process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001',

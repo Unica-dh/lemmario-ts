@@ -1,10 +1,17 @@
 import express from 'express'
 import payload from 'payload'
 import dotenv from 'dotenv'
+
+// Load environment variables BEFORE importing config
+dotenv.config({ path: '../../.env' })
+
 import config from './payload.config'
 
-// Load environment variables
-dotenv.config({ path: '../../.env' })
+// Debug: Log environment variables
+console.log('Environment variables loaded:')
+console.log('DATABASE_URI:', process.env.DATABASE_URI)
+console.log('DB_PASSWORD:', process.env.DB_PASSWORD ? '***' + process.env.DB_PASSWORD.slice(-4) : 'undefined')
+console.log('PAYLOAD_SECRET:', process.env.PAYLOAD_SECRET ? '(set)' : 'undefined')
 
 const app = express()
 const PORT = process.env.PORT || 3000
