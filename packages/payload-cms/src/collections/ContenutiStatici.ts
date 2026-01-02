@@ -1,5 +1,5 @@
 import { CollectionConfig } from 'payload/types'
-import { adminOnly, public_ } from '../access'
+import { adminOnly } from '../access'
 
 /**
  * Collection: ContenutiStatici

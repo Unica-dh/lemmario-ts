@@ -1,5 +1,5 @@
 import { CollectionConfig } from 'payload/types'
-import { hasLemmarioAccess, canCreateInLemmario, public_ } from '../access'
+import { hasLemmarioAccess, canCreateInLemmario } from '../access'
 
 /**
  * Collection: Lemmi
@@ -167,29 +167,6 @@ export const Lemmi: CollectionConfig = {
     drafts: true,
     maxPerDoc: 20,
   },
-  // Indexes per performance
-  indexes: [
-    {
-      name: 'lemmario_termine_idx',
-      fields: {
-        lemmario: 1,
-        termine: 1,
-      },
-    },
-    {
-      name: 'lemmario_tipo_idx',
-      fields: {
-        lemmario: 1,
-        tipo: 1,
-      },
-    },
-    {
-      name: 'pubblicato_idx',
-      fields: {
-        pubblicato: 1,
-      },
-    },
-  ],
   // Hooks
   hooks: {
     beforeChange: [

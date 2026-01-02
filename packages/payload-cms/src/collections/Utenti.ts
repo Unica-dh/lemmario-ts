@@ -141,7 +141,7 @@ export const Utenti: CollectionConfig = {
       type: 'textarea',
       admin: {
         description: 'Note interne sull\'utente (visibili solo a super_admin)',
-        condition: (data, { user }) => user?.ruolo === 'super_admin',
+        condition: (_data, { user }) => user?.ruolo === 'super_admin',
       },
       access: {
         read: ({ req: { user } }) => user?.ruolo === 'super_admin',
@@ -152,15 +152,6 @@ export const Utenti: CollectionConfig = {
   timestamps: true,
   // Hooks
   hooks: {
-    beforeChange: [
-      ({ data, operation }) => {
-        // Previeni che un utente cambi il proprio ruolo
-        if (operation === 'update' && data.ruolo) {
-          console.log(`Tentativo di modificare ruolo utente: ${data.email}`)
-        }
-        return data
-      },
-    ],
     afterChange: [
       ({ doc, operation }) => {
         console.log(`Utente ${operation}: ${doc.email} (${doc.ruolo})`)

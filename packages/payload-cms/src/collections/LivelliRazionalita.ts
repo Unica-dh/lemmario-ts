@@ -57,16 +57,4 @@ export const LivelliRazionalita: CollectionConfig = {
     },
   ],
   timestamps: true,
-  indexes: [
-    {
-      name: 'lemmario_numero_idx',
-      fields: {
-        lemmario: 1,
-        numero: 1,
-      },
-      options: {
-        unique: true,
-      },
-    },
-  ],
 }

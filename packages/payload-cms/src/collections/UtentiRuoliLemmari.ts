@@ -144,19 +144,6 @@ export const UtentiRuoliLemmari: CollectionConfig = {
     },
   ],
   timestamps: true,
-  // Indexes per performance
-  indexes: [
-    {
-      name: 'utente_lemmario_idx',
-      fields: {
-        utente: 1,
-        lemmario: 1,
-      },
-      options: {
-        unique: true, // Un utente non può avere più ruoli sullo stesso lemmario
-      },
-    },
-  ],
   // Hooks
   hooks: {
     afterChange: [

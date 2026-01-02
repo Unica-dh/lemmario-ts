@@ -51,16 +51,4 @@ export const Definizioni: CollectionConfig = {
     },
   ],
   timestamps: true,
-  indexes: [
-    {
-      name: 'lemma_numero_idx',
-      fields: {
-        lemma: 1,
-        numero: 1,
-      },
-      options: {
-        unique: true,
-      },
-    },
-  ],
 }
