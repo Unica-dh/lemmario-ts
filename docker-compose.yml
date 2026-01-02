@@ -1,0 +1,78 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: lemmario_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_INITDB_ARGS: '--encoding=UTF8 --locale=it_IT.UTF-8'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/01-init.sql
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    networks:
+      - lemmario_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  payload:
+    build:
+      context: ./packages/payload-cms
+      dockerfile: Dockerfile
+    container_name: lemmario_payload
+    restart: unless-stopped
+    environment:
+      DATABASE_URI: postgres://${DB_USER}:${DB_PASSWORD}@postgres:5432/${DB_NAME}
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET}
+      PAYLOAD_PUBLIC_SERVER_URL: ${PAYLOAD_PUBLIC_SERVER_URL}
+      NODE_ENV: ${NODE_ENV:-development}
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - lemmario_network
+    volumes:
+      - ./packages/payload-cms:/app
+      - /app/node_modules
+      - payload_media:/app/media
+
+  frontend:
+    build:
+      context: ./packages/frontend
+      dockerfile: Dockerfile
+    container_name: lemmario_frontend
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+      NODE_ENV: ${NODE_ENV:-development}
+    ports:
+      - "3001:3000"
+    depends_on:
+      - payload
+    networks:
+      - lemmario_network
+    volumes:
+      - ./packages/frontend:/app
+      - /app/node_modules
+      - /app/.next
+
+volumes:
+  postgres_data:
+    driver: local
+  payload_media:
+    driver: local
+
+networks:
+  lemmario_network:
+    driver: bridge

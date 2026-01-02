@@ -1,0 +1,28 @@
+{
+  "name": "lemmario-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Lemmario Multi-Tenancy Platform with Payload CMS",
+  "scripts": {
+    "dev": "pnpm --filter \"./packages/*\" dev",
+    "dev:payload": "pnpm --filter @lemmario/payload-cms dev",
+    "dev:frontend": "pnpm --filter @lemmario/frontend dev",
+    "build": "pnpm --filter \"./packages/*\" build",
+    "build:payload": "pnpm --filter @lemmario/payload-cms build",
+    "build:frontend": "pnpm --filter @lemmario/frontend build",
+    "typecheck": "pnpm --filter \"./packages/*\" typecheck",
+    "lint": "pnpm --filter \"./packages/*\" lint",
+    "clean": "pnpm --filter \"./packages/*\" clean && rm -rf node_modules",
+    "db:migrate": "pnpm --filter @lemmario/payload-cms db:migrate",
+    "db:seed": "pnpm --filter @lemmario/payload-cms db:seed"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.1",
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "typescript": "^5.3.3"
+  }
+}

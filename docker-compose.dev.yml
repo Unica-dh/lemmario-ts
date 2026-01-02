@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  postgres:
+    ports:
+      - "5432:5432"
+
+  payload:
+    build:
+      context: ./packages/payload-cms
+      dockerfile: Dockerfile.dev
+    command: pnpm dev
+    volumes:
+      - ./packages/payload-cms:/app
+      - /app/node_modules
+    environment:
+      NODE_ENV: development
+
+  frontend:
+    build:
+      context: ./packages/frontend
+      dockerfile: Dockerfile.dev
+    command: pnpm dev
+    volumes:
+      - ./packages/frontend:/app
+      - /app/node_modules
+      - /app/.next
+    environment:
+      NODE_ENV: development
