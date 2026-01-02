@@ -25,8 +25,8 @@ services:
 
   payload:
     build:
-      context: ./packages/payload-cms
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./packages/payload-cms/Dockerfile
     container_name: lemmario_payload
     restart: unless-stopped
     environment:
@@ -42,14 +42,12 @@ services:
     networks:
       - lemmario_network
     volumes:
-      - ./packages/payload-cms:/app
-      - /app/node_modules
       - payload_media:/app/media
 
   frontend:
     build:
-      context: ./packages/frontend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ./packages/frontend/Dockerfile
     container_name: lemmario_frontend
     restart: unless-stopped
     environment:
@@ -62,10 +60,6 @@ services:
       - payload
     networks:
       - lemmario_network
-    volumes:
-      - ./packages/frontend:/app
-      - /app/node_modules
-      - /app/.next
 
 volumes:
   postgres_data:

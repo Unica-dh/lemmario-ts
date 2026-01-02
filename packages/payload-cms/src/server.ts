@@ -1,6 +1,7 @@
 import express from 'express'
 import payload from 'payload'
 import dotenv from 'dotenv'
+import config from './payload.config'
 
 // Load environment variables
 dotenv.config({ path: '../../.env' })
@@ -19,6 +20,7 @@ const start = async () => {
     await payload.init({
       secret: process.env.PAYLOAD_SECRET as string,
       express: app,
+      config,
       onInit: async () => {
         payload.logger.info(`Payload Admin URL: ${payload.getAdminURL()}`)
       },
@@ -30,7 +32,7 @@ const start = async () => {
       payload.logger.info(`Environment: ${process.env.NODE_ENV}`)
     })
   } catch (error) {
-    payload.logger.error('Error starting server:', error)
+    console.error('Error starting server:', error)
     process.exit(1)
   }
 }
