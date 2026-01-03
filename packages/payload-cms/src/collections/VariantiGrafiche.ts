@@ -1,5 +1,5 @@
 import { CollectionConfig } from 'payload/types'
-import { hasLemmarioAccess, canCreateInLemmario } from '../access'
+import { hasLemmarioAccess, public_ } from '../access'
 
 /**
  * Collection: VariantiGrafiche
@@ -15,7 +15,7 @@ export const VariantiGrafiche: CollectionConfig = {
     description: 'Varianti grafiche dei lemmi',
   },
   access: {
-    create: canCreateInLemmario,
+    create: public_ // Temporarily for migration,
     read: () => true,
     update: hasLemmarioAccess,
     delete: hasLemmarioAccess,

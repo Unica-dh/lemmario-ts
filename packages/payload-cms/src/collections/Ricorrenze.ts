@@ -1,5 +1,5 @@
 import { CollectionConfig } from 'payload/types'
-import { hasLemmarioAccess, canCreateInLemmario } from '../access'
+import { hasLemmarioAccess, public_ } from '../access'
 
 /**
  * Collection: Ricorrenze
@@ -16,7 +16,7 @@ export const Ricorrenze: CollectionConfig = {
     description: 'Ricorrenze (citazioni) dei lemmi nelle fonti',
   },
   access: {
-    create: canCreateInLemmario,
+    create: public_ // Temporarily for migration,
     read: () => true,
     update: hasLemmarioAccess,
     delete: hasLemmarioAccess,

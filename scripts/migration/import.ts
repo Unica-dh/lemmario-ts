@@ -61,15 +61,15 @@ async function importFonti() {
 
       let fonteId: number
 
-      if (existing.docs && existing.docs.length > 0) {
-        fonteId = existing.docs[0].id
+      if ((existing as any).docs && (existing as any).docs.length > 0) {
+        fonteId = (existing as any).docs[0].id
         console.log(`✓ Fonte già esistente: ${shorthandId} (ID: ${fonteId})`)
       } else {
         const result = await fetchPayload('/fonti', {
           method: 'POST',
           body: JSON.stringify(fonte),
         })
-        fonteId = result.doc.id
+        fonteId = (result as any).doc.id
         console.log(`✓ Fonte importata: ${shorthandId} (ID: ${fonteId})`)
         stats.fonti.imported++
       }
@@ -111,7 +111,7 @@ async function importLemmi() {
         `/lemmi?where[termine][equals]=${encodeURIComponent(parsedLemma.termine)}&where[tipo][equals]=${parsedLemma.tipo}&limit=1`
       )
 
-      if (existing.docs && existing.docs.length > 0) {
+      if ((existing as any).docs && (existing as any).docs.length > 0) {
         console.log(`✓ Lemma già esistente: ${parsedLemma.termine}`)
         continue
       }
@@ -130,7 +130,7 @@ async function importLemmi() {
         body: JSON.stringify(lemmaData),
       })
 
-      const lemmaId = lemmaResult.doc.id
+      const lemmaId = (lemmaResult as any).doc.id
       console.log(`✓ Lemma importato: ${parsedLemma.termine} (ID: ${lemmaId})`)
       stats.lemmi.imported++
 
@@ -164,7 +164,7 @@ async function importLemmi() {
             body: JSON.stringify(defData),
           })
 
-          const defId = defResult.doc.id
+          const defId = (defResult as any).doc.id
           stats.definizioni.imported++
 
           // Importa ricorrenze per questa definizione

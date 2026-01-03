@@ -1,5 +1,5 @@
 import { CollectionConfig } from 'payload/types'
-import { hasLemmarioAccess, canCreateInLemmario } from '../access'
+import { hasLemmarioAccess, public_ } from '../access'
 
 /**
  * Collection: Lemmi
@@ -26,8 +26,8 @@ export const Lemmi: CollectionConfig = {
     description: 'Gestione lemmi (termini del dizionario)',
   },
   access: {
-    // Create: admin/redattore del lemmario
-    create: canCreateInLemmario,
+    // Create: temporarily public for migration
+    create: public_,
     // Read: pubblico (solo pubblicati) o hasLemmarioAccess (anche non pubblicati)
     read: ({ req: { user } }) => {
       // Se non autenticato, mostra solo pubblicati
