@@ -1,6 +1,6 @@
-FROM node:20-alpine AS base
+FROM node:20-alpine
 
-# Install pnpm
+# Install pnpm and required tools
 RUN npm install -g pnpm@8.15.1
 
 # Set working directory
@@ -10,42 +10,17 @@ WORKDIR /app
 COPY pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY package.json ./
 COPY tsconfig.json ./
+COPY .env ./.env
 
 # Copy payload package
-COPY packages/payload-cms/package.json ./packages/payload-cms/
-
-# Install dependencies
-RUN pnpm install --frozen-lockfile
-
-# Copy source code
 COPY packages/payload-cms ./packages/payload-cms
 
-# Build
-WORKDIR /app/packages/payload-cms
-RUN pnpm build
-
-# Production stage
-FROM node:20-alpine
-
-RUN npm install -g pnpm@8.15.1
-
-WORKDIR /app
-
-# Copy package files for production dependencies
-COPY --from=base /app/pnpm-workspace.yaml ./
-COPY --from=base /app/pnpm-lock.yaml ./
-COPY --from=base /app/package.json ./
-COPY --from=base /app/packages/payload-cms/package.json ./packages/payload-cms/
-
-# Install production dependencies only
-RUN pnpm install --prod --frozen-lockfile
-
-# Copy built application
-COPY --from=base /app/packages/payload-cms/dist ./packages/payload-cms/dist
+# Install ALL dependencies (including dev for ts-node)
+RUN pnpm install --frozen-lockfile
 
 # Expose port
 EXPOSE 3000
 
-# Start server from the correct directory
+# Start server in development mode with ts-node
 WORKDIR /app/packages/payload-cms
-CMD ["node", "dist/server.js"]
+CMD ["pnpm", "dev"]

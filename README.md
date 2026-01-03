@@ -173,9 +173,28 @@ docker-compose up postgres -d   # Ricrea database da zero
 - [ ] Implementazione Collection Lemma
 - [ ] Implementazione altre 9 collections
 
+## Migrazione Dati Legacy
+
+Il progetto include script per importare i dati dal vecchio sito statico:
+
+```bash
+cd scripts
+API_URL=http://localhost:3000/api LEMMARIO_ID=2 pnpm migrate
+```
+
+La migrazione importa:
+
+- 83 fonti bibliografiche
+- 234 lemmi (italiano e latino)
+- Definizioni multiple per lemma
+- Ricorrenze (citazioni) con riferimenti alle fonti
+
+Per dettagli completi, vedi [docs/MIGRATION.md](docs/MIGRATION.md).
+
 ## Documentazione
 
 - [PIANO_IMPLEMENTAZIONE.md](PIANO_IMPLEMENTAZIONE.md) - Piano dettagliato 6 fasi
+- [docs/MIGRATION.md](docs/MIGRATION.md) - Guida alla migrazione dati legacy
 - [AGENT_E_SKILLS_GUIDE.md](AGENT_E_SKILLS_GUIDE.md) - Guida agent Claude Code
 - [Lemmario - Requisiti struttura dati - AGGIORNATO.md](Lemmario%20-%20Requisiti%20struttura%20dati%20-%20AGGIORNATO.md) - Specifiche entità (13 entità)
 - [CLAUDE.md](CLAUDE.md) - Overview progetto

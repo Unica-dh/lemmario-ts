@@ -1,5 +1,5 @@
 import { CollectionConfig } from 'payload/types'
-import { hasLemmarioAccess, canCreateInLemmario } from '../access'
+import { hasLemmarioAccess, public_ } from '../access'
 
 /**
  * Collection: Definizioni
@@ -16,7 +16,7 @@ export const Definizioni: CollectionConfig = {
     description: 'Definizioni dei lemmi',
   },
   access: {
-    create: canCreateInLemmario,
+    create: public_, // Temporarily for migration
     read: () => true,
     update: hasLemmarioAccess,
     delete: hasLemmarioAccess,
@@ -43,7 +43,7 @@ export const Definizioni: CollectionConfig = {
     },
     {
       name: 'testo',
-      type: 'richText',
+      type: 'textarea',
       required: true,
       admin: {
         description: 'Testo della definizione',
