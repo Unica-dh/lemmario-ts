@@ -4,6 +4,21 @@ import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 
+// Import all collections
+import {
+  Lemmari,
+  Utenti,
+  UtentiRuoliLemmari,
+  Lemmi,
+  VariantiGrafiche,
+  Definizioni,
+  Fonti,
+  Ricorrenze,
+  LivelliRazionalita,
+  RiferimentiIncrociati,
+  ContenutiStatici,
+} from './collections'
+
 export default buildConfig({
   serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3000',
   admin: {
@@ -16,7 +31,20 @@ export default buildConfig({
   },
   editor: lexicalEditor({}),
   collections: [
-    // Collections will be imported here in FASE 2
+    // Multi-Tenancy Collections
+    Lemmari,
+    Utenti,
+    UtentiRuoliLemmari,
+
+    // Content Collections
+    Lemmi,
+    VariantiGrafiche,
+    Definizioni,
+    Fonti,
+    Ricorrenze,
+    LivelliRazionalita,
+    RiferimentiIncrociati,
+    ContenutiStatici,
   ],
   globals: [
     // Global settings will be added here
@@ -29,8 +57,9 @@ export default buildConfig({
   },
   db: postgresAdapter({
     pool: {
-      connectionString: process.env.DATABASE_URI,
+      connectionString: String(process.env.DATABASE_URI),
     },
+    push: false,
   }),
   cors: [
     process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001',
