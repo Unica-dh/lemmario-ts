@@ -43,7 +43,7 @@ export const Definizioni: CollectionConfig = {
     },
     {
       name: 'testo',
-      type: 'richText',
+      type: 'textarea',
       required: true,
       admin: {
         description: 'Testo della definizione',

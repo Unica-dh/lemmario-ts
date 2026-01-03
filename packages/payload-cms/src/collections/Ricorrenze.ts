@@ -44,7 +44,7 @@ export const Ricorrenze: CollectionConfig = {
     },
     {
       name: 'testo_originale',
-      type: 'richText',
+      type: 'textarea',
       required: true,
       admin: {
         description: 'Testo originale dalla fonte (latino o volgare)',

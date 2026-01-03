@@ -111,28 +111,30 @@ async function importLemmi() {
         `/lemmi?where[termine][equals]=${encodeURIComponent(parsedLemma.termine)}&where[tipo][equals]=${parsedLemma.tipo}&limit=1`
       )
 
+      let lemmaId: number
+
       if ((existing as any).docs && (existing as any).docs.length > 0) {
-        console.log(`✓ Lemma già esistente: ${parsedLemma.termine}`)
-        continue
+        lemmaId = (existing as any).docs[0].id
+        console.log(`✓ Lemma già esistente: ${parsedLemma.termine} (ID: ${lemmaId})`)
+      } else {
+        // Crea il lemma
+        const lemmaData = {
+          termine: parsedLemma.termine,
+          tipo: parsedLemma.tipo,
+          slug: parsedLemma.slug,
+          lemmario: LEMMARIO_ID,
+          status: 'published',
+        }
+
+        const lemmaResult = await fetchPayload('/lemmi', {
+          method: 'POST',
+          body: JSON.stringify(lemmaData),
+        })
+
+        lemmaId = (lemmaResult as any).doc.id
+        console.log(`✓ Lemma importato: ${parsedLemma.termine} (ID: ${lemmaId})`)
+        stats.lemmi.imported++
       }
-
-      // Crea il lemma
-      const lemmaData = {
-        termine: parsedLemma.termine,
-        tipo: parsedLemma.tipo,
-        slug: parsedLemma.slug,
-        lemmario: LEMMARIO_ID,
-        status: 'published',
-      }
-
-      const lemmaResult = await fetchPayload('/lemmi', {
-        method: 'POST',
-        body: JSON.stringify(lemmaData),
-      })
-
-      const lemmaId = (lemmaResult as any).doc.id
-      console.log(`✓ Lemma importato: ${parsedLemma.termine} (ID: ${lemmaId})`)
-      stats.lemmi.imported++
 
       // Importa varianti grafiche
       for (const variante of parsedLemma.varianti) {
@@ -149,17 +151,16 @@ async function importLemmi() {
         }
       }
 
-      // Aggiungi delay per evitare rate limiting
-      await new Promise(resolve => setTimeout(resolve, 100))
+      // Aggiungi delay per evitare rate limiting (500ms per gestire limiti stringenti)
+      await new Promise(resolve => setTimeout(resolve, 500))
 
       // Importa definizioni e ricorrenze
       for (const def of parsedLemma.definizioni) {
         try {
           const defData = {
             lemma: lemmaId,
-            numero_definizione: def.numero,
+            numero: def.numero,
             testo: def.testo,
-            livello_razionalita: def.livello_razionalita,
           }
 
           const defResult = await fetchPayload('/definizioni', {
