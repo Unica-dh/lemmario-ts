@@ -1,0 +1,19 @@
+{
+  "name": "@lemmario/scripts",
+  "version": "1.0.0",
+  "description": "Migration and utility scripts for Lemmario",
+  "private": true,
+  "scripts": {
+    "migrate": "ts-node migration/import.ts",
+    "migrate:test": "API_URL=http://localhost:3000/api LEMMARIO_ID=2 ts-node migration/import.ts"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.12",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.27",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
