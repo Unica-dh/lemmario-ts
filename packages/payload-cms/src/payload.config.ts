@@ -21,6 +21,10 @@ import {
 
 export default buildConfig({
   serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3000',
+  rateLimit: {
+    max: 10000, // Aumentato per permettere migrazione
+    window: 60000, // 1 minuto
+  },
   admin: {
     bundler: webpackBundler(),
     meta: {

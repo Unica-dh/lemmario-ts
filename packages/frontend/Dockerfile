@@ -31,11 +31,18 @@ RUN npm install -g pnpm@8.15.1
 
 WORKDIR /app
 
+# Copy workspace files
+COPY --from=base /app/package.json ./
+COPY --from=base /app/pnpm-workspace.yaml ./
+
 # Copy built application
-COPY --from=base /app/packages/frontend/.next ./.next
-COPY --from=base /app/packages/frontend/public ./public
-COPY --from=base /app/packages/frontend/package.json ./
+COPY --from=base /app/packages/frontend/.next ./packages/frontend/.next
+COPY --from=base /app/packages/frontend/public ./packages/frontend/public
+COPY --from=base /app/packages/frontend/package.json ./packages/frontend/
 COPY --from=base /app/node_modules ./node_modules
+COPY --from=base /app/packages/frontend/node_modules ./packages/frontend/node_modules
+
+WORKDIR /app/packages/frontend
 
 # Expose port
 EXPOSE 3000
