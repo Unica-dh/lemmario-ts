@@ -25,7 +25,9 @@ export function parseLemmaHTML(html: string, termine: string, tipo: 'volgare' | 
     if (!defMatch) return
 
     const numero = parseInt(defMatch[1])
-    const testoDefinizione = defMatch[2].trim()
+    // Rimuovi HTML tags dal testo della definizione e decodifica entities
+    const $temp = cheerio.load(`<div>${defMatch[2]}</div>`)
+    const testoDefinizione = $temp.text().trim()
 
     // Estrai livello di razionalità
     let livello_razionalita: number | undefined
@@ -72,10 +74,20 @@ export function parseLemmaHTML(html: string, termine: string, tipo: 'volgare' | 
   // Converti le varianti in array
   const variantiArray = Array.from(varianti)
 
+  // Genera slug includendo il tipo per distinguere lemmi bilingue
+  const slugBase = termine
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove accents
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+
+  const slug = tipo === 'latino' ? `${slugBase}-lat` : slugBase
+
   return {
     termine,
     tipo,
-    slug: termine.toLowerCase().replace(/\s+/g, '-'),
+    slug,
     definizioni,
     varianti: variantiArray,
   }

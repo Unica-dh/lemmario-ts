@@ -149,14 +149,17 @@ async function importLemmi() {
         }
       }
 
+      // Aggiungi delay per evitare rate limiting
+      await new Promise(resolve => setTimeout(resolve, 100))
+
       // Importa definizioni e ricorrenze
       for (const def of parsedLemma.definizioni) {
         try {
           const defData = {
             lemma: lemmaId,
             numero_definizione: def.numero,
-            testo_definizione: def.testo,
-            contesto_uso: def.contesto,
+            testo: def.testo,
+            livello_razionalita: def.livello_razionalita,
           }
 
           const defResult = await fetchPayload('/definizioni', {

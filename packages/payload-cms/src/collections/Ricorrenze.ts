@@ -16,7 +16,7 @@ export const Ricorrenze: CollectionConfig = {
     description: 'Ricorrenze (citazioni) dei lemmi nelle fonti',
   },
   access: {
-    create: public_ // Temporarily for migration,
+    create: public_, // Temporarily for migration
     read: () => true,
     update: hasLemmarioAccess,
     delete: hasLemmarioAccess,
