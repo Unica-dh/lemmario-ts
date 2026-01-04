@@ -1,5 +1,6 @@
 import { CollectionConfig } from 'payload/types'
 import { hasLemmarioAccess, public_ } from '../access'
+import { createAuditTrail, createAuditTrailDelete } from '../hooks'
 
 /**
  * Collection: Lemmi
@@ -179,9 +180,13 @@ export const Lemmi: CollectionConfig = {
       },
     ],
     afterChange: [
+      createAuditTrail, // Traccia tutte le modifiche
       ({ doc, operation }) => {
         console.log(`Lemma ${operation}: ${doc.termine} (${doc.tipo}) - Lemmario: ${doc.lemmario}`)
       },
+    ],
+    afterDelete: [
+      createAuditTrailDelete, // Traccia eliminazioni
     ],
   },
 }

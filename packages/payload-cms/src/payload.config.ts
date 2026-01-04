@@ -17,6 +17,7 @@ import {
   LivelliRazionalita,
   RiferimentiIncrociati,
   ContenutiStatici,
+  StoricoModifiche,
 } from './collections'
 
 export default buildConfig({
@@ -49,6 +50,9 @@ export default buildConfig({
     LivelliRazionalita,
     RiferimentiIncrociati,
     ContenutiStatici,
+    
+    // System Collections
+    StoricoModifiche,
   ],
   globals: [
     // Global settings will be added here

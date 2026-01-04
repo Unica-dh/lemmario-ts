@@ -1,19 +1,20 @@
 import { CollectionConfig } from 'payload/types'
 import { hasLemmarioAccess, canCreateInLemmario } from '../access'
+import { createAuditTrail, createAuditTrailDelete, createBidirezionalita, deleteBidirezionalita } from '../hooks'
 
 /**
  * Collection: RiferimentiIncrociati
  *
  * Collegamenti tra lemmi (anche cross-lemmario).
- * Tipi: sinonimo, contrario, correlato, vedi_anche
+ * Gestisce automaticamente la bidirezionalità tramite hooks.
  */
 export const RiferimentiIncrociati: CollectionConfig = {
   slug: 'riferimenti-incrociati',
   admin: {
     useAsTitle: 'id',
-    defaultColumns: ['lemma_sorgente', 'tipo', 'lemma_destinazione'],
+    defaultColumns: ['lemma_origine', 'tipo_riferimento', 'lemma_destinazione', 'auto_creato'],
     group: 'Contenuti',
-    description: 'Collegamenti tra lemmi',
+    description: 'Collegamenti bidirezionali tra lemmi',
   },
   access: {
     create: canCreateInLemmario,
@@ -23,7 +24,7 @@ export const RiferimentiIncrociati: CollectionConfig = {
   },
   fields: [
     {
-      name: 'lemma_sorgente',
+      name: 'lemma_origine',
       type: 'relationship',
       relationTo: 'lemmi',
       required: true,
@@ -33,17 +34,11 @@ export const RiferimentiIncrociati: CollectionConfig = {
       },
     },
     {
-      name: 'tipo',
-      type: 'select',
+      name: 'tipo_riferimento',
+      type: 'text',
       required: true,
-      options: [
-        { label: 'Sinonimo', value: 'sinonimo' },
-        { label: 'Contrario', value: 'contrario' },
-        { label: 'Correlato', value: 'correlato' },
-        { label: 'Vedi anche', value: 'vedi_anche' },
-      ],
       admin: {
-        description: 'Tipo di relazione',
+        description: 'Tipo di riferimento (es. CFR, VEDI, VEDI ANCHE, sinonimo, contrario)',
       },
     },
     {
@@ -57,36 +52,31 @@ export const RiferimentiIncrociati: CollectionConfig = {
       },
     },
     {
-      name: 'bidirezionale',
-      type: 'checkbox',
-      defaultValue: true,
+      name: 'note',
+      type: 'textarea',
       admin: {
-        description: 'Se attivo, crea automaticamente il riferimento inverso',
+        description: 'Note aggiuntive sul riferimento',
+      },
+    },
+    {
+      name: 'auto_creato',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        description: 'Flag interno: indica se è stato creato automaticamente come riferimento inverso',
+        readOnly: true,
       },
     },
   ],
   timestamps: true,
   hooks: {
     afterChange: [
-      async ({ doc, operation, req }) => {
-        // Auto-create reverse reference if bidirezionale
-        if (operation === 'create' && doc.bidirezionale) {
-          try {
-            await req.payload.create({
-              collection: 'riferimenti-incrociati',
-              data: {
-                lemma_sorgente: doc.lemma_destinazione,
-                tipo: doc.tipo,
-                lemma_destinazione: doc.lemma_sorgente,
-                bidirezionale: false, // Prevent infinite loop
-              },
-            })
-            console.log(`Created reverse reference for ${doc.id}`)
-          } catch (error) {
-            console.error('Error creating reverse reference:', error)
-          }
-        }
-      },
+      createBidirezionalita, // Crea automaticamente riferimento inverso
+      createAuditTrail, // Traccia modifiche
+    ],
+    afterDelete: [
+      deleteBidirezionalita, // Elimina automaticamente riferimento inverso
+      createAuditTrailDelete, // Traccia eliminazioni
     ],
   },
 }
