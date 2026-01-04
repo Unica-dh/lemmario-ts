@@ -917,7 +917,7 @@ export function SearchBar({ lemmarioSlug }) {
 - [x] Configurare Frontend Next.js service
 - [x] Network isolation
 - [x] Health checks per tutti i servizi
-- [ ] Avviare stack: `docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d`
+- [ ] Avviare stack: `docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d`
 - [ ] Verificare connectivity tra servizi
 
 **Files:**
@@ -980,8 +980,8 @@ jobs:
           ssh -o StrictHostKeyChecking=no user@server << 'EOF'
             cd /path/to/lemmario_ts
             git pull origin main
-            docker-compose down
-            docker-compose up -d --build
+            docker compose down
+            docker compose up -d --build
           EOF
 ```
 
@@ -1246,7 +1246,7 @@ Suggerisco di creare questi **custom skills** per accelerare lo sviluppo:
 - ✅ GitHub Actions base
 
 **Criteri successo:**
-- `docker-compose up` avvia tutti i servizi
+- `docker compose up` avvia tutti i servizi
 - PostgreSQL accettabile connessioni
 - CI pipeline esegue lint e test
 

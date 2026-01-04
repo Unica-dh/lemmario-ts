@@ -75,19 +75,19 @@ cp .env.example .env.production
 
 ```bash
 # Avvia tutti i servizi in modalità development
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
 
 # Oppure singolarmente
-docker-compose up postgres -d        # Solo database
-docker-compose up payload -d         # Backend
-docker-compose up frontend -d        # Frontend
+docker compose up postgres -d        # Solo database
+docker compose up payload -d         # Backend
+docker compose up frontend -d        # Frontend
 ```
 
 ### 5. Avviare in locale (senza Docker)
 
 ```bash
 # Avvia solo PostgreSQL con Docker
-docker-compose up postgres -d
+docker compose up postgres -d
 
 # In un terminale - Backend
 cd packages/payload-cms
@@ -150,8 +150,8 @@ docker exec -it lemmario_db psql -U lemmario_user -d lemmario_db
 ### Reset database
 
 ```bash
-docker-compose down -v          # Rimuove containers e volumes
-docker-compose up postgres -d   # Ricrea database da zero
+docker compose down -v          # Rimuove containers e volumes
+docker compose up postgres -d   # Ricrea database da zero
 ```
 
 ## Stato Implementazione

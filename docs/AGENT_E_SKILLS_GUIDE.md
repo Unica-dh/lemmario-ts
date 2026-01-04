@@ -566,8 +566,8 @@ Steps:
    - Connetti a server via VPN
    - cd /path/to/lemmario_ts
    - git pull origin main
-   - docker-compose down
-   - docker-compose up -d --build
+   - docker compose down
+   - docker compose up -d --build
    - Health check (curl endpoints)
 4. Notifica success/failure (optional: Slack webhook)
 

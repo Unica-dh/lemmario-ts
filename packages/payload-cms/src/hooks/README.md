@@ -98,7 +98,7 @@ export const RiferimentiIncrociati: CollectionConfig = {
 
 1. Avvia Docker Compose:
    ```bash
-   docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+   docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
    ```
 
 2. Accedi all'admin panel: http://localhost:3000/admin
