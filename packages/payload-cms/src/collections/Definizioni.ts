@@ -1,7 +1,6 @@
 import { CollectionConfig } from 'payload/types'
 import { hasLemmarioAccess, public_ } from '../access'
 import { createAuditTrail, createAuditTrailDelete } from '../hooks'
-import { createAuditTrail, createAuditTrailDelete } from '../hooks'
 
 /**
  * Collection: Definizioni

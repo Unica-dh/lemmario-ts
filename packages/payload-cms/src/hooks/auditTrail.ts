@@ -41,7 +41,7 @@ export const createAuditTrail: CollectionAfterChangeHook = async ({
         record_id: doc.id,
         operazione: operation,
         dati_precedenti: operation === 'create' ? null : previousDoc,
-        dati_successivi: operation === 'delete' ? null : doc,
+        dati_successivi: doc,
         utente: req.user?.id || null,
         timestamp: new Date().toISOString(),
         ip_address: Array.isArray(ipAddress) ? ipAddress[0] : ipAddress,

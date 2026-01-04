@@ -125,9 +125,9 @@ export const deleteBidirezionalita: CollectionAfterDeleteHook = async ({ req, do
  */
 export const updateBidirezionalita: CollectionAfterChangeHook = async ({
   doc,
-  req,
+  // req,
   operation,
-  previousDoc,
+  // previousDoc,
 }) => {
   if (operation !== 'update') {
     return doc
