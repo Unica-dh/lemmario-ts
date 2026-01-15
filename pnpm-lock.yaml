@@ -84,6 +84,15 @@ importers:
       payload:
         specifier: ^2.8.0
         version: 2.32.3(@types/react@18.3.27)(esbuild@0.19.12)(typescript@5.9.3)(webpack@5.104.1)
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+      react-dom:
+        specifier: ^18.2.0
+        version: 18.3.1(react@18.3.1)
+      react-router-dom:
+        specifier: ^5.3.4
+        version: 5.3.4(react@18.3.1)
     devDependencies:
       '@types/express':
         specifier: ^4.17.21
@@ -91,6 +100,15 @@ importers:
       '@types/node':
         specifier: ^20.11.5
         version: 20.19.27
+      '@types/react':
+        specifier: ^18.2.48
+        version: 18.3.27
+      '@types/react-dom':
+        specifier: ^18.2.18
+        version: 18.3.7(@types/react@18.3.27)
+      '@types/react-router-dom':
+        specifier: ^5.3.3
+        version: 5.3.3
       '@typescript-eslint/eslint-plugin':
         specifier: ^6.19.0
         version: 6.21.0(@typescript-eslint/parser@6.21.0)(eslint@8.57.1)(typescript@5.9.3)
@@ -2369,6 +2387,10 @@ packages:
       '@types/serve-static': 1.15.10
     dev: true
 
+  /@types/history@4.7.11:
+    resolution: {integrity: sha512-qjDJRrmvBMiTx+jyLxvLfJU7UznFuokDv4f3WRuriHKERccVpFU+8XMQUAbDzoiJCsmexxRExQeMwwCdamSKDA==}
+    dev: true
+
   /@types/html-minifier-terser@6.1.0:
     resolution: {integrity: sha512-oh/6byDPnL1zeNXFrDXFLyZjkr1MsBG667IM792caf1L2UPOOMf65NFzjUH/ltyfwjAGfs1rsX1eftK0jC/KIg==}
     dev: false
@@ -2424,6 +2446,21 @@ packages:
     peerDependencies:
       '@types/react': ^18.0.0
     dependencies:
+      '@types/react': 18.3.27
+    dev: true
+
+  /@types/react-router-dom@5.3.3:
+    resolution: {integrity: sha512-kpqnYK4wcdm5UaWI3fLcELopqLrHgLqNsdpHauzlQktfkHL3npOSwtj1Uz9oKBAzs7lFtVkV8j83voAz2D8fhw==}
+    dependencies:
+      '@types/history': 4.7.11
+      '@types/react': 18.3.27
+      '@types/react-router': 5.1.20
+    dev: true
+
+  /@types/react-router@5.1.20:
+    resolution: {integrity: sha512-jGjmu/ZqS7FjSH6owMcD5qpq19+1RS9DeVRqfl1FeBMxTDQAGwlMWOcs52NDoXaNKyG3d1cYQFMs9rCrb88o9Q==}
+    dependencies:
+      '@types/history': 4.7.11
       '@types/react': 18.3.27
     dev: true
 

@@ -22,5 +22,5 @@ RUN pnpm rebuild sharp
 # Expose port
 EXPOSE 3000
 
-# Start dev server
-CMD ["pnpm", "dev"]
+# Start script: build prima di avviare dev server
+CMD ["sh", "-c", "cd /workspace/packages/payload-cms && pnpm build && pnpm dev"]
