@@ -53,7 +53,7 @@ export const useSync = ({ apiUrl = '/api' }: UseSyncOptions = {}) => {
 
       // 5. Carica riferimenti incrociati (solo non auto-creati)
       const rifRes = await fetch(
-        `${apiUrl}/riferimenti-incrociati?where[lemma_origine][equals]=${id}&where[auto_creato][equals]=false&depth=1`
+        `${apiUrl}/riferimenti-incrociati?where[lemma_sorgente][equals]=${id}&where[auto_creato][equals]=false&depth=1`
       )
       const rifData = await rifRes.json()
       dispatch({ type: 'SET_RIFERIMENTI', payload: rifData.docs || [] })
@@ -234,7 +234,7 @@ export const useSync = ({ apiUrl = '/api' }: UseSyncOptions = {}) => {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            lemma_origine: lemmaId,
+            lemma_sorgente: lemmaId,
             lemma_destinazione: rif.lemma_destinazione,
             tipo_riferimento: rif.tipo_riferimento,
             note: rif.note,

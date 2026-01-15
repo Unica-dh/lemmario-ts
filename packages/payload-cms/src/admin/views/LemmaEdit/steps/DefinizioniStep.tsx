@@ -18,9 +18,15 @@ export const DefinizioniStep: React.FC = () => {
   useEffect(() => {
     const loadOptions = async () => {
       try {
+        // Estrai l'ID del lemmario (può essere un numero o un oggetto relazionale)
+        const lemmarioId =
+          typeof lemma?.lemmario === 'object' && lemma.lemmario !== null
+            ? (lemma.lemmario as any).id
+            : lemma?.lemmario
+
         const [fontiRes, livelliRes] = await Promise.all([
           fetch('/api/fonti?limit=1000'),
-          fetch(`/api/livelli-razionalita?where[lemmario][equals]=${lemma?.lemmario}&limit=100`),
+          fetch(`/api/livelli-razionalita?where[lemmario][equals]=${lemmarioId}&limit=100`),
         ])
 
         const fontiData = await fontiRes.json()
