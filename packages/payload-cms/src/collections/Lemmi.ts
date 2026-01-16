@@ -1,5 +1,7 @@
 import { CollectionConfig } from 'payload/types'
 import { hasLemmarioAccess, public_ } from '../access'
+import { createAuditTrail, createAuditTrailDelete } from '../hooks'
+import LemmaEditView from '../admin/views/LemmaEdit'
 
 /**
  * Collection: Lemmi
@@ -24,6 +26,12 @@ export const Lemmi: CollectionConfig = {
     defaultColumns: ['termine', 'tipo', 'lemmario', 'pubblicato', 'updatedAt'],
     group: 'Contenuti',
     description: 'Gestione lemmi (termini del dizionario)',
+    // Custom edit view per form multi-step integrato
+    components: {
+      views: {
+        Edit: LemmaEditView,
+      },
+    },
   },
   access: {
     // Create: temporarily public for migration
@@ -179,9 +187,13 @@ export const Lemmi: CollectionConfig = {
       },
     ],
     afterChange: [
+      createAuditTrail, // Traccia tutte le modifiche
       ({ doc, operation }) => {
         console.log(`Lemma ${operation}: ${doc.termine} (${doc.tipo}) - Lemmario: ${doc.lemmario}`)
       },
+    ],
+    afterDelete: [
+      createAuditTrailDelete, // Traccia eliminazioni
     ],
   },
 }

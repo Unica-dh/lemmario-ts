@@ -1,5 +1,6 @@
 import { CollectionConfig } from 'payload/types'
 import { hasLemmarioAccess, public_ } from '../access'
+import { createAuditTrail, createAuditTrailDelete } from '../hooks'
 
 /**
  * Collection: Definizioni
@@ -51,4 +52,8 @@ export const Definizioni: CollectionConfig = {
     },
   ],
   timestamps: true,
+  hooks: {
+    afterChange: [createAuditTrail],
+    afterDelete: [createAuditTrailDelete],
+  },
 }

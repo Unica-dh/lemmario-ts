@@ -1,5 +1,6 @@
 import { CollectionConfig } from 'payload/types'
 import { authenticated, public_ } from '../access'
+import { createAuditTrail, createAuditTrailDelete } from '../hooks'
 
 /**
  * Collection: Fonti
@@ -70,4 +71,8 @@ export const Fonti: CollectionConfig = {
     },
   ],
   timestamps: true,
+  hooks: {
+    afterChange: [createAuditTrail],
+    afterDelete: [createAuditTrailDelete],
+  },
 }

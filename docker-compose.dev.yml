@@ -7,23 +7,34 @@ services:
 
   payload:
     build:
-      context: ./packages/payload-cms
-      dockerfile: Dockerfile.dev
+      context: .
+      dockerfile: packages/payload-cms/Dockerfile.dev
     command: pnpm dev
+    working_dir: /workspace/packages/payload-cms
     volumes:
-      - ./packages/payload-cms:/app
-      - /app/node_modules
+      - ./packages/payload-cms/src:/workspace/packages/payload-cms/src
+      - ./packages/payload-cms/nodemon.json:/workspace/packages/payload-cms/nodemon.json
+      - ./packages/payload-cms/tsconfig.json:/workspace/packages/payload-cms/tsconfig.json
+      - ./tsconfig.json:/workspace/tsconfig.json
+      - ./pnpm-workspace.yaml:/workspace/pnpm-workspace.yaml
     environment:
       NODE_ENV: development
 
   frontend:
     build:
-      context: ./packages/frontend
-      dockerfile: Dockerfile.dev
+      context: .
+      dockerfile: packages/frontend/Dockerfile.dev
     command: pnpm dev
+    working_dir: /workspace/packages/frontend
     volumes:
-      - ./packages/frontend:/app
-      - /app/node_modules
-      - /app/.next
+      - ./packages/frontend/src:/workspace/packages/frontend/src
+      - ./packages/frontend/public:/workspace/packages/frontend/public
+      - ./packages/frontend/next.config.js:/workspace/packages/frontend/next.config.js
+      - ./packages/frontend/tailwind.config.ts:/workspace/packages/frontend/tailwind.config.ts
+      - ./packages/frontend/tsconfig.json:/workspace/packages/frontend/tsconfig.json
+      - ./packages/frontend/postcss.config.mjs:/workspace/packages/frontend/postcss.config.mjs
+      - ./tsconfig.json:/workspace/tsconfig.json
+      - ./pnpm-workspace.yaml:/workspace/pnpm-workspace.yaml
     environment:
       NODE_ENV: development
+      NEXT_PUBLIC_API_URL: http://payload:3000/api

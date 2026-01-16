@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 
 interface PageProps {
   params: {
-    slug: string
+    'lemmario-slug': string
   }
   searchParams: {
     page?: string
@@ -17,7 +17,7 @@ interface PageProps {
 }
 
 export default async function LemmarioPage({ params, searchParams }: PageProps) {
-  const lemmario = await getLemmarioBySlug(params.slug)
+  const lemmario = await getLemmarioBySlug(params['lemmario-slug'])
 
   if (!lemmario) {
     notFound()

@@ -4,11 +4,20 @@ FROM node:20-alpine
 RUN npm install -g pnpm@8.15.1
 
 # Set working directory
-WORKDIR /app
+WORKDIR /workspace
 
-# Install dependencies
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install
+# Copy workspace files for pnpm
+COPY pnpm-workspace.yaml package.json pnpm-lock.yaml ./
+COPY packages/payload-cms/package.json ./packages/payload-cms/
+
+# Install all dependencies
+RUN pnpm install --frozen-lockfile
+
+# Rebuild native modules for Alpine Linux
+RUN pnpm rebuild sharp
+
+# In dev mode, code is mounted from host via volumes
+# Working dir will be set to /workspace/packages/payload-cms by docker-compose
 
 # Expose port
 EXPOSE 3000
