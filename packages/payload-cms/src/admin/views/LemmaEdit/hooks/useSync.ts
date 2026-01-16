@@ -52,13 +52,23 @@ export const useSync = ({ apiUrl = '/api' }: UseSyncOptions = {}) => {
       dispatch({ type: 'SET_VARIANTI', payload: varData.docs || [] })
 
       // 5. Carica riferimenti incrociati (solo non auto-creati)
-      const rifRes = await fetch(
-        `${apiUrl}/riferimenti-incrociati?where[lemma_sorgente][equals]=${id}&depth=1`
-      )
-      const rifData = await rifRes.json()
-      // Filtra lato client solo quelli non auto-creati
-      const riferimenti = (rifData.docs || []).filter((r: any) => !r.auto_creato)
-      dispatch({ type: 'SET_RIFERIMENTI', payload: riferimenti })
+      try {
+        const rifRes = await fetch(
+          `${apiUrl}/riferimenti-incrociati?where[lemma_sorgente][equals]=${id}&depth=1`
+        )
+        if (rifRes.ok) {
+          const rifData = await rifRes.json()
+          // Filtra lato client solo quelli non auto-creati
+          const riferimenti = (rifData.docs || []).filter((r: any) => !r.auto_creato)
+          dispatch({ type: 'SET_RIFERIMENTI', payload: riferimenti })
+        } else {
+          console.warn('Errore caricamento riferimenti:', rifRes.status)
+          dispatch({ type: 'SET_RIFERIMENTI', payload: [] })
+        }
+      } catch (err) {
+        console.error('Errore fetch riferimenti:', err)
+        dispatch({ type: 'SET_RIFERIMENTI', payload: [] })
+      }
 
       dispatch({ type: 'SET_LOADING', payload: false })
     } catch (error: any) {
