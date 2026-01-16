@@ -53,10 +53,12 @@ export const useSync = ({ apiUrl = '/api' }: UseSyncOptions = {}) => {
 
       // 5. Carica riferimenti incrociati (solo non auto-creati)
       const rifRes = await fetch(
-        `${apiUrl}/riferimenti-incrociati?where[lemma_sorgente][equals]=${id}&where[auto_creato][equals]=false&depth=1`
+        `${apiUrl}/riferimenti-incrociati?where[lemma_sorgente][equals]=${id}&depth=1`
       )
       const rifData = await rifRes.json()
-      dispatch({ type: 'SET_RIFERIMENTI', payload: rifData.docs || [] })
+      // Filtra lato client solo quelli non auto-creati
+      const riferimenti = (rifData.docs || []).filter((r: any) => !r.auto_creato)
+      dispatch({ type: 'SET_RIFERIMENTI', payload: riferimenti })
 
       dispatch({ type: 'SET_LOADING', payload: false })
     } catch (error: any) {
