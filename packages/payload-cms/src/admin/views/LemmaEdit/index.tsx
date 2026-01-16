@@ -206,17 +206,33 @@ if (typeof document !== 'undefined') {
     const style = document.createElement('style')
     style.id = styleId
     style.textContent = `
+      /* Layout */
       .lemma-edit-view { padding: 2rem; max-width: 1400px; margin: 0 auto; }
+      
+      /* Header */
       .edit-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid #e0e0e0; }
       .header-left h1 { font-size: 1.75rem; margin: 0 0 0.5rem 0; color: #333; }
       .status-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; font-weight: 600; }
       .status-badge.saved { background: #d4edda; color: #155724; }
       .status-badge.unsaved { background: #fff3cd; color: #856404; }
       .header-actions { display: flex; gap: 1rem; }
-      .btn-cancel { background: #6c757d; color: white; padding: 0.5rem 1.25rem; border: none; border-radius: 4px; cursor: pointer; }
-      .btn-save, .btn-save-final { background: #28a745; color: white; padding: 0.5rem 1.25rem; border: none; border-radius: 4px; cursor: pointer; }
+      
+      /* Buttons */
+      button { padding: 0.5rem 1.25rem; border: none; border-radius: 4px; cursor: pointer; font-size: 0.95rem; font-weight: 500; transition: all 0.2s; }
+      .btn-cancel { background: #6c757d; color: white; }
+      .btn-cancel:hover:not(:disabled) { background: #5a6268; }
+      .btn-save, .btn-save-final { background: #28a745; color: white; }
+      .btn-save:hover:not(:disabled), .btn-save-final:hover:not(:disabled) { background: #218838; }
+      .btn-add, .btn-add-def, .btn-add-ricorrenza, .btn-add-rif, .btn-add-variante { background: #007bff; color: white; margin-top: 1rem; }
+      .btn-add:hover, .btn-add-def:hover, .btn-add-ricorrenza:hover, .btn-add-rif:hover, .btn-add-variante:hover { background: #0056b3; }
+      .btn-delete, .btn-delete-def, .btn-delete-ric, .btn-delete-rif { background: #dc3545; color: white; padding: 0.4rem 0.8rem; font-size: 0.85rem; }
+      .btn-delete:hover, .btn-delete-def:hover, .btn-delete-ric:hover, .btn-delete-rif:hover { background: #c82333; }
       button:disabled { opacity: 0.5; cursor: not-allowed; }
+      
+      /* Banners */
       .error-banner { background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 1rem; margin-bottom: 1rem; border-radius: 4px; }
+      
+      /* Tabs */
       .tabs-header { display: flex; gap: 8px; border-bottom: 2px solid #e0e0e0; margin-bottom: 2rem; }
       .tab-button { display: flex; align-items: center; gap: 8px; padding: 12px 20px; background: transparent; border: none; border-bottom: 3px solid transparent; cursor: pointer; font-size: 14px; font-weight: 500; color: #666; transition: all 0.2s; position: relative; bottom: -2px; }
       .tab-button:hover:not(:disabled) { color: #333; background: #f5f5f5; }
@@ -224,15 +240,76 @@ if (typeof document !== 'undefined') {
       .tab-number { display: flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: #e0e0e0; color: #666; font-size: 12px; font-weight: bold; }
       .tab-button.active .tab-number { background: #0066cc; color: white; }
       .tab-content { padding: 20px 0; }
+      
+      /* Form Base */
       .form-group { margin-bottom: 1.5rem; }
       .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #333; }
       .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid #ced4da; border-radius: 4px; font-size: 1rem; }
       .form-group textarea { min-height: 100px; resize: vertical; }
+      .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #0066cc; box-shadow: 0 0 0 3px rgba(0,102,204,0.1); }
+      .form-group small { display: block; margin-top: 0.25rem; color: #6c757d; font-size: 0.875rem; }
+      .required { color: #dc3545; }
+      .description { color: #6c757d; margin-bottom: 1.5rem; }
+      .empty-state { color: #6c757d; font-style: italic; padding: 2rem; text-align: center; background: #f8f9fa; border-radius: 4px; }
+      
+      /* Varianti Step */
+      .varianti-list { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1rem; }
+      .variante-item { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 1.25rem; display: flex; gap: 1rem; align-items: flex-start; }
+      .variante-input { flex: 1; }
+      .variante-input input { width: 100%; padding: 0.75rem; border: 1px solid #ced4da; border-radius: 4px; }
+      .variante-note { flex: 2; }
+      .variante-note input { width: 100%; padding: 0.75rem; border: 1px solid #ced4da; border-radius: 4px; }
+      .add-variante-form { background: #fff; padding: 1rem; border: 1px dashed #ced4da; border-radius: 4px; margin-bottom: 1rem; }
+      .add-variante-form input { width: 100%; padding: 0.75rem; border: 1px solid #ced4da; border-radius: 4px; margin-bottom: 0.5rem; }
+      
+      /* Definizioni Step */
+      .definizioni-list { display: flex; flex-direction: column; gap: 1.5rem; margin-bottom: 1rem; }
+      .definizione-card { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 1.25rem; }
+      .def-header { display: flex; gap: 1rem; align-items: center; margin-bottom: 1rem; }
+      .def-number { background: #0066cc; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-weight: bold; font-size: 0.85rem; }
+      .def-testo { flex: 1; padding: 0.75rem; border: 1px solid #ced4da; border-radius: 4px; }
+      
+      /* Ricorrenze (nested in Definizioni) */
+      .ricorrenze-section { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px dashed #ced4da; }
+      .ricorrenze-section h4 { margin: 0 0 1rem 0; font-size: 1rem; color: #6c757d; }
+      .ricorrenza-item { background: #ffffff; border: 1px solid #ced4da; border-radius: 4px; padding: 1rem; margin-bottom: 0.75rem; }
+      .ric-row { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+      .ric-row.full-width { grid-template-columns: 1fr; }
+      .ric-field label { display: block; margin-bottom: 0.25rem; font-weight: 500; font-size: 0.9rem; }
+      .ric-field input, .ric-field select, .ric-field textarea { width: 100%; padding: 0.5rem; border: 1px solid #ced4da; border-radius: 4px; font-size: 0.9rem; }
+      .ric-field.full-width textarea { min-height: 80px; }
+      .ric-actions { display: flex; justify-content: flex-end; }
+      
+      /* Riferimenti Step */
+      .riferimenti-list { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1rem; }
+      .riferimento-item { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 1.25rem; }
+      .rif-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+      .rif-row.full-width { grid-template-columns: 1fr; }
+      .rif-field label { display: block; margin-bottom: 0.25rem; font-weight: 500; font-size: 0.9rem; }
+      .rif-field input, .rif-field select, .rif-field textarea { width: 100%; padding: 0.75rem; border: 1px solid #ced4da; border-radius: 4px; }
+      .rif-field.full-width textarea { min-height: 60px; }
+      .rif-actions { display: flex; justify-content: flex-end; gap: 0.5rem; align-items: center; }
+      .badge-auto { background: #17a2b8; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; }
+      .info-box { background: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 4px; padding: 1rem; margin-top: 1rem; }
+      .info-box strong { color: #004085; }
+      
+      /* Footer */
       .edit-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; padding-top: 1rem; border-top: 2px solid #e0e0e0; }
+      .footer-info { color: #6c757d; font-size: 0.9rem; }
       .footer-actions { display: flex; gap: 1rem; }
+      
+      /* Loading */
       .loading-container { text-align: center; padding: 3rem 1rem; }
       .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #0066cc; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
       @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      
+      /* Responsive */
+      @media (max-width: 768px) {
+        .lemma-edit-view { padding: 1rem; }
+        .edit-header, .edit-footer { flex-direction: column; gap: 1rem; }
+        .ric-row, .rif-row { grid-template-columns: 1fr; }
+        .variante-item { flex-direction: column; }
+      }
     `
     document.head.appendChild(style)
   }
