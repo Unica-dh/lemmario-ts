@@ -16,6 +16,10 @@ import { CollectionConfig } from 'payload/types'
  */
 export const UtentiRuoliLemmari: CollectionConfig = {
   slug: 'utenti-ruoli-lemmari',
+  labels: {
+    singular: 'Utente Ruolo Lemmario',
+    plural: 'Utenti Ruoli Lemmari',
+  },
   admin: {
     useAsTitle: 'id',
     defaultColumns: ['utente', 'lemmario', 'ruolo', 'data_assegnazione'],

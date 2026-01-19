@@ -10,6 +10,10 @@ import { createAuditTrail, createAuditTrailDelete } from '../hooks'
  */
 export const Fonti: CollectionConfig = {
   slug: 'fonti',
+  labels: {
+    singular: 'Fonte',
+    plural: 'Fonti',
+  },
   admin: {
     useAsTitle: 'titolo',
     defaultColumns: ['shorthand_id', 'titolo', 'autore', 'anno'],

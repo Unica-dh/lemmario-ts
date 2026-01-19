@@ -10,6 +10,10 @@ import { createAuditTrail, createAuditTrailDelete } from '../hooks'
  */
 export const Definizioni: CollectionConfig = {
   slug: 'definizioni',
+  labels: {
+    singular: 'Definizione',
+    plural: 'Definizioni',
+  },
   admin: {
     useAsTitle: 'testo',
     defaultColumns: ['lemma', 'numero', 'testo'],

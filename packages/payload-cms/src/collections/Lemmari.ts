@@ -13,6 +13,10 @@ import { CollectionConfig } from 'payload/types'
  */
 export const Lemmari: CollectionConfig = {
   slug: 'lemmari',
+  labels: {
+    singular: 'Lemmario',
+    plural: 'Lemmari',
+  },
   admin: {
     useAsTitle: 'titolo',
     defaultColumns: ['titolo', 'slug', 'attivo', 'periodo_storico', 'data_pubblicazione'],

@@ -9,6 +9,10 @@ import { adminOnly } from '../access'
  */
 export const ContenutiStatici: CollectionConfig = {
   slug: 'contenuti-statici',
+  labels: {
+    singular: 'Contenuto Statico',
+    plural: 'Contenuti Statici',
+  },
   admin: {
     useAsTitle: 'titolo',
     defaultColumns: ['titolo', 'slug', 'lemmario', 'pubblicato'],

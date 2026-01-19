@@ -10,6 +10,10 @@ import { createAuditTrail, createAuditTrailDelete, createBidirezionalita, delete
  */
 export const RiferimentiIncrociati: CollectionConfig = {
   slug: 'riferimenti-incrociati',
+  labels: {
+    singular: 'Riferimento Incrociato',
+    plural: 'Riferimenti Incrociati',
+  },
   admin: {
     useAsTitle: 'id',
     defaultColumns: ['lemma_origine', 'tipo_riferimento', 'lemma_destinazione', 'auto_creato'],

@@ -20,6 +20,9 @@ import {
   StoricoModifiche,
 } from './collections'
 
+// Import Italian translations
+import itTranslations from './translations/it.json'
+
 export default buildConfig({
   serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3000',
   rateLimit: {
@@ -32,6 +35,13 @@ export default buildConfig({
       titleSuffix: '- Lemmario CMS',
       favicon: '/favicon.ico',
       ogImage: '/og-image.jpg',
+    },
+  },
+  i18n: {
+    fallbackLng: 'it',
+    supportedLngs: ['it'],
+    resources: {
+      it: itTranslations,
     },
   },
   editor: lexicalEditor({}),
