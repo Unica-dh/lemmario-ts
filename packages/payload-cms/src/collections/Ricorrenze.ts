@@ -9,6 +9,10 @@ import { hasLemmarioAccess, public_ } from '../access'
  */
 export const Ricorrenze: CollectionConfig = {
   slug: 'ricorrenze',
+  labels: {
+    singular: 'Ricorrenza',
+    plural: 'Ricorrenze',
+  },
   admin: {
     useAsTitle: 'id',
     defaultColumns: ['definizione', 'fonte', 'pagina'],

@@ -8,6 +8,10 @@ import { hasLemmarioAccess, public_ } from '../access'
  */
 export const VariantiGrafiche: CollectionConfig = {
   slug: 'varianti-grafiche',
+  labels: {
+    singular: 'Variante Grafica',
+    plural: 'Varianti Grafiche',
+  },
   admin: {
     useAsTitle: 'variante',
     defaultColumns: ['variante', 'lemma', 'priorita'],

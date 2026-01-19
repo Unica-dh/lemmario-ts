@@ -9,6 +9,10 @@ import { hasLemmarioAccess } from '../access'
  */
 export const LivelliRazionalita: CollectionConfig = {
   slug: 'livelli-razionalita',
+  labels: {
+    singular: 'Livello di Razionalità',
+    plural: 'Livelli di Razionalità',
+  },
   admin: {
     useAsTitle: 'nome',
     defaultColumns: ['lemmario', 'numero', 'nome'],

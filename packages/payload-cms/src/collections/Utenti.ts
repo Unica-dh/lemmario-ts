@@ -20,6 +20,10 @@ import { CollectionConfig } from 'payload/types'
  */
 export const Utenti: CollectionConfig = {
   slug: 'utenti',
+  labels: {
+    singular: 'Utente',
+    plural: 'Utenti',
+  },
   auth: {
     // Abilita autenticazione built-in di Payload
     tokenExpiration: 7200, // 2 ore

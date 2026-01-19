@@ -21,6 +21,10 @@ import LemmaEditView from '../admin/views/LemmaEdit'
  */
 export const Lemmi: CollectionConfig = {
   slug: 'lemmi',
+  labels: {
+    singular: 'Lemma',
+    plural: 'Lemmi',
+  },
   admin: {
     useAsTitle: 'termine',
     defaultColumns: ['termine', 'tipo', 'lemmario', 'pubblicato', 'updatedAt'],

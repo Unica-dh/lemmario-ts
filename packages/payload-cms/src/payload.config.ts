@@ -34,6 +34,29 @@ export default buildConfig({
       ogImage: '/og-image.jpg',
     },
   },
+  i18n: {
+    fallbackLng: 'it',
+    supportedLngs: ['it'],
+    resources: {
+      it: {
+        general: {
+          'createNew': 'Crea Nuovo',
+          'columns': 'Colonne',
+          'filters': 'Filtri',
+          'search': 'Cerca',
+          'searchBy': 'Cerca per {{label}}',
+        },
+        fields: {
+          'updatedAt': 'Aggiornato il',
+          'createdAt': 'Creato il',
+        },
+        version: {
+          'published': 'Pubblicato',
+          'draft': 'Bozza',
+        },
+      },
+    },
+  },
   editor: lexicalEditor({}),
   collections: [
     // Multi-Tenancy Collections

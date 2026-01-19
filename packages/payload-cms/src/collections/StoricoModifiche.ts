@@ -9,6 +9,10 @@ import { authenticated } from '../access'
  */
 export const StoricoModifiche: CollectionConfig = {
   slug: 'storico-modifiche',
+  labels: {
+    singular: 'Storico Modifica',
+    plural: 'Storico Modifiche',
+  },
   admin: {
     useAsTitle: 'record_id',
     defaultColumns: ['tabella', 'operazione', 'utente', 'timestamp'],
@@ -49,9 +53,9 @@ export const StoricoModifiche: CollectionConfig = {
       type: 'select',
       required: true,
       options: [
-        { label: 'CREATE', value: 'create' },
-        { label: 'UPDATE', value: 'update' },
-        { label: 'DELETE', value: 'delete' },
+        { label: 'Creazione', value: 'create' },
+        { label: 'Modifica', value: 'update' },
+        { label: 'Eliminazione', value: 'delete' },
       ],
       admin: {
         description: 'Tipo di operazione effettuata',
