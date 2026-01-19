@@ -20,6 +20,9 @@ import {
   StoricoModifiche,
 } from './collections'
 
+// Import Italian translations
+import itTranslations from './translations/it.json'
+
 export default buildConfig({
   serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3000',
   rateLimit: {
@@ -38,68 +41,7 @@ export default buildConfig({
     fallbackLng: 'it',
     supportedLngs: ['it'],
     resources: {
-      it: {
-        general: {
-          'createNew': 'Crea Nuovo',
-          'create': 'Crea',
-          'columns': 'Colonne',
-          'filters': 'Filtri',
-          'filter': 'Filtra',
-          'search': 'Cerca',
-          'searchBy': 'Cerca per {{label}}',
-          'sortBy': 'Ordina per {{label}}',
-          'loading': 'Caricamento',
-          'noResults': 'Nessun risultato trovato',
-          'rows': 'righe',
-          'of': 'di',
-          'page': 'Pagina',
-          'nextPage': 'Pagina successiva',
-          'prevPage': 'Pagina precedente',
-          'showing': 'Mostrando',
-          'to': 'a',
-          'edit': 'Modifica',
-          'delete': 'Elimina',
-          'duplicate': 'Duplica',
-          'save': 'Salva',
-          'saving': 'Salvataggio',
-          'cancel': 'Annulla',
-          'close': 'Chiudi',
-          'confirm': 'Conferma',
-          'dashboard': 'Dashboard',
-          'logout': 'Esci',
-          'logOut': 'Esci',
-          'account': 'Account',
-          'profile': 'Profilo',
-        },
-        fields: {
-          'updatedAt': 'Aggiornato il',
-          'createdAt': 'Creato il',
-          'id': 'ID',
-        },
-        version: {
-          'published': 'Pubblicato',
-          'draft': 'Bozza',
-          'autosave': 'Salvataggio automatico',
-        },
-        authentication: {
-          'loggedIn': 'Accesso effettuato',
-          'loggedOut': 'Disconnesso',
-          'loginUser': 'Accedi',
-          'username': 'Nome utente',
-          'emailAddress': 'Indirizzo email',
-          'password': 'Password',
-          'newPassword': 'Nuova password',
-          'confirmPassword': 'Conferma password',
-          'forgotPassword': 'Password dimenticata?',
-          'resetPassword': 'Reimposta password',
-          'createFirstUser': 'Crea il primo utente',
-        },
-        validation: {
-          'required': 'Questo campo è obbligatorio',
-          'emailAddress': "Inserisci un indirizzo email valido",
-          'invalidSelection': 'La selezione contiene uno o più valori non validi',
-        },
-      },
+      it: itTranslations,
     },
   },
   editor: lexicalEditor({}),
