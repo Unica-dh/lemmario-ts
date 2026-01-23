@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { useParams, useHistory } from 'react-router-dom'
 import { LemmaEditProvider, useLemmaEdit } from './context'
 import { useSync } from './hooks'
-import { StepTabs } from './components'
+import { StepTabs, AnteprimaLemma } from './components'
 import { BaseStep, VariantiStep, DefinizioniStep, RiferimentiStep } from './steps'
 
 /**
@@ -136,9 +136,14 @@ const LemmaEditContent: React.FC = () => {
         </div>
       )}
 
-      {/* Multi-step form */}
-      <div className="edit-content">
-        <StepTabs steps={steps} />
+      {/* Multi-step form + Sidebar Anteprima */}
+      <div className="edit-content-wrapper">
+        <div className="edit-content">
+          <StepTabs steps={steps} />
+        </div>
+        <aside className="sidebar-anteprima">
+          <AnteprimaLemma />
+        </aside>
       </div>
 
       {/* Footer */}
@@ -207,7 +212,10 @@ if (typeof document !== 'undefined') {
     style.id = styleId
     style.textContent = `
       /* Layout */
-      .lemma-edit-view { padding: 2rem; max-width: 1400px; margin: 0 auto; }
+      .lemma-edit-view { padding: 2rem; max-width: 1800px; margin: 0 auto; }
+      .edit-content-wrapper { display: grid; grid-template-columns: 1fr 400px; gap: 24px; margin-top: 2rem; }
+      .edit-content { flex: 1; min-width: 0; }
+      .sidebar-anteprima { position: sticky; top: 20px; height: calc(100vh - 200px); overflow-y: auto; }
       
       /* Header */
       .edit-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid #e0e0e0; }
@@ -304,6 +312,10 @@ if (typeof document !== 'undefined') {
       @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
       
       /* Responsive */
+      @media (max-width: 1200px) {
+        .edit-content-wrapper { grid-template-columns: 1fr; }
+        .sidebar-anteprima { display: none; }
+      }
       @media (max-width: 768px) {
         .lemma-edit-view { padding: 1rem; }
         .edit-header, .edit-footer { flex-direction: column; gap: 1rem; }

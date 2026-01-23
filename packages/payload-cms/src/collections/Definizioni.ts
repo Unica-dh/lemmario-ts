@@ -54,6 +54,15 @@ export const Definizioni: CollectionConfig = {
         description: 'Testo della definizione',
       },
     },
+    {
+      name: 'livello_razionalita',
+      type: 'relationship',
+      relationTo: 'livelli-razionalita',
+      hasMany: false,
+      admin: {
+        description: 'Livello di razionalità del concetto matematico (1-6)',
+      },
+    },
   ],
   timestamps: true,
   hooks: {

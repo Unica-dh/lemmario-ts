@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useLemmaEdit } from '../context'
 import type { Definizione, Ricorrenza } from '../context'
+import { FonteAutocomplete } from '../components/FonteAutocomplete'
+import { CreaFonteInline } from '../components/CreaFonteInline'
 
 /**
  * Step 3: Definizioni e Ricorrenze
@@ -10,7 +12,6 @@ export const DefinizioniStep: React.FC = () => {
   const { state, dispatch } = useLemmaEdit()
   const { definizioni, lemma } = state
 
-  const [fonti, setFonti] = useState<any[]>([])
   const [livelli, setLivelli] = useState<any[]>([])
   const [loadingOptions, setLoadingOptions] = useState(true)
 
@@ -24,15 +25,9 @@ export const DefinizioniStep: React.FC = () => {
             ? (lemma.lemmario as any).id
             : lemma?.lemmario
 
-        const [fontiRes, livelliRes] = await Promise.all([
-          fetch('/api/fonti?limit=1000'),
-          fetch(`/api/livelli-razionalita?where[lemmario][equals]=${lemmarioId}&limit=100`),
-        ])
-
-        const fontiData = await fontiRes.json()
+        const livelliRes = await fetch(`/api/livelli-razionalita?where[lemmario][equals]=${lemmarioId}&limit=100`)
         const livelliData = await livelliRes.json()
 
-        setFonti(fontiData.docs || [])
         setLivelli(livelliData.docs || [])
         setLoadingOptions(false)
       } catch (error) {
@@ -153,24 +148,28 @@ export const DefinizioniStep: React.FC = () => {
                         <div className="ric-row">
                           <div className="ric-field">
                             <label>Fonte *</label>
-                            <select
-                              value={ric.fonte}
-                              onChange={(e) =>
+                            <CreaFonteInline
+                              onFonteCreated={(fonteId) =>
                                 handleUpdateRicorrenza(
                                   realIndex,
                                   realRicIndex,
                                   'fonte',
-                                  e.target.value
+                                  fonteId
                                 )
                               }
-                            >
-                              <option value="">Seleziona fonte...</option>
-                              {fonti.map((f) => (
-                                <option key={f.id} value={f.id}>
-                                  {f.titolo} ({f.anno})
-                                </option>
-                              ))}
-                            </select>
+                            />
+                            <FonteAutocomplete
+                              value={ric.fonte}
+                              onChange={(value) =>
+                                handleUpdateRicorrenza(
+                                  realIndex,
+                                  realRicIndex,
+                                  'fonte',
+                                  value
+                                )
+                              }
+                              placeholder="Cerca fonte (min. 2 caratteri)..."
+                            />
                           </div>
 
                           <div className="ric-field">
