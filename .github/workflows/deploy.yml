@@ -13,7 +13,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_PREFIX: ${{ github.repository_owner }}/lemmario
 
 jobs:
   build-and-push:
@@ -42,6 +41,7 @@ jobs:
         id: vars
         run: |
           echo "sha_short=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+          echo "repo_owner_lowercase=$(echo ${{ github.repository_owner }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_OUTPUT
 
       - name: Build and push Payload image
         uses: docker/build-push-action@v5
@@ -50,8 +50,8 @@ jobs:
           file: ./packages/payload-cms/Dockerfile
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-payload:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-payload:sha-${{ steps.vars.outputs.sha_short }}
+            ${{ env.REGISTRY }}/${{ steps.vars.outputs.repo_owner_lowercase }}/lemmario-payload:latest
+            ${{ env.REGISTRY }}/${{ steps.vars.outputs.repo_owner_lowercase }}/lemmario-payload:sha-${{ steps.vars.outputs.sha_short }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -62,8 +62,8 @@ jobs:
           file: ./packages/frontend/Dockerfile
           push: true
           tags: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-frontend:latest
-            ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-frontend:sha-${{ steps.vars.outputs.sha_short }}
+            ${{ env.REGISTRY }}/${{ steps.vars.outputs.repo_owner_lowercase }}/lemmario-frontend:latest
+            ${{ env.REGISTRY }}/${{ steps.vars.outputs.repo_owner_lowercase }}/lemmario-frontend:sha-${{ steps.vars.outputs.sha_short }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
