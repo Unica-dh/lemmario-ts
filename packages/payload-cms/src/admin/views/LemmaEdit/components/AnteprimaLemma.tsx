@@ -63,14 +63,35 @@ export const AnteprimaLemma: React.FC = () => {
 
             return (
               <div key={idx} className="def-preview">
-                <div className="def-numero">#{def.numero}</div>
-                <div className="def-testo">{def.testo || <em>Testo non inserito</em>}</div>
+                <div className="def-header">
+                  <span className="def-numero">#{def.numero}</span>
+                  {def.livello_razionalita && (
+                    <span className="livello-badge">Liv. {def.livello_razionalita}</span>
+                  )}
+                </div>
+                <div className="def-testo">
+                  {def.testo ? def.testo : <em className="text-muted">Testo non inserito</em>}
+                </div>
 
                 {activeRicorrenze.length > 0 && (
-                  <div className="ricorrenze-preview">
-                    <small className="ricorrenze-count">
-                      {activeRicorrenze.length} {activeRicorrenze.length === 1 ? 'citazione' : 'citazioni'}
-                    </small>
+                  <div className="ricorrenze-list">
+                    <div className="ricorrenze-header">
+                      <strong>Ricorrenze ({activeRicorrenze.length}):</strong>
+                    </div>
+                    {activeRicorrenze.map((ric, ricIdx) => (
+                      <div key={ricIdx} className="ric-item">
+                        <div className="ric-fonte">
+                          📚 {ric.fonte_titolo || `Fonte ID: ${ric.fonte}`}
+                          {ric.pagina_raw && <span className="ric-pagina"> - {ric.pagina_raw}</span>}
+                        </div>
+                        {ric.testo_originale && (
+                          <div className="ric-testo">
+                            "{ric.testo_originale.substring(0, 100)}
+                            {ric.testo_originale.length > 100 ? '...' : ''}"
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>

@@ -69,7 +69,6 @@ export const DefinizioniStep: React.FC = () => {
       fonte: '',
       testo_originale: '',
       pagina: '',
-      livello_razionalita: '',
       _isNew: true,
     }
     dispatch({ type: 'ADD_RICORRENZA', defIndex, payload: nuovaRic })
@@ -127,6 +126,27 @@ export const DefinizioniStep: React.FC = () => {
                     }
                     placeholder="Testo della definizione (es. Detrarre, Abbassare...)"
                   />
+
+                  {/* Livello Razionalità (sulla definizione) */}
+                  <div className="form-group" style={{ marginTop: '1rem' }}>
+                    <label htmlFor={`livello-${realIndex}`}>Livello Razionalità</label>
+                    <select
+                      id={`livello-${realIndex}`}
+                      value={def.livello_razionalita || ''}
+                      onChange={(e) =>
+                        handleUpdateDefinizione(realIndex, 'livello_razionalita', e.target.value)
+                      }
+                      style={{ width: '100%', padding: '0.5rem' }}
+                    >
+                      <option value="">Nessuno</option>
+                      {livelli.map((l) => (
+                        <option key={l.id} value={l.id}>
+                          {l.numero}. {l.nome}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
                   <button
                     type="button"
                     className="btn-delete-def"
@@ -187,28 +207,6 @@ export const DefinizioniStep: React.FC = () => {
                               }
                               placeholder="es. p. 157v., c. 12r"
                             />
-                          </div>
-
-                          <div className="ric-field">
-                            <label>Livello Razionalità</label>
-                            <select
-                              value={ric.livello_razionalita || ''}
-                              onChange={(e) =>
-                                handleUpdateRicorrenza(
-                                  realIndex,
-                                  realRicIndex,
-                                  'livello_razionalita',
-                                  e.target.value
-                                )
-                              }
-                            >
-                              <option value="">Nessuno</option>
-                              {livelli.map((l) => (
-                                <option key={l.id} value={l.id}>
-                                  {l.numero}. {l.nome}
-                                </option>
-                              ))}
-                            </select>
                           </div>
                         </div>
 

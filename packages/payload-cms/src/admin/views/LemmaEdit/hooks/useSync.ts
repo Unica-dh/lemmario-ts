@@ -30,16 +30,23 @@ export const useSync = ({ apiUrl = '/api' }: UseSyncOptions = {}) => {
       const defData = await defRes.json()
       const definizioni = defData.docs || []
 
-      // 3. Per ogni definizione, carica ricorrenze
+      // 3. Per ogni definizione, carica ricorrenze con fonte popolata
       const defWithRic = await Promise.all(
         definizioni.map(async (def: any) => {
           const ricRes = await fetch(
-            `${apiUrl}/ricorrenze?where[definizione][equals]=${def.id}&depth=1`
+            `${apiUrl}/ricorrenze?where[definizione][equals]=${def.id}&depth=2`
           )
           const ricData = await ricRes.json()
+
+          // Estrai titolo fonte per anteprima
+          const ricorrenzeConTitolo = (ricData.docs || []).map((ric: any) => ({
+            ...ric,
+            fonte_titolo: typeof ric.fonte === 'object' ? ric.fonte?.titolo : undefined,
+          }))
+
           return {
             ...def,
-            ricorrenze: ricData.docs || [],
+            ricorrenze: ricorrenzeConTitolo,
           }
         })
       )
@@ -179,6 +186,7 @@ export const useSync = ({ apiUrl = '/api' }: UseSyncOptions = {}) => {
             lemma: lemmaId,
             numero: def.numero,
             testo: def.testo,
+            livello_razionalita: def.livello_razionalita,
           }),
         })
         const created = await res.json()
@@ -191,6 +199,7 @@ export const useSync = ({ apiUrl = '/api' }: UseSyncOptions = {}) => {
           body: JSON.stringify({
             numero: def.numero,
             testo: def.testo,
+            livello_razionalita: def.livello_razionalita,
           }),
         })
       }
@@ -213,16 +222,26 @@ export const useSync = ({ apiUrl = '/api' }: UseSyncOptions = {}) => {
                 fonte: ric.fonte,
                 testo_originale: ric.testo_originale,
                 pagina: ric.pagina,
-                livello_razionalita: ric.livello_razionalita,
+                pagina_raw: ric.pagina_raw,
+                tipo_riferimento: ric.tipo_riferimento,
+                numero: ric.numero,
+                numero_secondario: ric.numero_secondario,
+                rubrica_numero: ric.rubrica_numero,
+                rubrica_titolo: ric.rubrica_titolo,
+                libro: ric.libro,
+                capitolo: ric.capitolo,
+                sezione: ric.sezione,
+                supplemento: ric.supplemento,
                 note: ric.note,
               }),
             })
           } else if (ric.id) {
-            // UPDATE
+            // UPDATE - filtra campi non salvabili (fonte_titolo è solo per UI)
+            const { fonte_titolo, _isNew, _isDeleted, ...ricData } = ric
             await fetch(`${apiUrl}/ricorrenze/${ric.id}`, {
               method: 'PATCH',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(ric),
+              body: JSON.stringify(ricData),
             })
           }
         }
