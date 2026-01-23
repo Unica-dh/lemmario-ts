@@ -7,7 +7,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { parseBibliografia, parseIndice, convertBiblioToFonte } from './parsers/jsonParser'
 import { parseLemmaHTML, extractShorthandIds } from './parsers/htmlParser'
-import { MigrationStats } from './types'
+import { MigrationStats, MigrationReport, LemmaImportDetail } from './types'
 
 const API_URL = process.env.API_URL || 'http://localhost:3000/api'
 const OLD_WEBSITE_PATH = path.join(__dirname, '../../old_website')
@@ -21,7 +21,14 @@ const stats: MigrationStats = {
   lemmi: { total: 0, imported: 0, failed: 0, errors: [] },
   definizioni: { total: 0, imported: 0 },
   ricorrenze: { total: 0, imported: 0 },
+  varianti: { total: 0, imported: 0 },
 }
+
+// Tracking dettagliato per report
+const lemmiDetails: LemmaImportDetail[] = []
+const fontiMancanti: Set<string> = new Set()
+const contenutiIgnoratiGlobali: string[] = []
+let startTime: number
 
 async function fetchPayload(endpoint: string, options?: RequestInit) {
   const response = await fetch(`${API_URL}${endpoint}`, {
@@ -94,17 +101,37 @@ async function importLemmi() {
   stats.lemmi.total = indice.length
 
   for (const lemmaEntry of indice) {
+    const lemmaDetail: LemmaImportDetail = {
+      termine: lemmaEntry.nome,
+      tipo: lemmaEntry.tipo,
+      status: 'success',
+      definizioni_importate: 0,
+      ricorrenze_importate: 0,
+      varianti_importate: 0,
+      contenuto_ignorato: [],
+      errori: [],
+    }
+
     try {
       const htmlPath = path.join(OLD_WEBSITE_PATH, 'lemmi', lemmaEntry.file)
 
       if (!fs.existsSync(htmlPath)) {
         console.warn(`⚠ File non trovato: ${lemmaEntry.file}`)
         stats.lemmi.failed++
+        lemmaDetail.status = 'failed'
+        lemmaDetail.errori.push(`File non trovato: ${lemmaEntry.file}`)
+        lemmiDetails.push(lemmaDetail)
         continue
       }
 
       const html = fs.readFileSync(htmlPath, 'utf-8')
       const parsedLemma = parseLemmaHTML(html, lemmaEntry.nome, lemmaEntry.tipo)
+
+      // Traccia contenuto ignorato
+      lemmaDetail.contenuto_ignorato = parsedLemma.contenuto_ignorato
+      if (parsedLemma.contenuto_ignorato.length > 0) {
+        contenutiIgnoratiGlobali.push(...parsedLemma.contenuto_ignorato.map(c => `[${lemmaEntry.nome}] ${c}`))
+      }
 
       // Verifica se il lemma esiste già
       const existing = await fetchPayload(
@@ -146,10 +173,14 @@ async function importLemmi() {
               variante,
             }),
           })
+          stats.varianti.imported++
+          lemmaDetail.varianti_importate++
         } catch (error) {
           console.warn(`  ⚠ Errore importando variante "${variante}":`, error)
+          lemmaDetail.errori.push(`Errore variante "${variante}": ${error}`)
         }
       }
+      stats.varianti.total += parsedLemma.varianti.length
 
       // Aggiungi delay per evitare rate limiting (500ms per gestire limiti stringenti)
       await new Promise(resolve => setTimeout(resolve, 500))
@@ -161,6 +192,7 @@ async function importLemmi() {
             lemma: lemmaId,
             numero: def.numero,
             testo: def.testo,
+            livello_razionalita: def.livello_razionalita || undefined,
           }
 
           const defResult = await fetchPayload('/definizioni', {
@@ -170,6 +202,7 @@ async function importLemmi() {
 
           const defId = (defResult as any).doc.id
           stats.definizioni.imported++
+          lemmaDetail.definizioni_importate++
 
           // Importa ricorrenze per questa definizione
           for (const ric of def.ricorrenze) {
@@ -178,16 +211,27 @@ async function importLemmi() {
 
               if (!fonteId) {
                 console.warn(`  ⚠ Fonte non trovata per shorthand: ${ric.shorthand_id}`)
+                fontiMancanti.add(ric.shorthand_id)
+                lemmaDetail.errori.push(`Fonte mancante: ${ric.shorthand_id}`)
                 continue
               }
 
               const ricData = {
                 definizione: defId,
                 fonte: fonteId,
-                citazione_originale: ric.citazione_originale,
-                trascrizione_moderna: ric.trascrizione_moderna,
-                pagina_riferimento: ric.pagina_riferimento,
-                note_filologiche: ric.note_filologiche,
+                testo_originale: ric.citazione_originale,
+                note: ric.note_filologiche,
+                // Campi riferimento strutturati
+                pagina_raw: ric.pagina_raw,
+                tipo_riferimento: ric.tipo_riferimento,
+                numero: ric.numero,
+                numero_secondario: ric.numero_secondario,
+                rubrica_numero: ric.rubrica_numero,
+                rubrica_titolo: ric.rubrica_titolo,
+                libro: ric.libro,
+                capitolo: ric.capitolo,
+                sezione: ric.sezione,
+                supplemento: ric.supplemento,
               }
 
               await fetchPayload('/ricorrenze', {
@@ -196,22 +240,189 @@ async function importLemmi() {
               })
 
               stats.ricorrenze.imported++
+              lemmaDetail.ricorrenze_importate++
             } catch (error) {
               console.warn(`  ⚠ Errore importando ricorrenza:`, error)
+              lemmaDetail.errori.push(`Errore ricorrenza: ${error}`)
             }
           }
         } catch (error) {
           console.warn(`  ⚠ Errore importando definizione ${def.numero}:`, error)
+          lemmaDetail.errori.push(`Errore definizione ${def.numero}: ${error}`)
         }
       }
+
+      // Determina lo status finale del lemma
+      if (lemmaDetail.errori.length > 0) {
+        lemmaDetail.status = 'partial'
+      }
+      lemmiDetails.push(lemmaDetail)
     } catch (error) {
       console.error(`✗ Errore importando lemma ${lemmaEntry.nome}:`, error)
       stats.lemmi.failed++
       stats.lemmi.errors.push(`${lemmaEntry.nome}: ${error}`)
+      lemmaDetail.status = 'failed'
+      lemmaDetail.errori.push(`${error}`)
+      lemmiDetails.push(lemmaDetail)
     }
   }
 
   console.log(`\nLemmi: ${stats.lemmi.imported}/${stats.lemmi.total} importati\n`)
+}
+
+function generateMarkdownReport(): string {
+  const duration = Date.now() - startTime
+  const timestamp = new Date().toISOString()
+
+  const report: MigrationReport = {
+    timestamp,
+    duration_ms: duration,
+    summary: stats,
+    lemmi_details: lemmiDetails,
+    fonti_mancanti: Array.from(fontiMancanti),
+    contenuti_ignorati_globali: contenutiIgnoratiGlobali,
+  }
+
+  let md = '# Report Migrazione Dati Legacy\n\n'
+  md += `**Data**: ${new Date(timestamp).toLocaleString('it-IT')}\n`
+  md += `**Durata**: ${(duration / 1000).toFixed(2)} secondi\n\n`
+  md += '---\n\n'
+
+  // Riepilogo statistiche
+  md += '## 📊 Riepilogo Statistiche\n\n'
+  md += '### Fonti Bibliografiche\n'
+  md += `- **Totale**: ${stats.fonti.total}\n`
+  md += `- **Importate**: ${stats.fonti.imported}\n`
+  md += `- **Fallite**: ${stats.fonti.failed}\n\n`
+
+  md += '### Lemmi\n'
+  md += `- **Totale**: ${stats.lemmi.total}\n`
+  md += `- **Importati**: ${stats.lemmi.imported}\n`
+  md += `- **Falliti**: ${stats.lemmi.failed}\n\n`
+
+  md += '### Definizioni\n'
+  md += `- **Totale**: ${stats.definizioni.imported}\n\n`
+
+  md += '### Ricorrenze\n'
+  md += `- **Totale**: ${stats.ricorrenze.imported}\n\n`
+
+  md += '### Varianti Grafiche\n'
+  md += `- **Totale**: ${stats.varianti.total}\n`
+  md += `- **Importate**: ${stats.varianti.imported}\n\n`
+
+  md += '---\n\n'
+
+  // Fonti mancanti
+  if (report.fonti_mancanti.length > 0) {
+    md += '## ⚠️ Fonti Mancanti\n\n'
+    md += `Le seguenti ${report.fonti_mancanti.length} fonti sono referenziate nei lemmi ma non trovate in bibliografia.json:\n\n`
+    report.fonti_mancanti.forEach(fonte => {
+      md += `- \`${fonte}\`\n`
+    })
+    md += '\n---\n\n'
+  }
+
+  // Errori Fonti
+  if (stats.fonti.errors.length > 0) {
+    md += '## ❌ Errori Import Fonti\n\n'
+    stats.fonti.errors.forEach(err => {
+      md += `- ${err}\n`
+    })
+    md += '\n---\n\n'
+  }
+
+  // Errori Lemmi
+  if (stats.lemmi.errors.length > 0) {
+    md += '## ❌ Errori Import Lemmi\n\n'
+    stats.lemmi.errors.forEach(err => {
+      md += `- ${err}\n`
+    })
+    md += '\n---\n\n'
+  }
+
+  // Dettagli per lemma
+  md += '## 📝 Dettaglio Importazione per Lemma\n\n'
+  md += `Totale lemmi processati: ${lemmiDetails.length}\n\n`
+
+  const lemmiSuccess = lemmiDetails.filter(l => l.status === 'success').length
+  const lemmiPartial = lemmiDetails.filter(l => l.status === 'partial').length
+  const lemmiFailed = lemmiDetails.filter(l => l.status === 'failed').length
+
+  md += `- ✅ **Successo completo**: ${lemmiSuccess}\n`
+  md += `- ⚠️ **Successo parziale** (con errori non bloccanti): ${lemmiPartial}\n`
+  md += `- ❌ **Fallito**: ${lemmiFailed}\n\n`
+
+  // Dettaglio lemmi con problemi
+  const lemmiConProblemi = lemmiDetails.filter(l => l.status !== 'success' || l.contenuto_ignorato.length > 0)
+
+  if (lemmiConProblemi.length > 0) {
+    md += '### Lemmi con Problemi o Contenuto Ignorato\n\n'
+
+    lemmiConProblemi.forEach(lemma => {
+      const statusIcon = lemma.status === 'success' ? '✅' : lemma.status === 'partial' ? '⚠️' : '❌'
+      md += `#### ${statusIcon} ${lemma.termine} (${lemma.tipo})\n\n`
+      md += `- **Status**: ${lemma.status}\n`
+      md += `- **Definizioni**: ${lemma.definizioni_importate}\n`
+      md += `- **Ricorrenze**: ${lemma.ricorrenze_importate}\n`
+      md += `- **Varianti**: ${lemma.varianti_importate}\n`
+
+      if (lemma.errori.length > 0) {
+        md += `\n**Errori**:\n`
+        lemma.errori.forEach(err => md += `- ${err}\n`)
+      }
+
+      if (lemma.contenuto_ignorato.length > 0) {
+        md += `\n**Contenuto Ignorato** (${lemma.contenuto_ignorato.length} elementi):\n`
+        lemma.contenuto_ignorato.forEach(c => md += `- ${c}\n`)
+      }
+
+      md += '\n'
+    })
+  }
+
+  // Contenuti ignorati globali
+  if (contenutiIgnoratiGlobali.length > 0) {
+    md += '---\n\n'
+    md += '## 🔍 Contenuti Ignorati Globali\n\n'
+    md += `Totale contenuti HTML non importati: ${contenutiIgnoratiGlobali.length}\n\n`
+
+    // Raggruppa per tipo
+    const riferimentiNonParsati = contenutiIgnoratiGlobali.filter(c => c.includes('Riferimento non parsato'))
+    const ricorrenzeIncomplete = contenutiIgnoratiGlobali.filter(c => c.includes('Ricorrenza incompleta'))
+    const sezioniIgnorate = contenutiIgnoratiGlobali.filter(c => c.includes('Sezione'))
+
+    if (riferimentiNonParsati.length > 0) {
+      md += `### Riferimenti Pagina/Carta Non Parsati (${riferimentiNonParsati.length})\n\n`
+      riferimentiNonParsati.slice(0, 50).forEach(c => md += `- ${c}\n`)
+      if (riferimentiNonParsati.length > 50) {
+        md += `\n... e altri ${riferimentiNonParsati.length - 50} riferimenti\n`
+      }
+      md += '\n'
+    }
+
+    if (ricorrenzeIncomplete.length > 0) {
+      md += `### Ricorrenze Incomplete (${ricorrenzeIncomplete.length})\n\n`
+      ricorrenzeIncomplete.slice(0, 30).forEach(c => md += `- ${c}\n`)
+      if (ricorrenzeIncomplete.length > 30) {
+        md += `\n... e altre ${ricorrenzeIncomplete.length - 30} ricorrenze\n`
+      }
+      md += '\n'
+    }
+
+    if (sezioniIgnorate.length > 0) {
+      md += `### Sezioni HTML Ignorate (${sezioniIgnorate.length})\n\n`
+      sezioniIgnorate.slice(0, 20).forEach(c => md += `- ${c}\n`)
+      if (sezioniIgnorate.length > 20) {
+        md += `\n... e altre ${sezioniIgnorate.length - 20} sezioni\n`
+      }
+      md += '\n'
+    }
+  }
+
+  md += '---\n\n'
+  md += `*Report generato automaticamente il ${new Date().toLocaleString('it-IT')}*\n`
+
+  return md
 }
 
 function printSummary() {
@@ -222,6 +433,15 @@ function printSummary() {
   console.log(`Lemmi:       ${stats.lemmi.imported}/${stats.lemmi.total} importati (${stats.lemmi.failed} errori)`)
   console.log(`Definizioni: ${stats.definizioni.imported} importate`)
   console.log(`Ricorrenze:  ${stats.ricorrenze.imported} importate`)
+  console.log(`Varianti:    ${stats.varianti.imported}/${stats.varianti.total} importate`)
+
+  if (fontiMancanti.size > 0) {
+    console.log(`\n⚠️  Fonti mancanti: ${fontiMancanti.size}`)
+  }
+
+  if (contenutiIgnoratiGlobali.length > 0) {
+    console.log(`⚠️  Contenuti ignorati: ${contenutiIgnoratiGlobali.length}`)
+  }
 
   if (stats.fonti.errors.length > 0) {
     console.log('\n--- Errori Fonti ---')
@@ -248,10 +468,26 @@ async function main() {
   console.log(`Lemmario ID: ${LEMMARIO_ID}`)
   console.log(`Old Website Path: ${OLD_WEBSITE_PATH}\n`)
 
+  startTime = Date.now()
+
   try {
     await importFonti()
     await importLemmi()
     printSummary()
+
+    // Genera e salva report Markdown
+    const reportDir = path.join(__dirname, '../../report_migration')
+    if (!fs.existsSync(reportDir)) {
+      fs.mkdirSync(reportDir, { recursive: true })
+    }
+
+    const timestamp = new Date().toISOString().replace(/:/g, '-').split('.')[0]
+    const reportPath = path.join(reportDir, `migration_report_${timestamp}.md`)
+
+    const markdownReport = generateMarkdownReport()
+    fs.writeFileSync(reportPath, markdownReport, 'utf-8')
+
+    console.log(`\n📄 Report salvato in: ${reportPath}\n`)
   } catch (error) {
     console.error('\n❌ Errore fatale durante la migrazione:', error)
     process.exit(1)

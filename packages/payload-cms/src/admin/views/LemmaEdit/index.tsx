@@ -2,7 +2,7 @@ import React, { useEffect } from 'react'
 import { useParams, useHistory } from 'react-router-dom'
 import { LemmaEditProvider, useLemmaEdit } from './context'
 import { useSync } from './hooks'
-import { StepTabs } from './components'
+import { StepTabs, AnteprimaLemma } from './components'
 import { BaseStep, VariantiStep, DefinizioniStep, RiferimentiStep } from './steps'
 
 /**
@@ -136,9 +136,14 @@ const LemmaEditContent: React.FC = () => {
         </div>
       )}
 
-      {/* Multi-step form */}
-      <div className="edit-content">
-        <StepTabs steps={steps} />
+      {/* Multi-step form + Sidebar Anteprima */}
+      <div className="edit-content-wrapper">
+        <div className="edit-content">
+          <StepTabs steps={steps} />
+        </div>
+        <aside className="sidebar-anteprima">
+          <AnteprimaLemma />
+        </aside>
       </div>
 
       {/* Footer */}
@@ -207,7 +212,10 @@ if (typeof document !== 'undefined') {
     style.id = styleId
     style.textContent = `
       /* Layout */
-      .lemma-edit-view { padding: 2rem; max-width: 1400px; margin: 0 auto; }
+      .lemma-edit-view { padding: 2rem; max-width: 1800px; margin: 0 auto; }
+      .edit-content-wrapper { display: grid; grid-template-columns: 1fr 400px; gap: 24px; margin-top: 2rem; }
+      .edit-content { flex: 1; min-width: 0; }
+      .sidebar-anteprima { position: sticky; top: 20px; height: calc(100vh - 200px); overflow-y: auto; }
       
       /* Header */
       .edit-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 2px solid #e0e0e0; }
@@ -302,8 +310,40 @@ if (typeof document !== 'undefined') {
       .loading-container { text-align: center; padding: 3rem 1rem; }
       .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #0066cc; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
       @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-      
+
+      /* Anteprima Lemma */
+      .anteprima-lemma { background: #ffffff; border: 1px solid #dee2e6; border-radius: 8px; padding: 1.5rem; }
+      .anteprima-placeholder { background: #f8f9fa; border: 1px dashed #ced4da; border-radius: 8px; padding: 2rem; text-align: center; color: #6c757d; font-style: italic; }
+      .anteprima-title { margin: 0 0 1.5rem 0; font-size: 1.25rem; color: #333; border-bottom: 2px solid #0066cc; padding-bottom: 0.5rem; }
+      .anteprima-section { margin-bottom: 1.5rem; }
+      .termine-principale { font-size: 1.5rem; color: #0066cc; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
+      .badge-tipo { background: #6c757d; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+      .section-label { display: block; color: #495057; font-size: 0.95rem; margin-bottom: 0.75rem; }
+      .varianti-list-preview { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+      .variante-badge { background: #e9ecef; color: #495057; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; border: 1px solid #ced4da; }
+      .def-preview { background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; padding: 1rem; margin-bottom: 1rem; }
+      .def-preview:last-child { margin-bottom: 0; }
+      .def-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+      .def-numero { background: #0066cc; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-weight: bold; font-size: 0.85rem; }
+      .livello-badge { background: #28a745; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+      .def-testo { color: #333; font-size: 0.95rem; line-height: 1.5; margin-bottom: 1rem; }
+      .text-muted { color: #6c757d; font-style: italic; }
+      .ricorrenze-list { background: #ffffff; border: 1px solid #dee2e6; border-radius: 4px; padding: 1rem; margin-top: 1rem; }
+      .ricorrenze-header { margin-bottom: 0.75rem; color: #495057; font-size: 0.9rem; }
+      .ric-item { background: #f8f9fa; border-left: 3px solid #0066cc; padding: 0.75rem; margin-bottom: 0.75rem; border-radius: 4px; }
+      .ric-item:last-child { margin-bottom: 0; }
+      .ric-fonte { font-weight: 600; color: #495057; font-size: 0.9rem; margin-bottom: 0.5rem; }
+      .ric-pagina { color: #6c757d; font-weight: normal; }
+      .ric-testo { color: #6c757d; font-size: 0.85rem; line-height: 1.4; font-style: italic; }
+      .empty-text { color: #6c757d; font-style: italic; display: block; padding: 1rem; text-align: center; background: #f8f9fa; border-radius: 4px; }
+      .anteprima-footer { border-top: 1px solid #dee2e6; padding-top: 1rem; margin-top: 1.5rem; }
+      .footer-note { color: #6c757d; font-size: 0.85rem; display: block; }
+
       /* Responsive */
+      @media (max-width: 1200px) {
+        .edit-content-wrapper { grid-template-columns: 1fr; }
+        .sidebar-anteprima { display: none; }
+      }
       @media (max-width: 768px) {
         .lemma-edit-view { padding: 1rem; }
         .edit-header, .edit-footer { flex-direction: column; gap: 1rem; }

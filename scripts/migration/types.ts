@@ -28,6 +28,7 @@ export interface ParsedLemma {
   etimologia?: string
   definizioni: ParsedDefinizione[]
   varianti: string[]
+  contenuto_ignorato: string[]  // Porzioni HTML non parsate
 }
 
 export interface ParsedDefinizione {
@@ -41,9 +42,30 @@ export interface ParsedDefinizione {
 export interface ParsedRicorrenza {
   citazione_originale: string
   trascrizione_moderna?: string
-  pagina_riferimento?: string
+  pagina_raw?: string  // Testo originale completo del riferimento
   shorthand_id: string
   note_filologiche?: string
+  // Campi strutturati per riferimenti
+  tipo_riferimento?: 'pagina' | 'carta' | 'colonna' | 'folio' | 'misto'
+  numero?: string
+  numero_secondario?: string
+  rubrica_numero?: string
+  rubrica_titolo?: string
+  libro?: string
+  capitolo?: string
+  sezione?: string
+  supplemento?: string
+}
+
+export interface LemmaImportDetail {
+  termine: string
+  tipo: 'volgare' | 'latino'
+  status: 'success' | 'failed' | 'partial'
+  definizioni_importate: number
+  ricorrenze_importate: number
+  varianti_importate: number
+  contenuto_ignorato: string[]
+  errori: string[]
 }
 
 export interface MigrationStats {
@@ -67,4 +89,17 @@ export interface MigrationStats {
     total: number
     imported: number
   }
+  varianti: {
+    total: number
+    imported: number
+  }
+}
+
+export interface MigrationReport {
+  timestamp: string
+  duration_ms: number
+  summary: MigrationStats
+  lemmi_details: LemmaImportDetail[]
+  fonti_mancanti: string[]
+  contenuti_ignorati_globali: string[]
 }

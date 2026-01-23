@@ -55,19 +55,80 @@ export const Ricorrenze: CollectionConfig = {
       },
     },
     {
-      name: 'pagina',
+      name: 'pagina_raw',
       type: 'text',
       admin: {
-        description: 'Riferimento pagina/carta (es. "c. 12r", "p. 45")',
+        description: 'Riferimento originale completo (es. "p. 123, rubr. 45 \\"De titulo\\"")',
       },
     },
     {
-      name: 'livello_razionalita',
-      type: 'relationship',
-      relationTo: 'livelli-razionalita',
-      hasMany: false,
+      name: 'tipo_riferimento',
+      type: 'select',
+      options: [
+        { label: 'Pagina', value: 'pagina' },
+        { label: 'Carta', value: 'carta' },
+        { label: 'Colonna', value: 'colonna' },
+        { label: 'Folio', value: 'folio' },
+        { label: 'Misto', value: 'misto' },
+      ],
       admin: {
-        description: 'Livello di razionalità (se applicabile)',
+        description: 'Tipo di riferimento principale',
+      },
+    },
+    {
+      name: 'numero',
+      type: 'text',
+      admin: {
+        description: 'Numero principale (es. "123", "123r", "123-125")',
+      },
+    },
+    {
+      name: 'numero_secondario',
+      type: 'text',
+      admin: {
+        description: 'Numero secondario per riferimenti misti',
+      },
+    },
+    {
+      name: 'rubrica_numero',
+      type: 'text',
+      admin: {
+        description: 'Numero della rubrica',
+      },
+    },
+    {
+      name: 'rubrica_titolo',
+      type: 'textarea',
+      admin: {
+        description: 'Titolo della rubrica',
+      },
+    },
+    {
+      name: 'libro',
+      type: 'text',
+      admin: {
+        description: 'Numero del libro (es. "IV", "II")',
+      },
+    },
+    {
+      name: 'capitolo',
+      type: 'text',
+      admin: {
+        description: 'Numero del capitolo',
+      },
+    },
+    {
+      name: 'sezione',
+      type: 'text',
+      admin: {
+        description: 'Sezione del documento (es. "prima sezione", "seconda sezione")',
+      },
+    },
+    {
+      name: 'supplemento',
+      type: 'text',
+      admin: {
+        description: 'Supplemento (es. "I", "n. 2")',
       },
     },
     {

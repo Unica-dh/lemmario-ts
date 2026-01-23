@@ -12,6 +12,7 @@ export interface Definizione {
   id?: string | number
   numero: number
   testo: string
+  livello_razionalita?: string | number
   ricorrenze?: Ricorrenza[]
   _isNew?: boolean
   _isDeleted?: boolean
@@ -20,9 +21,19 @@ export interface Definizione {
 export interface Ricorrenza {
   id?: string | number
   fonte: string | number
+  fonte_titolo?: string // Per visualizzazione anteprima
   testo_originale: string
-  pagina?: string
-  livello_razionalita?: string | number
+  pagina?: string // Campo legacy
+  pagina_raw?: string // Nuovo campo riferimento completo
+  tipo_riferimento?: 'pagina' | 'carta' | 'colonna' | 'folio' | 'misto'
+  numero?: string
+  numero_secondario?: string
+  rubrica_numero?: string
+  rubrica_titolo?: string
+  libro?: string
+  capitolo?: string
+  sezione?: string
+  supplemento?: string
   note?: string
   _isNew?: boolean
   _isDeleted?: boolean
