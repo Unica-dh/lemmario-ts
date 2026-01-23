@@ -1,5 +1,8 @@
 # Lemmario - Multi-Tenancy Platform
 
+![CI Status](https://github.com/Unica-dh/lemmario_ts/actions/workflows/ci.yml/badge.svg)
+![CD Status](https://github.com/Unica-dh/lemmario_ts/actions/workflows/deploy.yml/badge.svg)
+
 Piattaforma multi-lemmario per la gestione di dizionari storici della terminologia matematica ed economica italiana, basata su **Payload CMS** e **Next.js 14**.
 
 > **Nota storica**: La cartella `/old_website` contiene il codice sorgente del sito web https://lemmario.netlify.app/ che rappresenta l'applicazione in versione "statica" che si intende far evolvere e migrare su questa piattaforma dinamica.
@@ -231,9 +234,47 @@ pnpm install
 
 ## Deployment
 
-Il deployment in produzione utilizza GitHub Actions con SSH deployment su server VPN.
+Il deployment in produzione utilizza **GitHub Actions** con deploy automatico su server VPN protetto.
 
-La configurazione CI/CD sarà implementata nella FASE 6.
+### Sistema CI/CD
+
+Il progetto implementa un sistema completo di CI/CD con:
+
+- ✅ **Continuous Integration**: Lint, typecheck e build automatici su ogni push/PR
+- ✅ **Continuous Deployment**: Build Docker images, push a GitHub Container Registry, deploy automatico su main
+- ✅ **Self-hosted runner** sul server VPN per accesso diretto
+- ✅ **Backup automatico** database pre-deploy
+- ✅ **Health checks** con rollback automatico su failure
+- ✅ **Reset DB manuale** con conferme di sicurezza
+
+### Workflow
+
+Ogni push su `main` attiva automaticamente:
+1. CI workflow (lint, typecheck, build)
+2. Build Docker images per payload e frontend
+3. Push a GitHub Container Registry (GHCR)
+4. Deploy su server VPN tramite script bash
+5. Health checks su payload e frontend
+6. Backup database automatico
+
+### Documentazione
+
+Per setup completo, troubleshooting e operazioni comuni:
+- **[docs/CI-CD-SETUP.md](docs/CI-CD-SETUP.md)** - Guida completa setup CI/CD
+- **[scripts/deploy/README.md](scripts/deploy/README.md)** - Documentazione script deploy
+
+### Rollback
+
+```bash
+# SSH sul server
+ssh dhomeka@90.147.144.145
+
+# Trova SHA commit precedente
+docker images ghcr.io/unica-dh/lemmario-payload
+
+# Rideploy versione precedente
+/home/dhomeka/deploy-lemmario.sh <previous-sha>
+```
 
 ## Licenza
 

@@ -1,0 +1,46 @@
+name: Database Reset (DESTRUCTIVE)
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirmation:
+        description: 'Type YES_DELETE_DATABASE to confirm'
+        required: true
+        type: choice
+        options:
+          - 'NO'
+          - 'YES_DELETE_DATABASE'
+      run_seed:
+        description: 'Run database seed after reset'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  reset-database:
+    name: Reset PostgreSQL database
+    runs-on: [self-hosted, Linux, vpn]
+    environment: production-destructive
+    steps:
+      - name: Verify confirmation
+        run: |
+          if [ "${{ inputs.confirmation }}" != "YES_DELETE_DATABASE" ]; then
+            echo "ERROR: Confirmation not provided. Aborting."
+            echo "You must select 'YES_DELETE_DATABASE' to proceed."
+            exit 1
+          fi
+
+      - name: Execute database reset
+        run: |
+          SEED_FLAG=""
+          if [ "${{ inputs.run_seed }}" == "true" ]; then
+            SEED_FLAG="--seed"
+          fi
+          /home/dhomeka/reset-db-lemmario.sh $SEED_FLAG
+
+      - name: Verify services after reset
+        run: |
+          echo "Verifying services are running..."
+          docker ps --filter "name=lemmario"
+          echo ""
+          echo "Database reset completed successfully!"
