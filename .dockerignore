@@ -1,0 +1,51 @@
+# Git
+.git
+.gitignore
+.github
+
+# Environment files - NEVER copy into Docker images
+.env
+.env.*
+!.env.example
+
+# Dependencies
+node_modules
+**/node_modules
+
+# Build outputs
+dist
+.next
+packages/*/dist
+packages/*/.next
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Testing
+coverage
+.nyc_output
+
+# Misc
+*.md
+!README.md
+docs/
+old_website/
+scripts/
+report_migration/
+
+# Docker
+docker-compose*.yml
+Dockerfile
+.dockerignore

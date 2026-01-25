@@ -10,7 +10,6 @@ WORKDIR /app
 COPY pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY package.json ./
 COPY tsconfig.json ./
-COPY .env ./.env
 
 # Copy payload package
 COPY packages/payload-cms ./packages/payload-cms
