@@ -36,7 +36,7 @@ jobs:
           if [ "${{ inputs.run_seed }}" == "true" ]; then
             SEED_FLAG="--seed"
           fi
-          /home/dhomeka/reset-db-lemmario.sh $SEED_FLAG
+          /home/dhomeka/lemmario-ts/reset-db-lemmario.sh $SEED_FLAG
 
       - name: Verify services after reset
         run: |

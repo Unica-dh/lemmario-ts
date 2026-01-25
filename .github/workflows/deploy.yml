@@ -75,7 +75,7 @@ jobs:
     steps:
       - name: Deploy with script
         run: |
-          /home/dhomeka/deploy-lemmario.sh ${{ needs.build-and-push.outputs.commit_sha }}
+          /home/dhomeka/lemmario-ts/deploy-lemmario.sh ${{ needs.build-and-push.outputs.commit_sha }}
 
       - name: Verify deployment
         run: |
