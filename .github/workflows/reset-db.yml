@@ -22,12 +22,15 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
     environment: production-destructive
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Clone repository (manual git)
+        run: |
+          cd $HOME
+          rm -rf /tmp/lemmario-reset-${{ github.run_id }}
+          git clone --depth=1 https://github.com/${{ github.repository }}.git /tmp/lemmario-reset-${{ github.run_id }}
 
       - name: Copy reset script to server location
         run: |
-          cp scripts/deploy/reset-db-lemmario.sh /home/dhomeka/reset-db-lemmario.sh
+          cp /tmp/lemmario-reset-${{ github.run_id }}/scripts/deploy/reset-db-lemmario.sh /home/dhomeka/reset-db-lemmario.sh
           chmod +x /home/dhomeka/reset-db-lemmario.sh
 
       - name: Verify confirmation
@@ -45,6 +48,11 @@ jobs:
             SEED_FLAG="--seed"
           fi
           /home/dhomeka/reset-db-lemmario.sh $SEED_FLAG
+
+      - name: Cleanup temporary checkout
+        if: always()
+        run: |
+          rm -rf /tmp/lemmario-reset-${{ github.run_id }}
 
       - name: Verify services after reset
         run: |

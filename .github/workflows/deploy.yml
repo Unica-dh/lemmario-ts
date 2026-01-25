@@ -73,17 +73,25 @@ jobs:
     needs: build-and-push
     environment: production
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Clone repository (manual git)
+        run: |
+          cd $HOME
+          rm -rf /tmp/lemmario-deploy-${{ github.run_id }}
+          git clone --depth=1 https://github.com/${{ github.repository }}.git /tmp/lemmario-deploy-${{ github.run_id }}
 
       - name: Copy deploy script to server location
         run: |
-          cp scripts/deploy/deploy-lemmario.sh /home/dhomeka/deploy-lemmario.sh
+          cp /tmp/lemmario-deploy-${{ github.run_id }}/scripts/deploy/deploy-lemmario.sh /home/dhomeka/deploy-lemmario.sh
           chmod +x /home/dhomeka/deploy-lemmario.sh
 
       - name: Deploy with script
         run: |
           /home/dhomeka/deploy-lemmario.sh ${{ needs.build-and-push.outputs.commit_sha }}
+
+      - name: Cleanup temporary checkout
+        if: always()
+        run: |
+          rm -rf /tmp/lemmario-deploy-${{ github.run_id }}
 
       - name: Verify deployment
         run: |
