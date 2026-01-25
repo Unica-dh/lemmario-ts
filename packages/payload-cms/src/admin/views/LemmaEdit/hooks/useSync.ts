@@ -237,6 +237,7 @@ export const useSync = ({ apiUrl = '/api' }: UseSyncOptions = {}) => {
             })
           } else if (ric.id) {
             // UPDATE - filtra campi non salvabili (fonte_titolo è solo per UI)
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { fonte_titolo, _isNew, _isDeleted, ...ricData } = ric
             await fetch(`${apiUrl}/ricorrenze/${ric.id}`, {
               method: 'PATCH',

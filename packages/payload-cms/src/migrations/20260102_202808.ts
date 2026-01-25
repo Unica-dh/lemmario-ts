@@ -496,7 +496,7 @@ CREATE INDEX IF NOT EXISTS "payload_preferences_rels_path_idx" ON "payload_prefe
 CREATE INDEX IF NOT EXISTS "payload_preferences_rels_utenti_id_idx" ON "payload_preferences_rels" USING btree ("utenti_id");
 CREATE INDEX IF NOT EXISTS "payload_migrations_created_at_idx" ON "payload_migrations" USING btree ("created_at");`);
 
-};
+}
 
 export async function down({ payload }: MigrateDownArgs): Promise<void> {
 await payload.db.drizzle.execute(sql`
@@ -526,4 +526,4 @@ DROP TABLE "payload_preferences";
 DROP TABLE "payload_preferences_rels";
 DROP TABLE "payload_migrations";`);
 
-};
+}
