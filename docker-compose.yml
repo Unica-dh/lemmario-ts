@@ -37,8 +37,7 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      postgres:
-        condition: service_healthy
+      - postgres
     networks:
       - lemmario_network
     volumes:
