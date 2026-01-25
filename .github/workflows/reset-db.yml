@@ -19,7 +19,7 @@ on:
 jobs:
   reset-database:
     name: Reset PostgreSQL database
-    runs-on: [self-hosted, Linux, vpn]
+    runs-on: [self-hosted, Linux, X64]
     environment: production-destructive
     steps:
       - name: Verify confirmation
