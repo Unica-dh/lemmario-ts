@@ -13,6 +13,16 @@ PROJECT_DIR="/home/dhomeka/docker/lemmario_ts"
 VOLUME_NAME="lemmario_ts_postgres_data"
 RUN_SEED=false
 
+# Detect $COMPOSE_CMD command (v1 vs v2)
+if command -v docker-compose &> /dev/null; then
+  COMPOSE_CMD="docker-compose"
+elif $COMPOSE_CMD version &> /dev/null; then
+  COMPOSE_CMD="docker compose"
+else
+  echo "ERROR: Neither 'docker-compose' nor 'docker compose' found"
+  exit 1
+fi
+
 # Parse arguments
 if [[ "${1:-}" == "--seed" ]]; then
   RUN_SEED=true
@@ -37,17 +47,17 @@ fi
 echo "[1/9] Creating final backup..."
 mkdir -p "$BACKUP_DIR"
 cd "$PROJECT_DIR"
-docker compose -f "$COMPOSE_FILE" exec -T postgres pg_dump -U lemmario_user lemmario_db \
+$COMPOSE_CMD -f "$COMPOSE_FILE" exec -T postgres pg_dump -U lemmario_user lemmario_db \
   > "$BACKUP_DIR/lemmario_db_before_reset.sql" 2>/dev/null || echo "WARNING: Backup failed (DB might be empty)"
 echo "Backup saved (if DB exists): $BACKUP_DIR/lemmario_db_before_reset.sql"
 
 # Step 2: Stop servizi
 echo "[2/9] Stopping all services..."
-docker compose -f "$COMPOSE_FILE" stop
+$COMPOSE_CMD -f "$COMPOSE_FILE" stop
 
 # Step 3: Rimuovi container postgres (per sbloccare volume)
 echo "[3/9] Removing postgres container..."
-docker compose -f "$COMPOSE_FILE" rm -f postgres
+$COMPOSE_CMD -f "$COMPOSE_FILE" rm -f postgres
 
 # Step 4: Rimuovi volume postgres_data
 echo "[4/9] Removing postgres_data volume..."
@@ -55,12 +65,12 @@ docker volume rm "$VOLUME_NAME" 2>/dev/null || echo "Volume already removed or d
 
 # Step 5: Ricrea postgres service (volume verrà ricreato automaticamente)
 echo "[5/9] Starting postgres with fresh database..."
-docker compose -f "$COMPOSE_FILE" up -d postgres
+$COMPOSE_CMD -f "$COMPOSE_FILE" up -d postgres
 
 # Step 6: Attendi che postgres sia healthy
 echo "[6/9] Waiting for postgres to be healthy..."
 for i in {1..30}; do
-  if docker compose -f "$COMPOSE_FILE" exec postgres pg_isready -U lemmario_user 2>/dev/null; then
+  if $COMPOSE_CMD -f "$COMPOSE_FILE" exec postgres pg_isready -U lemmario_user 2>/dev/null; then
     echo "Postgres is ready!"
     break
   fi
@@ -76,21 +86,21 @@ done
 
 # Step 7: Start payload per eseguire migrations
 echo "[7/9] Starting payload to run migrations..."
-docker compose -f "$COMPOSE_FILE" up -d payload
+$COMPOSE_CMD -f "$COMPOSE_FILE" up -d payload
 echo "Waiting for payload to complete migrations..."
 sleep 10  # Attendi che payload esegua migrations
 
 # Step 8: Seed (opzionale)
 if [ "$RUN_SEED" = true ]; then
   echo "[8/9] Running database seed..."
-  docker compose -f "$COMPOSE_FILE" exec payload pnpm db:seed
+  $COMPOSE_CMD -f "$COMPOSE_FILE" exec payload pnpm db:seed
 else
   echo "[8/9] Skipping seed (not requested)"
 fi
 
 # Step 9: Start frontend
 echo "[9/9] Starting frontend..."
-docker compose -f "$COMPOSE_FILE" up -d frontend
+$COMPOSE_CMD -f "$COMPOSE_FILE" up -d frontend
 
 echo "=========================================="
 echo "Database reset completed successfully!"

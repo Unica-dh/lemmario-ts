@@ -2,10 +2,23 @@
 
 Questa directory contiene gli script bash necessari per il deploy automatico sul server VPN.
 
-## File
+## 📋 File
 
 - **[deploy-lemmario.sh](deploy-lemmario.sh)** - Script principale per deploy automatico
 - **[reset-db-lemmario.sh](reset-db-lemmario.sh)** - Script per reset completo database
+- **[SETUP_SERVER.md](SETUP_SERVER.md)** - ⭐ **Guida setup iniziale server**
+
+## 🚀 Quick Start
+
+### Prima volta? Leggi prima la guida setup:
+👉 **[SETUP_SERVER.md](SETUP_SERVER.md)** 👈
+
+La guida copre:
+- Creazione file `.env` di produzione
+- Compatibilità Docker Compose v1/v2
+- Primo avvio manuale
+- Setup GitHub self-hosted runner
+- Troubleshooting comuni
 
 ## Installazione sul Server
 
