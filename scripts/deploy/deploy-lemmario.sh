@@ -10,9 +10,9 @@ set -euo pipefail
 # Variabili - MODIFICA GHCR_REGISTRY con il tuo GitHub owner
 COMMIT_SHA="${1:-latest}"
 BACKUP_DIR="/home/dhomeka/backups/lemmario-$(date +%Y%m%d-%H%M%S)"
-COMPOSE_FILE="/home/dhomeka/lemmario_ts/docker-compose.yml"
-COMPOSE_PROD_FILE="/home/dhomeka/lemmario_ts/docker-compose.prod.yml"
-PROJECT_DIR="/home/dhomeka/lemmario_ts"
+COMPOSE_FILE="/home/dhomeka/docker/lemmario_ts/docker-compose.yml"
+COMPOSE_PROD_FILE="/home/dhomeka/docker/lemmario_ts/docker-compose.prod.yml"
+PROJECT_DIR="/home/dhomeka/docker/lemmario_ts"
 GHCR_REGISTRY="ghcr.io/unica-dh"  # es. ghcr.io/unica-dh
 HEALTH_CHECK_RETRIES=12
 HEALTH_CHECK_INTERVAL=5

@@ -22,6 +22,14 @@ jobs:
     runs-on: [self-hosted, Linux, X64]
     environment: production-destructive
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Copy reset script to server location
+        run: |
+          cp scripts/deploy/reset-db-lemmario.sh /home/dhomeka/reset-db-lemmario.sh
+          chmod +x /home/dhomeka/reset-db-lemmario.sh
+
       - name: Verify confirmation
         run: |
           if [ "${{ inputs.confirmation }}" != "YES_DELETE_DATABASE" ]; then
@@ -36,7 +44,7 @@ jobs:
           if [ "${{ inputs.run_seed }}" == "true" ]; then
             SEED_FLAG="--seed"
           fi
-          /home/dhomeka/lemmario-ts/reset-db-lemmario.sh $SEED_FLAG
+          /home/dhomeka/reset-db-lemmario.sh $SEED_FLAG
 
       - name: Verify services after reset
         run: |

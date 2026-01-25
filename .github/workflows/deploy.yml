@@ -73,9 +73,17 @@ jobs:
     needs: build-and-push
     environment: production
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Copy deploy script to server location
+        run: |
+          cp scripts/deploy/deploy-lemmario.sh /home/dhomeka/deploy-lemmario.sh
+          chmod +x /home/dhomeka/deploy-lemmario.sh
+
       - name: Deploy with script
         run: |
-          /home/dhomeka/lemmario-ts/deploy-lemmario.sh ${{ needs.build-and-push.outputs.commit_sha }}
+          /home/dhomeka/deploy-lemmario.sh ${{ needs.build-and-push.outputs.commit_sha }}
 
       - name: Verify deployment
         run: |
