@@ -99,7 +99,7 @@ $COMPOSE_CMD -f "$COMPOSE_FILE" -f "$COMPOSE_PROD_FILE" up -d --no-deps payload 
 # Step 7: Health check payload
 echo "[7/9] Health checking payload service..."
 for i in $(seq 1 $HEALTH_CHECK_RETRIES); do
-  if curl -f http://localhost:3000/api 2>/dev/null; then
+  if curl -sf http://localhost:3000/api/access >/dev/null 2>&1; then
     echo "Payload is healthy!"
     break
   fi
