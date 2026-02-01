@@ -77,7 +77,7 @@ export default buildConfig({
     pool: {
       connectionString: String(process.env.DATABASE_URI),
     },
-    push: false,
+    push: true,
   }),
   cors: [
     process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001',
