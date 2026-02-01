@@ -13,10 +13,10 @@ PROJECT_DIR="/home/dhruby/lemmario-ts"
 VOLUME_NAME="lemmario_ts_postgres_data"
 RUN_SEED=false
 
-# Detect $COMPOSE_CMD command (v1 vs v2)
+# Detect docker compose command (v1 vs v2)
 if command -v docker-compose &> /dev/null; then
   COMPOSE_CMD="docker-compose"
-elif $COMPOSE_CMD version &> /dev/null; then
+elif docker compose version &> /dev/null; then
   COMPOSE_CMD="docker compose"
 else
   echo "ERROR: Neither 'docker-compose' nor 'docker compose' found"
@@ -36,11 +36,16 @@ echo ""
 echo "WARNING: This will DELETE ALL DATABASE DATA!"
 echo "A backup will be created at: $BACKUP_DIR"
 echo ""
-read -p "Type 'YES_DELETE_DATABASE' to confirm: " CONFIRMATION
 
-if [[ "$CONFIRMATION" != "YES_DELETE_DATABASE" ]]; then
-  echo "Reset cancelled."
-  exit 0
+# Interactive confirmation only if running manually (not in CI)
+if [[ -t 0 ]]; then
+  read -p "Type 'YES_DELETE_DATABASE' to confirm: " CONFIRMATION
+  if [[ "$CONFIRMATION" != "YES_DELETE_DATABASE" ]]; then
+    echo "Reset cancelled."
+    exit 0
+  fi
+else
+  echo "Running in non-interactive mode (CI/CD), proceeding..."
 fi
 
 # Step 1: Backup finale
