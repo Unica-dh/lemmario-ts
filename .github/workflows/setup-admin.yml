@@ -1,0 +1,165 @@
+name: Setup Admin and Lemmario
+
+on:
+  workflow_dispatch:
+    inputs:
+      admin_email:
+        description: 'Email admin'
+        required: true
+        default: 'admin@lemmario.it'
+        type: string
+      admin_password:
+        description: 'Password admin'
+        required: true
+        type: string
+      lemmario_slug:
+        description: 'Slug lemmario'
+        required: true
+        default: 'matematica'
+        type: string
+      lemmario_titolo:
+        description: 'Titolo lemmario'
+        required: true
+        default: 'Lemmario di Matematica'
+        type: string
+
+jobs:
+  setup:
+    name: Create Admin and Lemmario
+    runs-on: [self-hosted, Linux, X64]
+    steps:
+      - name: Wait for Payload to be ready
+        run: |
+          echo "Waiting for Payload API to be ready..."
+          for i in {1..30}; do
+            if curl -s "http://localhost:3000/api/access" > /dev/null 2>&1; then
+              echo "Payload is ready!"
+              break
+            fi
+            if [ $i -eq 30 ]; then
+              echo "ERROR: Payload not responding"
+              exit 1
+            fi
+            echo "Waiting... ($i/30)"
+            sleep 2
+          done
+
+      - name: Check if admin already exists
+        id: check_admin
+        run: |
+          RESPONSE=$(curl -s "http://localhost:3000/api/utenti?where[email][equals]=${{ inputs.admin_email }}&limit=1")
+          COUNT=$(echo "$RESPONSE" | jq -r '.totalDocs // 0')
+          echo "Existing admins with this email: $COUNT"
+          if [[ "$COUNT" -gt 0 ]]; then
+            echo "admin_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "admin_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create admin user
+        if: steps.check_admin.outputs.admin_exists == 'false'
+        run: |
+          echo "Creating admin user..."
+          RESPONSE=$(curl -s -X POST "http://localhost:3000/api/utenti" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "email": "${{ inputs.admin_email }}",
+              "password": "${{ inputs.admin_password }}",
+              "nome": "Admin",
+              "cognome": "Lemmario",
+              "ruolo": "super_admin"
+            }')
+
+          echo "Response: $RESPONSE"
+
+          # Check if user was created
+          USER_ID=$(echo "$RESPONSE" | jq -r '.doc.id // empty')
+          if [[ -z "$USER_ID" ]]; then
+            echo "::error::Failed to create admin user"
+            echo "$RESPONSE"
+            exit 1
+          fi
+
+          echo "Admin user created with ID: $USER_ID"
+
+      - name: Login and get token
+        id: login
+        run: |
+          echo "Logging in..."
+          RESPONSE=$(curl -s -X POST "http://localhost:3000/api/utenti/login" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "email": "${{ inputs.admin_email }}",
+              "password": "${{ inputs.admin_password }}"
+            }')
+
+          TOKEN=$(echo "$RESPONSE" | jq -r '.token // empty')
+          if [[ -z "$TOKEN" ]]; then
+            echo "::error::Failed to login"
+            echo "$RESPONSE"
+            exit 1
+          fi
+
+          echo "Login successful"
+          echo "token=$TOKEN" >> $GITHUB_OUTPUT
+
+      - name: Check if lemmario already exists
+        id: check_lemmario
+        run: |
+          RESPONSE=$(curl -s "http://localhost:3000/api/lemmari?where[slug][equals]=${{ inputs.lemmario_slug }}&limit=1" \
+            -H "Authorization: Bearer ${{ steps.login.outputs.token }}")
+          COUNT=$(echo "$RESPONSE" | jq -r '.totalDocs // 0')
+          echo "Existing lemmari with this slug: $COUNT"
+          if [[ "$COUNT" -gt 0 ]]; then
+            LEMMARIO_ID=$(echo "$RESPONSE" | jq -r '.docs[0].id')
+            echo "lemmario_exists=true" >> $GITHUB_OUTPUT
+            echo "lemmario_id=$LEMMARIO_ID" >> $GITHUB_OUTPUT
+          else
+            echo "lemmario_exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create lemmario
+        if: steps.check_lemmario.outputs.lemmario_exists == 'false'
+        run: |
+          echo "Creating lemmario..."
+          RESPONSE=$(curl -s -X POST "http://localhost:3000/api/lemmari" \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ steps.login.outputs.token }}" \
+            -d '{
+              "slug": "${{ inputs.lemmario_slug }}",
+              "titolo": "${{ inputs.lemmario_titolo }}",
+              "descrizione": "Dizionario della terminologia matematica ed economica medievale italiana",
+              "periodo_storico": "XIV-XV secolo",
+              "attivo": true,
+              "ordine": 1
+            }')
+
+          echo "Response: $RESPONSE"
+
+          LEMMARIO_ID=$(echo "$RESPONSE" | jq -r '.doc.id // empty')
+          if [[ -z "$LEMMARIO_ID" ]]; then
+            echo "::error::Failed to create lemmario"
+            exit 1
+          fi
+
+          echo "Lemmario created with ID: $LEMMARIO_ID"
+
+      - name: Display summary
+        run: |
+          echo "==========================================="
+          echo "Setup completed!"
+          echo "==========================================="
+
+          # Get counts
+          UTENTI=$(curl -s "http://localhost:3000/api/utenti?limit=1" | jq -r '.totalDocs // 0')
+          LEMMARI=$(curl -s "http://localhost:3000/api/lemmari?limit=1" | jq -r '.totalDocs // 0')
+
+          echo "Users: $UTENTI"
+          echo "Lemmari: $LEMMARI"
+
+          # Get lemmario ID for migration
+          LEMMARIO_ID=$(curl -s "http://localhost:3000/api/lemmari?where[slug][equals]=${{ inputs.lemmario_slug }}&limit=1" | jq -r '.docs[0].id')
+          echo ""
+          echo "Lemmario ID for migration: $LEMMARIO_ID"
+          echo ""
+          echo "Next step: Run Data Migration workflow with lemmario_id=$LEMMARIO_ID"
