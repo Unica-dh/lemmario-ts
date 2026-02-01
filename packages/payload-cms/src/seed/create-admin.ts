@@ -4,7 +4,7 @@
  * Environment: ADMIN_EMAIL, ADMIN_PASSWORD
  */
 import payload from 'payload'
-import { config } from '../payload.config'
+import config from '../payload.config'
 
 const createAdmin = async () => {
   const email = process.env.ADMIN_EMAIL || 'admin@lemmario.it'
