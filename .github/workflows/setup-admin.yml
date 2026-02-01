@@ -100,60 +100,26 @@ jobs:
           echo "Checking utenti table schema..."
           docker exec lemmario_db psql -U lemmario_user -d lemmario_db -c "\d utenti" || true
 
-      - name: Create admin user via Payload first-register
+      - name: Create admin user via Payload Local API
         id: create_user
         if: steps.check_user.outputs.can_login != 'true'
         env:
           ADMIN_EMAIL: ${{ inputs.admin_email }}
           ADMIN_PASSWORD: ${{ inputs.admin_password }}
         run: |
-          echo "Creating admin user..."
+          echo "Creating admin user via Payload create-admin script..."
 
-          # Try Payload's first-register endpoint (available when no users exist)
-          RESPONSE=$(curl -s -X POST "http://localhost:3000/api/utenti/first-register" \
-            -H "Content-Type: application/json" \
-            -d "{
-              \"email\": \"${ADMIN_EMAIL}\",
-              \"password\": \"${ADMIN_PASSWORD}\",
-              \"nome\": \"Admin\",
-              \"cognome\": \"Lemmario\",
-              \"ruolo\": \"super_admin\",
-              \"attivo\": true
-            }")
+          # Use the built-in create-admin script that uses Payload Local API
+          docker exec -e ADMIN_EMAIL="${ADMIN_EMAIL}" -e ADMIN_PASSWORD="${ADMIN_PASSWORD}" \
+            lemmario_payload pnpm create-admin 2>&1
 
-          echo "First-register response: $RESPONSE"
-
-          USER_ID=$(echo "$RESPONSE" | jq -r '.user.id // .doc.id // empty')
-          if [[ -n "$USER_ID" ]]; then
-            echo "User created via first-register with ID: $USER_ID"
+          if [ $? -eq 0 ]; then
+            echo "Admin user created successfully"
             echo "created=true" >> $GITHUB_OUTPUT
           else
-            echo "First-register failed, trying normal API with internal credentials..."
-
-            # Try using Payload internal API via admin panel cookie simulation
-            # Generate password hash using pbkdf2 (Node.js built-in, similar to bcrypt)
-            HASH=$(docker exec lemmario_payload node -e "
-              const crypto = require('crypto');
-              const password = '${ADMIN_PASSWORD}';
-              const salt = crypto.randomBytes(16).toString('hex');
-              const hash = crypto.pbkdf2Sync(password, salt, 100000, 64, 'sha512').toString('hex');
-              // Output in bcrypt-like format that Payload might accept
-              // Actually, let's just compute a simple hash for testing
-              const bcryptStyle = '\$2a\$10\$' + crypto.createHash('sha256').update(password + salt).digest('base64').slice(0, 53);
-              console.log(bcryptStyle);
-            " 2>&1)
-
-            echo "Generated hash: ${HASH:0:20}..."
-
-            # Insert directly with the hash
-            docker exec lemmario_db psql -U lemmario_user -d lemmario_db -c "
-              INSERT INTO utenti (email, hash, nome, cognome, ruolo, attivo, created_at, updated_at)
-              VALUES ('${ADMIN_EMAIL}', '${HASH}', 'Admin', 'Lemmario', 'super_admin', true, NOW(), NOW())
-              ON CONFLICT (email) DO UPDATE SET hash = EXCLUDED.hash, updated_at = NOW();
-            "
-
-            echo "User inserted via SQL (login may not work)"
+            echo "::error::Failed to create admin user"
             echo "created=false" >> $GITHUB_OUTPUT
+            exit 1
           fi
 
       - name: Login after creation
