@@ -67,6 +67,7 @@ $COMPOSE_CMD -f "$COMPOSE_FILE" stop payload frontend
 # Step 4: Crea docker-compose.prod.yml con nuove image tags
 echo "[4/8] Updating docker-compose.prod.yml with new tags..."
 cat > "$COMPOSE_PROD_FILE" <<EOF
+version: "3"
 services:
   payload:
     image: $GHCR_REGISTRY/lemmario-payload:sha-$COMMIT_SHA
