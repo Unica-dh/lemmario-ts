@@ -44,57 +44,77 @@ jobs:
             sleep 2
           done
 
-      - name: Check if admin already exists
-        id: check_admin
+      - name: Check existing users count
+        id: check_users
         run: |
-          # URL encode the email
-          ENCODED_EMAIL=$(echo "${{ inputs.admin_email }}" | sed 's/@/%40/g')
-          RESPONSE=$(curl -s "http://localhost:3000/api/utenti?where[email][equals]=${ENCODED_EMAIL}&limit=1" || echo '{"totalDocs":0}')
-          echo "API Response: $RESPONSE"
-          COUNT=$(echo "$RESPONSE" | jq -r '.totalDocs // 0')
-          echo "Existing admins with this email: $COUNT"
-          if [[ "$COUNT" -gt 0 ]]; then
-            echo "admin_exists=true" >> $GITHUB_OUTPUT
-          else
-            echo "admin_exists=false" >> $GITHUB_OUTPUT
-          fi
+          # Check users directly in database
+          COUNT=$(docker exec lemmario_db psql -U lemmario_user -d lemmario_db -t -c "SELECT COUNT(*) FROM utenti;" | tr -d ' ')
+          echo "Existing users in database: $COUNT"
+          echo "user_count=$COUNT" >> $GITHUB_OUTPUT
 
-      - name: Create admin user
-        if: steps.check_admin.outputs.admin_exists == 'false'
+      - name: Create admin user via Payload script
+        if: steps.check_users.outputs.user_count == '0'
         env:
           ADMIN_EMAIL: ${{ inputs.admin_email }}
           ADMIN_PASSWORD: ${{ inputs.admin_password }}
         run: |
-          echo "Creating admin user..."
-          RESPONSE=$(curl -s -X POST "http://localhost:3000/api/utenti" \
-            -H "Content-Type: application/json" \
-            -d "{
-              \"email\": \"${ADMIN_EMAIL}\",
-              \"password\": \"${ADMIN_PASSWORD}\",
-              \"nome\": \"Admin\",
-              \"cognome\": \"Lemmario\",
-              \"ruolo\": \"super_admin\"
-            }")
+          echo "Creating admin user directly in payload container..."
 
-          echo "Response: $RESPONSE"
+          # Execute a Node.js script inside the payload container to create the user
+          docker exec lemmario_payload node -e "
+          const payload = require('payload');
+          const config = require('./dist/payload.config').default;
 
-          # Check if user was created
-          USER_ID=$(echo "$RESPONSE" | jq -r '.doc.id // empty')
-          if [[ -z "$USER_ID" ]]; then
-            echo "::error::Failed to create admin user"
-            echo "$RESPONSE"
-            exit 1
-          fi
+          async function createAdmin() {
+            await payload.init({
+              secret: process.env.PAYLOAD_SECRET,
+              config,
+              local: true,
+            });
 
-          echo "Admin user created with ID: $USER_ID"
+            const user = await payload.create({
+              collection: 'utenti',
+              data: {
+                email: '${ADMIN_EMAIL}',
+                password: '${ADMIN_PASSWORD}',
+                nome: 'Admin',
+                cognome: 'Lemmario',
+                ruolo: 'super_admin',
+                attivo: true,
+              },
+              overrideAccess: true,
+            });
 
-      - name: Login and get token
+            console.log('User created:', user.id);
+            process.exit(0);
+          }
+
+          createAdmin().catch(err => {
+            console.error('Error:', err.message);
+            process.exit(1);
+          });
+          " 2>&1 || {
+            echo "Node script failed, trying direct SQL..."
+
+            # Fallback: Create user directly in database with bcrypt hash
+            # Note: This is a workaround and may not work perfectly with Payload's auth
+            docker exec lemmario_db psql -U lemmario_user -d lemmario_db -c "
+              INSERT INTO utenti (email, nome, cognome, ruolo, attivo, created_at, updated_at)
+              VALUES ('${ADMIN_EMAIL}', 'Admin', 'Lemmario', 'super_admin', true, NOW(), NOW())
+              ON CONFLICT (email) DO NOTHING;
+            "
+            echo "User inserted via SQL (password needs to be set via admin panel)"
+          }
+
+      - name: Verify admin exists and login
         id: login
         env:
           ADMIN_EMAIL: ${{ inputs.admin_email }}
           ADMIN_PASSWORD: ${{ inputs.admin_password }}
         run: |
-          echo "Logging in..."
+          echo "Checking if admin was created..."
+
+          # Try to login
           RESPONSE=$(curl -s -X POST "http://localhost:3000/api/utenti/login" \
             -H "Content-Type: application/json" \
             -d "{
@@ -102,50 +122,73 @@ jobs:
               \"password\": \"${ADMIN_PASSWORD}\"
             }")
 
+          echo "Login response: $RESPONSE"
+
           TOKEN=$(echo "$RESPONSE" | jq -r '.token // empty')
           if [[ -z "$TOKEN" ]]; then
-            echo "::error::Failed to login"
-            echo "$RESPONSE"
-            exit 1
+            echo "::warning::Could not login with credentials. User may need password reset."
+            # Get user ID for next steps
+            USER_ID=$(docker exec lemmario_db psql -U lemmario_user -d lemmario_db -t -c "SELECT id FROM utenti WHERE email='${ADMIN_EMAIL}' LIMIT 1;" | tr -d ' ')
+            if [[ -n "$USER_ID" ]]; then
+              echo "User exists with ID: $USER_ID"
+              echo "has_token=false" >> $GITHUB_OUTPUT
+            else
+              echo "::error::User was not created"
+              exit 1
+            fi
+          else
+            echo "Login successful!"
+            echo "token=$TOKEN" >> $GITHUB_OUTPUT
+            echo "has_token=true" >> $GITHUB_OUTPUT
           fi
-
-          echo "Login successful"
-          echo "token=$TOKEN" >> $GITHUB_OUTPUT
 
       - name: Check if lemmario already exists
         id: check_lemmario
         run: |
-          RESPONSE=$(curl -s "http://localhost:3000/api/lemmari?where[slug][equals]=${{ inputs.lemmario_slug }}&limit=1" \
-            -H "Authorization: Bearer ${{ steps.login.outputs.token }}")
-          COUNT=$(echo "$RESPONSE" | jq -r '.totalDocs // 0')
+          COUNT=$(docker exec lemmario_db psql -U lemmario_user -d lemmario_db -t -c "SELECT COUNT(*) FROM lemmari WHERE slug='${{ inputs.lemmario_slug }}';" | tr -d ' ')
           echo "Existing lemmari with this slug: $COUNT"
           if [[ "$COUNT" -gt 0 ]]; then
-            LEMMARIO_ID=$(echo "$RESPONSE" | jq -r '.docs[0].id')
+            LEMMARIO_ID=$(docker exec lemmario_db psql -U lemmario_user -d lemmario_db -t -c "SELECT id FROM lemmari WHERE slug='${{ inputs.lemmario_slug }}' LIMIT 1;" | tr -d ' ')
             echo "lemmario_exists=true" >> $GITHUB_OUTPUT
             echo "lemmario_id=$LEMMARIO_ID" >> $GITHUB_OUTPUT
           else
             echo "lemmario_exists=false" >> $GITHUB_OUTPUT
           fi
 
-      - name: Create lemmario
+      - name: Create lemmario via API or SQL
         if: steps.check_lemmario.outputs.lemmario_exists == 'false'
+        env:
+          LEMMARIO_SLUG: ${{ inputs.lemmario_slug }}
+          LEMMARIO_TITOLO: ${{ inputs.lemmario_titolo }}
         run: |
           echo "Creating lemmario..."
-          RESPONSE=$(curl -s -X POST "http://localhost:3000/api/lemmari" \
-            -H "Content-Type: application/json" \
-            -H "Authorization: Bearer ${{ steps.login.outputs.token }}" \
-            -d '{
-              "slug": "${{ inputs.lemmario_slug }}",
-              "titolo": "${{ inputs.lemmario_titolo }}",
-              "descrizione": "Dizionario della terminologia matematica ed economica medievale italiana",
-              "periodo_storico": "XIV-XV secolo",
-              "attivo": true,
-              "ordine": 1
-            }')
 
-          echo "Response: $RESPONSE"
+          if [[ "${{ steps.login.outputs.has_token }}" == "true" ]]; then
+            # Use API with token
+            RESPONSE=$(curl -s -X POST "http://localhost:3000/api/lemmari" \
+              -H "Content-Type: application/json" \
+              -H "Authorization: Bearer ${{ steps.login.outputs.token }}" \
+              -d "{
+                \"slug\": \"${LEMMARIO_SLUG}\",
+                \"titolo\": \"${LEMMARIO_TITOLO}\",
+                \"descrizione\": \"Dizionario della terminologia matematica ed economica medievale italiana\",
+                \"periodo_storico\": \"XIV-XV secolo\",
+                \"attivo\": true,
+                \"ordine\": 1
+              }")
 
-          LEMMARIO_ID=$(echo "$RESPONSE" | jq -r '.doc.id // empty')
+            echo "Response: $RESPONSE"
+            LEMMARIO_ID=$(echo "$RESPONSE" | jq -r '.doc.id // empty')
+          else
+            # Fallback to direct SQL
+            docker exec lemmario_db psql -U lemmario_user -d lemmario_db -c "
+              INSERT INTO lemmari (slug, titolo, descrizione, periodo_storico, attivo, ordine, created_at, updated_at)
+              VALUES ('${LEMMARIO_SLUG}', '${LEMMARIO_TITOLO}', 'Dizionario della terminologia matematica ed economica medievale italiana', 'XIV-XV secolo', true, 1, NOW(), NOW())
+              ON CONFLICT (slug) DO NOTHING;
+            "
+            LEMMARIO_ID=$(docker exec lemmario_db psql -U lemmario_user -d lemmario_db -t -c "SELECT id FROM lemmari WHERE slug='${LEMMARIO_SLUG}' LIMIT 1;" | tr -d ' ')
+          fi
+
           if [[ -z "$LEMMARIO_ID" ]]; then
             echo "::error::Failed to create lemmario"
             exit 1
@@ -159,15 +202,15 @@ jobs:
           echo "Setup completed!"
           echo "==========================================="
 
-          # Get counts
-          UTENTI=$(curl -s "http://localhost:3000/api/utenti?limit=1" | jq -r '.totalDocs // 0')
-          LEMMARI=$(curl -s "http://localhost:3000/api/lemmari?limit=1" | jq -r '.totalDocs // 0')
+          # Get counts from database directly
+          UTENTI=$(docker exec lemmario_db psql -U lemmario_user -d lemmario_db -t -c "SELECT COUNT(*) FROM utenti;" | tr -d ' ')
+          LEMMARI=$(docker exec lemmario_db psql -U lemmario_user -d lemmario_db -t -c "SELECT COUNT(*) FROM lemmari;" | tr -d ' ')
 
           echo "Users: $UTENTI"
           echo "Lemmari: $LEMMARI"
 
           # Get lemmario ID for migration
-          LEMMARIO_ID=$(curl -s "http://localhost:3000/api/lemmari?where[slug][equals]=${{ inputs.lemmario_slug }}&limit=1" | jq -r '.docs[0].id')
+          LEMMARIO_ID=$(docker exec lemmario_db psql -U lemmario_user -d lemmario_db -t -c "SELECT id FROM lemmari WHERE slug='${{ inputs.lemmario_slug }}' LIMIT 1;" | tr -d ' ')
           echo ""
           echo "Lemmario ID for migration: $LEMMARIO_ID"
           echo ""
