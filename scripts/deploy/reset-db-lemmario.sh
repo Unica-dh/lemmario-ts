@@ -8,8 +8,8 @@
 set -euo pipefail
 
 BACKUP_DIR="/home/dhomeka/backups/pre-reset-$(date +%Y%m%d-%H%M%S)"
-COMPOSE_FILE="/home/dhomeka/lemmario_ts/docker-compose.yml"
-PROJECT_DIR="/home/dhomeka/lemmario_ts"
+COMPOSE_FILE="/home/dhomeka/lemmario-ts/docker-compose.yml"
+PROJECT_DIR="/home/dhomeka/lemmario-ts"
 VOLUME_NAME="lemmario_ts_postgres_data"
 RUN_SEED=false
 

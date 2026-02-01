@@ -160,14 +160,14 @@ echo $GITHUB_TOKEN | docker login ghcr.io -u <username> --password-stdin
 **Soluzione**:
 ```bash
 # Check logs servizi
-docker compose -f /home/dhomeka/lemmario_ts/docker-compose.yml logs payload
-docker compose -f /home/dhomeka/lemmario_ts/docker-compose.yml logs frontend
+docker compose -f /home/dhomeka/lemmario-ts/docker-compose.yml logs payload
+docker compose -f /home/dhomeka/lemmario-ts/docker-compose.yml logs frontend
 
 # Verifica porte
 ss -tlnp | grep -E '3000|3001'
 
 # Restart manuale
-docker compose -f /home/dhomeka/lemmario_ts/docker-compose.yml restart
+docker compose -f /home/dhomeka/lemmario-ts/docker-compose.yml restart
 ```
 
 ### Volume postgres_data non trovato durante reset
@@ -223,7 +223,7 @@ docker images ghcr.io/<owner>/lemmario-payload
 
 # 4. (Opzionale) Restore backup database se necessario
 cat /home/dhomeka/backups/lemmario-20260123-150000/lemmario_db.sql | \
-  docker compose -f /home/dhomeka/lemmario_ts/docker-compose.yml \
+  docker compose -f /home/dhomeka/lemmario-ts/docker-compose.yml \
   exec -T postgres psql -U lemmario_user lemmario_db
 ```
 
@@ -236,7 +236,7 @@ docker ps --filter "name=lemmario"
 
 ### Logs in real-time
 ```bash
-docker compose -f /home/dhomeka/lemmario_ts/docker-compose.yml logs -f
+docker compose -f /home/dhomeka/lemmario-ts/docker-compose.yml logs -f
 ```
 
 ### Health check manuale

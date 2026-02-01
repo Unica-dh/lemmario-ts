@@ -65,7 +65,7 @@ docker-compose --version
 **IMPORTANTE**: Il primo avvio deve essere manuale, poi GitHub Actions gestirà i deploy automatici.
 
 ```bash
-cd /home/dhomeka/lemmario_ts
+cd /home/dhomeka/lemmario-ts
 
 # Se hai docker compose v2
 docker compose up -d
@@ -96,8 +96,8 @@ curl http://localhost:3001         # Frontend
 
 ```bash
 # Copia script deploy dalla repo
-cp /home/dhomeka/lemmario_ts/scripts/deploy/deploy-lemmario.sh /home/dhomeka/
-cp /home/dhomeka/lemmario_ts/scripts/deploy/reset-db-lemmario.sh /home/dhomeka/
+cp /home/dhomeka/lemmario-ts/scripts/deploy/deploy-lemmario.sh /home/dhomeka/
+cp /home/dhomeka/lemmario-ts/scripts/deploy/reset-db-lemmario.sh /home/dhomeka/
 
 # Rendi eseguibili
 chmod 750 /home/dhomeka/deploy-lemmario.sh
@@ -162,15 +162,15 @@ Verifica che il workflow "CD - Build and Deploy" funzioni.
 **Soluzione**:
 ```bash
 # Verifica che .env esista
-ls -la /home/dhomeka/lemmario_ts/.env
+ls -la /home/dhomeka/lemmario-ts/.env
 
 # Verifica contenuto
-cat /home/dhomeka/lemmario_ts/.env
+cat /home/dhomeka/lemmario-ts/.env
 
 # Se manca, crealo da template
-cp /home/dhomeka/lemmario_ts/.env.production.example \
-   /home/dhomeka/lemmario_ts/.env
-nano /home/dhomeka/lemmario_ts/.env
+cp /home/dhomeka/lemmario-ts/.env.production.example \
+   /home/dhomeka/lemmario-ts/.env
+nano /home/dhomeka/lemmario-ts/.env
 ```
 
 ### Errore "Version unsupported"
@@ -181,7 +181,7 @@ nano /home/dhomeka/lemmario_ts/.env
 
 Riesegui pull:
 ```bash
-cd /home/dhomeka/lemmario_ts
+cd /home/dhomeka/lemmario-ts
 git pull origin main
 ```
 
