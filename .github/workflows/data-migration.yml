@@ -48,7 +48,7 @@ jobs:
     name: Check existing data
     needs: validate
     if: needs.validate.outputs.can_proceed == 'true'
-    runs-on: [self-hosted, vpn]
+    runs-on: [self-hosted, Linux, X64]
     outputs:
       has_fonti: ${{ steps.check.outputs.has_fonti }}
       has_lemmi: ${{ steps.check.outputs.has_lemmi }}
@@ -89,7 +89,7 @@ jobs:
     name: Run data migration
     needs: [validate, check-existing-data]
     if: needs.validate.outputs.can_proceed == 'true'
-    runs-on: [self-hosted, vpn]
+    runs-on: [self-hosted, Linux, X64]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
