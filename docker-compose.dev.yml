@@ -17,6 +17,9 @@ services:
       - ./packages/payload-cms/tsconfig.json:/workspace/packages/payload-cms/tsconfig.json
       - ./tsconfig.json:/workspace/tsconfig.json
       - ./pnpm-workspace.yaml:/workspace/pnpm-workspace.yaml
+      # Migration volumes
+      - ./scripts:/workspace/scripts
+      - ./old_website:/workspace/old_website
     environment:
       NODE_ENV: development
 

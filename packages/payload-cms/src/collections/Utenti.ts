@@ -38,8 +38,18 @@ export const Utenti: CollectionConfig = {
     description: 'Gestione utenti e autenticazione',
   },
   access: {
-    // Solo super_admin può creare utenti
-    create: ({ req: { user } }) => {
+    // Temporaneo: permetti creazione primo utente senza auth
+    // TODO: Ripristinare dopo creazione primo admin
+    create: async ({ req: { user, payload } }) => {
+      // Se non c'è utente loggato, verifica se esistono già utenti
+      if (!user) {
+        const existingUsers = await payload.find({
+          collection: 'utenti',
+          limit: 1,
+        })
+        // Permetti creazione solo se non ci sono utenti
+        return existingUsers.totalDocs === 0
+      }
       return user?.ruolo === 'super_admin'
     },
     // Utente può leggere se stesso, super_admin può leggere tutti

@@ -161,6 +161,19 @@ jobs:
           echo "Per eseguire la migrazione reale, usa mode: migrate"
           echo "=========================================="
 
+      - name: Fix database schema
+        if: inputs.mode == 'migrate' || inputs.mode == 'migrate-force'
+        run: |
+          echo "=========================================="
+          echo "Applicando fix schema database..."
+          echo "=========================================="
+
+          # Esegui script fix-schema.sql via docker
+          docker exec lemmario_db psql -U lemmario_user -d lemmario_db -f /docker-entrypoint-initdb.d/fix-schema.sql 2>/dev/null || \
+          docker exec lemmario_db psql -U lemmario_user -d lemmario_db < scripts/fix-schema.sql
+
+          echo "Schema fix completato"
+
       - name: Run migration
         if: inputs.mode == 'migrate' || inputs.mode == 'migrate-force'
         env:
@@ -188,6 +201,16 @@ jobs:
           path: report_migration/
           retention-days: 30
           if-no-files-found: ignore
+
+      - name: Publish all lemmi
+        if: inputs.mode == 'migrate' || inputs.mode == 'migrate-force'
+        run: |
+          echo "=========================================="
+          echo "Pubblicando tutti i lemmi..."
+          echo "=========================================="
+
+          docker exec lemmario_db psql -U lemmario_user -d lemmario_db -c "UPDATE lemmi SET pubblicato = true WHERE pubblicato = false;"
+          echo "Lemmi pubblicati"
 
       - name: Display final stats
         if: inputs.mode == 'migrate' || inputs.mode == 'migrate-force'
