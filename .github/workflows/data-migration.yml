@@ -1,0 +1,206 @@
+name: Data Migration
+
+on:
+  workflow_dispatch:
+    inputs:
+      lemmario_id:
+        description: 'ID del Lemmario di destinazione'
+        required: true
+        default: '1'
+        type: string
+      mode:
+        description: 'Modalità di esecuzione'
+        required: true
+        default: 'dry-run'
+        type: choice
+        options:
+          - dry-run
+          - migrate
+          - migrate-force
+      confirm_force:
+        description: 'Per migrate-force: scrivi CONFIRM_FORCE'
+        required: false
+        type: string
+
+env:
+  PROJECT_DIR: /home/dhruby/lemmario-ts
+
+jobs:
+  validate:
+    name: Validate inputs
+    runs-on: ubuntu-latest
+    outputs:
+      can_proceed: ${{ steps.check.outputs.can_proceed }}
+    steps:
+      - name: Validate force confirmation
+        id: check
+        run: |
+          if [[ "${{ inputs.mode }}" == "migrate-force" ]]; then
+            if [[ "${{ inputs.confirm_force }}" != "CONFIRM_FORCE" ]]; then
+              echo "::error::Per usare migrate-force devi scrivere CONFIRM_FORCE nel campo di conferma"
+              echo "can_proceed=false" >> $GITHUB_OUTPUT
+              exit 1
+            fi
+          fi
+          echo "can_proceed=true" >> $GITHUB_OUTPUT
+
+  check-existing-data:
+    name: Check existing data
+    needs: validate
+    if: needs.validate.outputs.can_proceed == 'true'
+    runs-on: [self-hosted, vpn]
+    outputs:
+      has_fonti: ${{ steps.check.outputs.has_fonti }}
+      has_lemmi: ${{ steps.check.outputs.has_lemmi }}
+      fonti_count: ${{ steps.check.outputs.fonti_count }}
+      lemmi_count: ${{ steps.check.outputs.lemmi_count }}
+    steps:
+      - name: Check existing data in database
+        id: check
+        run: |
+          echo "Checking existing data for Lemmario ID: ${{ inputs.lemmario_id }}"
+
+          # Query Payload API to check existing data
+          FONTI_RESPONSE=$(curl -s "http://localhost:3000/api/fonti?limit=1" || echo '{"totalDocs":0}')
+          LEMMI_RESPONSE=$(curl -s "http://localhost:3000/api/lemmi?where[lemmario][equals]=${{ inputs.lemmario_id }}&limit=1" || echo '{"totalDocs":0}')
+
+          FONTI_COUNT=$(echo "$FONTI_RESPONSE" | jq -r '.totalDocs // 0')
+          LEMMI_COUNT=$(echo "$LEMMI_RESPONSE" | jq -r '.totalDocs // 0')
+
+          echo "Fonti esistenti: $FONTI_COUNT"
+          echo "Lemmi esistenti (lemmario ${{ inputs.lemmario_id }}): $LEMMI_COUNT"
+
+          echo "fonti_count=$FONTI_COUNT" >> $GITHUB_OUTPUT
+          echo "lemmi_count=$LEMMI_COUNT" >> $GITHUB_OUTPUT
+
+          if [[ "$FONTI_COUNT" -gt 0 ]]; then
+            echo "has_fonti=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_fonti=false" >> $GITHUB_OUTPUT
+          fi
+
+          if [[ "$LEMMI_COUNT" -gt 0 ]]; then
+            echo "has_lemmi=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_lemmi=false" >> $GITHUB_OUTPUT
+          fi
+
+  migration:
+    name: Run data migration
+    needs: [validate, check-existing-data]
+    if: needs.validate.outputs.can_proceed == 'true'
+    runs-on: [self-hosted, vpn]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install pnpm
+        run: npm install -g pnpm@8.15.1
+
+      - name: Display migration info
+        run: |
+          echo "=========================================="
+          echo "Data Migration - $(date)"
+          echo "=========================================="
+          echo "Mode: ${{ inputs.mode }}"
+          echo "Lemmario ID: ${{ inputs.lemmario_id }}"
+          echo "Existing fonti: ${{ needs.check-existing-data.outputs.fonti_count }}"
+          echo "Existing lemmi: ${{ needs.check-existing-data.outputs.lemmi_count }}"
+          echo "=========================================="
+
+      - name: Check for duplicate risk
+        if: inputs.mode == 'migrate' && (needs.check-existing-data.outputs.has_fonti == 'true' || needs.check-existing-data.outputs.has_lemmi == 'true')
+        run: |
+          echo "::warning::Dati già presenti nel database!"
+          echo "Fonti: ${{ needs.check-existing-data.outputs.fonti_count }}"
+          echo "Lemmi: ${{ needs.check-existing-data.outputs.lemmi_count }}"
+          echo ""
+          echo "Lo script di migrazione:"
+          echo "- Salterà fonti e lemmi esistenti (safe)"
+          echo "- POTREBBE CREARE DUPLICATI di varianti, definizioni, ricorrenze"
+          echo ""
+          echo "Se vuoi forzare la migrazione su DB con dati, usa 'migrate-force'"
+          exit 1
+
+      - name: Dry run - simulate migration
+        if: inputs.mode == 'dry-run'
+        run: |
+          echo "=========================================="
+          echo "DRY RUN - Simulazione migrazione"
+          echo "=========================================="
+
+          cd scripts
+          pnpm install
+
+          echo ""
+          echo "File sorgente disponibili:"
+          ls -la ../old_website/
+
+          echo ""
+          echo "Lemmi HTML disponibili:"
+          ls ../old_website/lemmi/ | wc -l
+          echo "file HTML"
+
+          echo ""
+          echo "Bibliografia entries:"
+          cat ../old_website/bibliografia.json | jq 'keys | length'
+          echo "fonti"
+
+          echo ""
+          echo "Indice entries:"
+          cat ../old_website/indice.json | jq 'length'
+          echo "lemmi"
+
+          echo ""
+          echo "=========================================="
+          echo "Per eseguire la migrazione reale, usa mode: migrate"
+          echo "=========================================="
+
+      - name: Run migration
+        if: inputs.mode == 'migrate' || inputs.mode == 'migrate-force'
+        env:
+          API_URL: http://localhost:3000/api
+          LEMMARIO_ID: ${{ inputs.lemmario_id }}
+        run: |
+          echo "=========================================="
+          echo "Esecuzione migrazione dati"
+          echo "=========================================="
+
+          cd scripts
+          pnpm install
+          pnpm migrate
+
+          echo ""
+          echo "=========================================="
+          echo "Migrazione completata!"
+          echo "=========================================="
+
+      - name: Upload migration report
+        if: always() && (inputs.mode == 'migrate' || inputs.mode == 'migrate-force')
+        uses: actions/upload-artifact@v4
+        with:
+          name: migration-report-${{ github.run_number }}
+          path: report_migration/
+          retention-days: 30
+          if-no-files-found: ignore
+
+      - name: Display final stats
+        if: inputs.mode == 'migrate' || inputs.mode == 'migrate-force'
+        run: |
+          echo ""
+          echo "Verifica dati importati:"
+
+          FONTI=$(curl -s "http://localhost:3000/api/fonti?limit=1" | jq -r '.totalDocs // 0')
+          LEMMI=$(curl -s "http://localhost:3000/api/lemmi?where[lemmario][equals]=${{ inputs.lemmario_id }}&limit=1" | jq -r '.totalDocs // 0')
+          DEFINIZIONI=$(curl -s "http://localhost:3000/api/definizioni?limit=1" | jq -r '.totalDocs // 0')
+          RICORRENZE=$(curl -s "http://localhost:3000/api/ricorrenze?limit=1" | jq -r '.totalDocs // 0')
+
+          echo "Fonti totali: $FONTI"
+          echo "Lemmi (lemmario ${{ inputs.lemmario_id }}): $LEMMI"
+          echo "Definizioni totali: $DEFINIZIONI"
+          echo "Ricorrenze totali: $RICORRENZE"
