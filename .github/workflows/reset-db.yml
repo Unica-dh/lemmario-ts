@@ -30,8 +30,8 @@ jobs:
 
       - name: Copy reset script to server location
         run: |
-          cp /tmp/lemmario-reset-${{ github.run_id }}/scripts/deploy/reset-db-lemmario.sh /home/dhomeka/reset-db-lemmario.sh
-          chmod +x /home/dhomeka/reset-db-lemmario.sh
+          cp /tmp/lemmario-reset-${{ github.run_id }}/scripts/deploy/reset-db-lemmario.sh /home/dhruby/reset-db-lemmario.sh
+          chmod +x /home/dhruby/reset-db-lemmario.sh
 
       - name: Verify confirmation
         run: |
@@ -47,7 +47,7 @@ jobs:
           if [ "${{ inputs.run_seed }}" == "true" ]; then
             SEED_FLAG="--seed"
           fi
-          /home/dhomeka/reset-db-lemmario.sh $SEED_FLAG
+          /home/dhruby/reset-db-lemmario.sh $SEED_FLAG
 
       - name: Cleanup temporary checkout
         if: always()

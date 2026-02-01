@@ -37,10 +37,10 @@ Il sistema CI/CD implementato include:
 
 Prima di iniziare, assicurati di avere:
 
-- ✅ Accesso SSH al server VPN: `dhomeka@90.147.144.145`
+- ✅ Accesso SSH al server VPN: `dhruby@90.147.144.147`
 - ✅ Docker e docker-compose installati e funzionanti sul server
 - ✅ Permessi admin sul repository GitHub
-- ✅ Utente `dhomeka` nel gruppo `docker` sul server
+- ✅ Utente `dhruby` nel gruppo `docker` sul server
 - ✅ Applicazione Lemmario funzionante con docker-compose
 
 ## Setup Fase 1: Self-Hosted Runner
@@ -48,15 +48,15 @@ Prima di iniziare, assicurati di avere:
 ### 1.1 Connessione al Server
 
 ```bash
-ssh dhomeka@90.147.144.145
+ssh dhruby@90.147.144.147
 ```
 
 ### 1.2 Installazione Runner
 
 ```bash
 # Crea directory per runner
-mkdir -p /home/dhomeka/actions-runner
-cd /home/dhomeka/actions-runner
+mkdir -p /home/dhruby/actions-runner
+cd /home/dhruby/actions-runner
 
 # Scarica ultima versione runner (controlla https://github.com/actions/runner/releases per versione aggiornata)
 curl -o actions-runner-linux-x64-2.311.0.tar.gz -L \
@@ -98,7 +98,7 @@ Sul repository GitHub:
 
 ```bash
 # Installa servizio (richiede sudo)
-sudo ./svc.sh install dhomeka
+sudo ./svc.sh install dhruby
 
 # Avvia servizio
 sudo ./svc.sh start
@@ -125,8 +125,8 @@ Torna su **Settings** > **Actions** > **Runners**. Dovresti vedere:
 ### 1.7 Verifica Permessi Docker
 
 ```bash
-# Aggiungi utente dhomeka al gruppo docker (se non già fatto)
-sudo usermod -aG docker dhomeka
+# Aggiungi utente dhruby al gruppo docker (se non già fatto)
+sudo usermod -aG docker dhruby
 
 # Applica cambiamenti gruppo (o logout/login)
 newgrp docker
@@ -140,16 +140,16 @@ docker compose version
 
 ```bash
 # Copia script dal repository (da locale)
-scp scripts/deploy/deploy-lemmario.sh dhomeka@90.147.144.145:/home/dhomeka/
-scp scripts/deploy/reset-db-lemmario.sh dhomeka@90.147.144.145:/home/dhomeka/
+scp scripts/deploy/deploy-lemmario.sh dhruby@90.147.144.147:/home/dhruby/
+scp scripts/deploy/reset-db-lemmario.sh dhruby@90.147.144.147:/home/dhruby/
 
 # Torna su SSH server
 # Imposta permessi
-chmod 750 /home/dhomeka/deploy-lemmario.sh
-chmod 750 /home/dhomeka/reset-db-lemmario.sh
+chmod 750 /home/dhruby/deploy-lemmario.sh
+chmod 750 /home/dhruby/reset-db-lemmario.sh
 
 # Crea directory backup
-mkdir -p /home/dhomeka/backups
+mkdir -p /home/dhruby/backups
 ```
 
 ### 1.9 Configura GHCR Registry negli Script
@@ -157,7 +157,7 @@ mkdir -p /home/dhomeka/backups
 **IMPORTANTE**: Modifica la variabile `GHCR_REGISTRY` nello script deploy:
 
 ```bash
-nano /home/dhomeka/deploy-lemmario.sh
+nano /home/dhruby/deploy-lemmario.sh
 
 # Trova la riga (circa linea 15):
 GHCR_REGISTRY="ghcr.io/MODIFICA_OWNER_QUI"
@@ -174,11 +174,11 @@ Prima di attivare GitHub Actions, testa lo script manualmente:
 
 ```bash
 # Verifica Docker compose funzionante
-cd /home/dhomeka/lemmario-ts
+cd /home/dhruby/lemmario-ts
 docker compose ps
 
 # Test deploy con tag latest (usa images già presenti localmente)
-/home/dhomeka/deploy-lemmario.sh latest
+/home/dhruby/deploy-lemmario.sh latest
 ```
 
 ✅ **Fase 1 Completata!** Il runner è installato e pronto a ricevere job da GitHub Actions.
@@ -336,7 +336,7 @@ git push origin main
 #### Job 2: deploy (~3-5 minuti)
 
 - Eseguito su **self-hosted runner** (lemmario-vpn-runner)
-- Esegue script `/home/dhomeka/deploy-lemmario.sh`
+- Esegue script `/home/dhruby/deploy-lemmario.sh`
 
 **Logs attesi:**
 ```
@@ -345,7 +345,7 @@ Lemmario Deploy - Thu Jan 23 18:30:00 2026
 Commit SHA: abc1234
 ==========================================
 [1/8] Backing up database...
-Backup saved to: /home/dhomeka/backups/lemmario-20260123-183000/lemmario_db.sql
+Backup saved to: /home/dhruby/backups/lemmario-20260123-183000/lemmario_db.sql
 [2/8] Pulling new images from GHCR...
 sha-abc1234: Pulling from <owner>/lemmario-payload
 ...
@@ -359,7 +359,7 @@ Frontend is healthy!
 [8/8] Cleaning up old images...
 ==========================================
 Deploy completed successfully!
-Backup: /home/dhomeka/backups/lemmario-20260123-183000
+Backup: /home/dhruby/backups/lemmario-20260123-183000
 ==========================================
 ```
 
@@ -367,7 +367,7 @@ Backup: /home/dhomeka/backups/lemmario-20260123-183000
 
 ```bash
 # SSH sul server
-ssh dhomeka@90.147.144.145
+ssh dhruby@90.147.144.147
 
 # Verifica servizi running
 docker ps --filter "name=lemmario"
@@ -387,8 +387,8 @@ curl http://localhost:3001
 ### 4.5 Verifica Backup Creato
 
 ```bash
-ssh dhomeka@90.147.144.145
-ls -lh /home/dhomeka/backups/
+ssh dhruby@90.147.144.147
+ls -lh /home/dhruby/backups/
 ```
 
 Dovresti vedere directory con timestamp del deploy.
@@ -420,7 +420,7 @@ Il workflow per reset DB è in [`.github/workflows/reset-db.yml`](.github/workfl
 
 Workflow esegue:
 1. Verifica conferma input
-2. Esegue `/home/dhomeka/reset-db-lemmario.sh --seed`
+2. Esegue `/home/dhruby/reset-db-lemmario.sh --seed`
 3. Verifica servizi dopo reset
 
 **Logs attesi:**
@@ -489,8 +489,8 @@ Accedi al Payload admin panel e verifica che database sia vuoto (o con dati seed
 
 7. **Verifica backup**:
    ```bash
-   ssh dhomeka@90.147.144.145
-   ls -lh /home/dhomeka/backups/
+   ssh dhruby@90.147.144.147
+   ls -lh /home/dhruby/backups/
    ```
 
 ✅ **Pipeline End-to-End Funzionante!**
@@ -514,7 +514,7 @@ Se vuoi fare deploy senza pushare su `main`:
 
 ```bash
 # SSH sul server
-ssh dhomeka@90.147.144.145
+ssh dhruby@90.147.144.147
 
 # Trova SHA commit precedente
 docker images ghcr.io/<owner>/lemmario-payload
@@ -525,7 +525,7 @@ docker images ghcr.io/<owner>/lemmario-payload
 # ghcr.io/<owner>/lemmario-payload       sha-def456  1 day ago
 
 # Rideploy versione precedente
-/home/dhomeka/deploy-lemmario.sh def456
+/home/dhruby/deploy-lemmario.sh def456
 ```
 
 #### Opzione 2: Rollback via Git Revert
@@ -546,14 +546,14 @@ git push origin main
 Se devi ripristinare un backup:
 
 ```bash
-ssh dhomeka@90.147.144.145
+ssh dhruby@90.147.144.147
 
 # Lista backup disponibili
-ls -lh /home/dhomeka/backups/
+ls -lh /home/dhruby/backups/
 
 # Restore backup
-cat /home/dhomeka/backups/lemmario-20260123-150000/lemmario_db.sql | \
-  docker compose -f /home/dhomeka/lemmario-ts/docker-compose.yml \
+cat /home/dhruby/backups/lemmario-20260123-150000/lemmario_db.sql | \
+  docker compose -f /home/dhruby/lemmario-ts/docker-compose.yml \
   exec -T postgres psql -U lemmario_user lemmario_db
 ```
 
@@ -568,14 +568,14 @@ cat /home/dhomeka/backups/lemmario-20260123-150000/lemmario_db.sql | \
 #### Da Server
 
 ```bash
-ssh dhomeka@90.147.144.145
+ssh dhruby@90.147.144.147
 
 # Logs Docker Compose
-docker compose -f /home/dhomeka/lemmario-ts/docker-compose.yml logs -f
+docker compose -f /home/dhruby/lemmario-ts/docker-compose.yml logs -f
 
 # Logs singolo servizio
-docker compose -f /home/dhomeka/lemmario-ts/docker-compose.yml logs -f payload
-docker compose -f /home/dhomeka/lemmario-ts/docker-compose.yml logs -f frontend
+docker compose -f /home/dhruby/lemmario-ts/docker-compose.yml logs -f payload
+docker compose -f /home/dhruby/lemmario-ts/docker-compose.yml logs -f frontend
 ```
 
 ### Cleanup Backup Vecchi
@@ -583,13 +583,13 @@ docker compose -f /home/dhomeka/lemmario-ts/docker-compose.yml logs -f frontend
 Configura cleanup automatico con cron:
 
 ```bash
-ssh dhomeka@90.147.144.145
+ssh dhruby@90.147.144.147
 
 # Apri crontab
 crontab -e
 
 # Aggiungi (cleanup ogni domenica alle 2 AM, mantiene ultimi 30 giorni)
-0 2 * * 0 find /home/dhomeka/backups/ -type d -mtime +30 -exec rm -rf {} + 2>/dev/null
+0 2 * * 0 find /home/dhruby/backups/ -type d -mtime +30 -exec rm -rf {} + 2>/dev/null
 ```
 
 ### Cleanup Images Docker Vecchie
@@ -597,7 +597,7 @@ crontab -e
 Il deploy script già pulisce automaticamente, ma puoi farlo manualmente:
 
 ```bash
-ssh dhomeka@90.147.144.145
+ssh dhruby@90.147.144.147
 
 # Rimuovi images non utilizzate
 docker image prune -a -f
@@ -617,13 +617,13 @@ docker images ghcr.io/<owner>/lemmario-payload --format "{{.ID}} {{.CreatedAt}}"
 
 **Soluzione**:
 ```bash
-ssh dhomeka@90.147.144.145
+ssh dhruby@90.147.144.147
 
 # Verifica servizio
 sudo systemctl status actions.runner.*
 
 # Restart servizio
-sudo /home/dhomeka/actions-runner/svc.sh restart
+sudo /home/dhruby/actions-runner/svc.sh restart
 
 # Check logs
 journalctl -u actions.runner.* -f
@@ -646,10 +646,10 @@ journalctl -u actions.runner.* -f
 
 **Soluzione**:
 ```bash
-ssh dhomeka@90.147.144.145
+ssh dhruby@90.147.144.147
 
 # Check logs payload
-docker compose -f /home/dhomeka/lemmario-ts/docker-compose.yml logs payload
+docker compose -f /home/dhruby/lemmario-ts/docker-compose.yml logs payload
 
 # Verifica porte
 ss -tlnp | grep -E '3000|3001'
@@ -658,7 +658,7 @@ ss -tlnp | grep -E '3000|3001'
 docker ps
 
 # Restart manuale
-docker compose -f /home/dhomeka/lemmario-ts/docker-compose.yml restart
+docker compose -f /home/dhruby/lemmario-ts/docker-compose.yml restart
 ```
 
 ### Deploy fallisce: "permission denied" su script
@@ -667,8 +667,8 @@ docker compose -f /home/dhomeka/lemmario-ts/docker-compose.yml restart
 
 **Soluzione**:
 ```bash
-ssh dhomeka@90.147.144.145
-chmod 750 /home/dhomeka/deploy-lemmario.sh
+ssh dhruby@90.147.144.147
+chmod 750 /home/dhruby/deploy-lemmario.sh
 ```
 
 ### Runner non ha accesso a Docker
@@ -677,13 +677,13 @@ chmod 750 /home/dhomeka/deploy-lemmario.sh
 
 **Soluzione**:
 ```bash
-ssh dhomeka@90.147.144.145
+ssh dhruby@90.147.144.147
 
-# Aggiungi utente dhomeka a gruppo docker
-sudo usermod -aG docker dhomeka
+# Aggiungi utente dhruby a gruppo docker
+sudo usermod -aG docker dhruby
 
 # Restart servizio runner
-sudo /home/dhomeka/actions-runner/svc.sh restart
+sudo /home/dhruby/actions-runner/svc.sh restart
 
 # Verifica
 docker ps
@@ -695,7 +695,7 @@ docker ps
 
 **Soluzione**: Login Docker al GHCR sul server
 ```bash
-ssh dhomeka@90.147.144.145
+ssh dhruby@90.147.144.147
 
 # Crea Personal Access Token su GitHub con scope 'read:packages'
 # Settings > Developer settings > Personal access tokens > Tokens (classic) > Generate
@@ -710,21 +710,21 @@ echo <GITHUB_TOKEN> | docker login ghcr.io -u <username> --password-stdin
 
 **Soluzione**:
 ```bash
-ssh dhomeka@90.147.144.145
+ssh dhruby@90.147.144.147
 
 # Verifica volume postgres_data esiste
 docker volume ls | grep postgres
 
 # Restart postgres
-docker compose -f /home/dhomeka/lemmario-ts/docker-compose.yml restart postgres
+docker compose -f /home/dhruby/lemmario-ts/docker-compose.yml restart postgres
 
 # Verifica logs
-docker compose -f /home/dhomeka/lemmario-ts/docker-compose.yml logs postgres
+docker compose -f /home/dhruby/lemmario-ts/docker-compose.yml logs postgres
 
 # Se necessario, ricrea database
-docker compose -f /home/dhomeka/lemmario-ts/docker-compose.yml down
+docker compose -f /home/dhruby/lemmario-ts/docker-compose.yml down
 docker volume rm lemmario_ts_postgres_data
-docker compose -f /home/dhomeka/lemmario-ts/docker-compose.yml up -d
+docker compose -f /home/dhruby/lemmario-ts/docker-compose.yml up -d
 ```
 
 ### Disco pieno su server
@@ -733,14 +733,14 @@ docker compose -f /home/dhomeka/lemmario-ts/docker-compose.yml up -d
 
 **Soluzione**:
 ```bash
-ssh dhomeka@90.147.144.145
+ssh dhruby@90.147.144.147
 
 # Check spazio disco
-df -h /home/dhomeka
+df -h /home/dhruby
 docker system df
 
 # Cleanup backup vecchi (>30 giorni)
-find /home/dhomeka/backups/ -type d -mtime +30 -exec rm -rf {} +
+find /home/dhruby/backups/ -type d -mtime +30 -exec rm -rf {} +
 
 # Cleanup images Docker non usate
 docker system prune -a -f

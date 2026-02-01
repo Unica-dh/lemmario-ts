@@ -1,13 +1,13 @@
 #!/bin/bash
 # Script per aggiungere label 'vpn' al runner self-hosted
-# Esegui questo script sul server VPN (dhomeka@90.147.144.145)
+# Esegui questo script sul server VPN (dhruby@90.147.144.147)
 
 set -e
 
 echo "🔧 Fix Runner Labels - Aggiunta label 'vpn'"
 echo "============================================="
 
-cd /home/dhomeka/actions-runner
+cd /home/dhruby/actions-runner
 
 # Stop runner service
 echo "⏹️  Stopping runner service..."
@@ -25,7 +25,7 @@ echo "1. Vai su GitHub Settings > Actions > Runners > New self-hosted runner"
 echo "2. Copia il token di registrazione"
 echo "3. Esegui sul server:"
 echo ""
-echo "   cd /home/dhomeka/actions-runner"
+echo "   cd /home/dhruby/actions-runner"
 echo "   ./config.sh --url https://github.com/Unica-dh/lemmario-ts --token <TOKEN>"
 echo ""
 echo "   Durante la configurazione:"

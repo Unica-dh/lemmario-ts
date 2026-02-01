@@ -13,7 +13,7 @@
 ### 1️⃣ SSH sul server e pull nuova versione
 
 ```bash
-ssh dhomeka@90.147.144.145
+ssh dhruby@90.147.144.147
 cd ~/lemmario-ts
 git pull origin main
 ```
@@ -32,9 +32,9 @@ DB_NAME=lemmario_db
 DB_HOST=postgres
 DB_PORT=5432
 PAYLOAD_SECRET=lemmario-payload-secret-production-2026-min-32-chars-required
-PAYLOAD_PUBLIC_SERVER_URL=http://90.147.144.145:3000
-NEXT_PUBLIC_API_URL=http://90.147.144.145:3000/api
-NEXT_PUBLIC_SITE_URL=http://90.147.144.145:3001
+PAYLOAD_PUBLIC_SERVER_URL=http://90.147.144.147:3000
+NEXT_PUBLIC_API_URL=http://90.147.144.147:3000/api
+NEXT_PUBLIC_SITE_URL=http://90.147.144.147:3001
 NODE_ENV=production
 ```
 
@@ -47,9 +47,9 @@ DB_NAME=lemmario_db
 DB_HOST=postgres
 DB_PORT=5432
 PAYLOAD_SECRET=lemmario-payload-secret-production-2026-min-32-chars-required
-PAYLOAD_PUBLIC_SERVER_URL=http://90.147.144.145:3000
-NEXT_PUBLIC_API_URL=http://90.147.144.145:3000/api
-NEXT_PUBLIC_SITE_URL=http://90.147.144.145:3001
+PAYLOAD_PUBLIC_SERVER_URL=http://90.147.144.147:3000
+NEXT_PUBLIC_API_URL=http://90.147.144.147:3000/api
+NEXT_PUBLIC_SITE_URL=http://90.147.144.147:3001
 NODE_ENV=production
 ENVEOF
 ```

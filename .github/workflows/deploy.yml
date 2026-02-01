@@ -84,12 +84,12 @@ jobs:
 
       - name: Copy deploy script to server location
         run: |
-          cp /tmp/lemmario-deploy-${{ github.run_id }}/scripts/deploy/deploy-lemmario.sh /home/dhomeka/deploy-lemmario.sh
-          chmod +x /home/dhomeka/deploy-lemmario.sh
+          cp /tmp/lemmario-deploy-${{ github.run_id }}/scripts/deploy/deploy-lemmario.sh /home/dhruby/deploy-lemmario.sh
+          chmod +x /home/dhruby/deploy-lemmario.sh
 
       - name: Update docker-compose.yml on server
         run: |
-          cp /tmp/lemmario-deploy-${{ github.run_id }}/docker-compose.yml /home/dhomeka/lemmario-ts/docker-compose.yml
+          cp /tmp/lemmario-deploy-${{ github.run_id }}/docker-compose.yml /home/dhruby/lemmario-ts/docker-compose.yml
 
       - name: Login to GHCR
         run: |
@@ -97,7 +97,7 @@ jobs:
 
       - name: Deploy with script
         run: |
-          /home/dhomeka/deploy-lemmario.sh ${{ needs.build-and-push.outputs.commit_sha }}
+          /home/dhruby/deploy-lemmario.sh ${{ needs.build-and-push.outputs.commit_sha }}
 
       - name: Cleanup temporary checkout
         if: always()

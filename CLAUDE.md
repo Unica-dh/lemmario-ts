@@ -41,12 +41,12 @@ scripts/
 | Ambiente | Percorso |
 |----------|----------|
 | **Locale (sviluppo)** | `/home/ale/docker/lemmario_ts` |
-| **Remoto (server VPN)** | `/home/dhomeka/lemmario-ts` |
+| **Remoto (server VPN)** | `/home/dhruby/lemmario-ts` |
 
-- **Server VPN**: `dhomeka@90.147.144.145`
-- **NON esiste** `/home/dhomeka/docker/` sul server remoto
-- Gli script in `scripts/deploy/` usano i percorsi REMOTI (`/home/dhomeka/lemmario-ts`)
-- Il file `.env` sul server deve essere in `/home/dhomeka/lemmario-ts/.env`
+- **Server VPN**: `dhruby@90.147.144.147`
+- **NON esiste** `/home/dhruby/docker/` sul server remoto
+- Gli script in `scripts/deploy/` usano i percorsi REMOTI (`/home/dhruby/lemmario-ts`)
+- Il file `.env` sul server deve essere in `/home/dhruby/lemmario-ts/.env`
 
 ## Common Commands
 
@@ -423,8 +423,8 @@ Sono presenti 3 workflow in [.github/workflows/](.github/workflows/):
    - Trigger: push su `main`, manual workflow_dispatch
    - Build Docker images per payload e frontend
    - Push a GitHub Container Registry (GHCR) con tags `latest` e `sha-<commit>`
-   - Deploy automatico su server VPN (90.147.144.145) tramite self-hosted runner
-   - Esegue script `/home/dhomeka/deploy-lemmario.sh` con backup DB e health checks
+   - Deploy automatico su server VPN (90.147.144.147) tramite self-hosted runner
+   - Esegue script `/home/dhruby/deploy-lemmario.sh` con backup DB e health checks
 
 3. **Database Reset** ([reset-db.yml](.github/workflows/reset-db.yml)):
    - Trigger: manual workflow_dispatch con conferma obbligatoria
@@ -434,7 +434,7 @@ Sono presenti 3 workflow in [.github/workflows/](.github/workflows/):
 
 ### Self-Hosted Runner
 
-Il runner GitHub Actions è installato sul server VPN in `/home/dhomeka/actions-runner/`:
+Il runner GitHub Actions è installato sul server VPN in `/home/dhruby/actions-runner/`:
 - Nome: `lemmario-vpn-runner`
 - Labels: `self-hosted`, `Linux`, `X64`, `vpn`
 - Servizio systemd: `actions.runner.<owner-repo>.<runner-name>.service`
@@ -490,9 +490,9 @@ Per setup dettagliato, troubleshooting e operazioni comuni, consulta:
 
 **Manuale**:
 ```bash
-ssh dhomeka@90.147.144.145
+ssh dhruby@90.147.144.147
 docker images ghcr.io/<owner>/lemmario-payload  # Trova SHA precedente
-/home/dhomeka/deploy-lemmario.sh <previous-sha>
+/home/dhruby/deploy-lemmario.sh <previous-sha>
 ```
 
 ## Documentation

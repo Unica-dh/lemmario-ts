@@ -2,17 +2,17 @@
 # deploy-lemmario.sh - Deploy script per Lemmario
 # Usage: ./deploy-lemmario.sh <commit-sha>
 #
-# IMPORTANTE: Questo script deve essere copiato sul server VPN in /home/dhomeka/deploy-lemmario.sh
-# chmod 750 /home/dhomeka/deploy-lemmario.sh
+# IMPORTANTE: Questo script deve essere copiato sul server VPN in /home/dhruby/deploy-lemmario.sh
+# chmod 750 /home/dhruby/deploy-lemmario.sh
 
 set -euo pipefail
 
 # Variabili - MODIFICA GHCR_REGISTRY con il tuo GitHub owner
 COMMIT_SHA="${1:-latest}"
-BACKUP_DIR="/home/dhomeka/backups/lemmario-$(date +%Y%m%d-%H%M%S)"
-COMPOSE_FILE="/home/dhomeka/lemmario-ts/docker-compose.yml"
-COMPOSE_PROD_FILE="/home/dhomeka/lemmario-ts/docker-compose.prod.yml"
-PROJECT_DIR="/home/dhomeka/lemmario-ts"
+BACKUP_DIR="/home/dhruby/backups/lemmario-$(date +%Y%m%d-%H%M%S)"
+COMPOSE_FILE="/home/dhruby/lemmario-ts/docker-compose.yml"
+COMPOSE_PROD_FILE="/home/dhruby/lemmario-ts/docker-compose.prod.yml"
+PROJECT_DIR="/home/dhruby/lemmario-ts"
 GHCR_REGISTRY="ghcr.io/unica-dh"  # es. ghcr.io/unica-dh
 HEALTH_CHECK_RETRIES=12
 HEALTH_CHECK_INTERVAL=5

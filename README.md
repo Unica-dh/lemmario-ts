@@ -267,13 +267,13 @@ Per setup completo, troubleshooting e operazioni comuni:
 
 ```bash
 # SSH sul server
-ssh dhomeka@90.147.144.145
+ssh dhruby@90.147.144.147
 
 # Trova SHA commit precedente
 docker images ghcr.io/unica-dh/lemmario-payload
 
 # Rideploy versione precedente
-/home/dhomeka/deploy-lemmario.sh <previous-sha>
+/home/dhruby/deploy-lemmario.sh <previous-sha>
 ```
 
 ## Licenza

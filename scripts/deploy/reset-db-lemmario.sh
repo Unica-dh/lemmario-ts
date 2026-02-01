@@ -2,14 +2,14 @@
 # reset-db-lemmario.sh - Reset completo database Lemmario
 # Usage: ./reset-db-lemmario.sh [--seed]
 #
-# IMPORTANTE: Questo script deve essere copiato sul server VPN in /home/dhomeka/reset-db-lemmario.sh
-# chmod 750 /home/dhomeka/reset-db-lemmario.sh
+# IMPORTANTE: Questo script deve essere copiato sul server VPN in /home/dhruby/reset-db-lemmario.sh
+# chmod 750 /home/dhruby/reset-db-lemmario.sh
 
 set -euo pipefail
 
-BACKUP_DIR="/home/dhomeka/backups/pre-reset-$(date +%Y%m%d-%H%M%S)"
-COMPOSE_FILE="/home/dhomeka/lemmario-ts/docker-compose.yml"
-PROJECT_DIR="/home/dhomeka/lemmario-ts"
+BACKUP_DIR="/home/dhruby/backups/pre-reset-$(date +%Y%m%d-%H%M%S)"
+COMPOSE_FILE="/home/dhruby/lemmario-ts/docker-compose.yml"
+PROJECT_DIR="/home/dhruby/lemmario-ts"
 VOLUME_NAME="lemmario_ts_postgres_data"
 RUN_SEED=false
 
