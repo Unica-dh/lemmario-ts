@@ -174,6 +174,31 @@ jobs:
 
           echo "Schema fix completato"
 
+      - name: Create livelli razionalita
+        if: inputs.mode == 'migrate' || inputs.mode == 'migrate-force'
+        run: |
+          echo "=========================================="
+          echo "Creando livelli di razionalità..."
+          echo "=========================================="
+
+          # Crea i 6 livelli di razionalità per il lemmario se non esistono
+          docker exec lemmario_db psql -U lemmario_user -d lemmario_db << 'EOSQL'
+          INSERT INTO "livelli_razionalita" (id, lemmario_id, numero, nome, descrizione, created_at, updated_at)
+          VALUES
+            (1, ${{ inputs.lemmario_id }}, 1, 'Operazioni', 'Operazioni matematiche fondamentali', NOW(), NOW()),
+            (2, ${{ inputs.lemmario_id }}, 2, 'Elementi tecnici', 'Elementi tecnici di base', NOW(), NOW()),
+            (3, ${{ inputs.lemmario_id }}, 3, 'Strumenti operativi', 'Strumenti per le operazioni', NOW(), NOW()),
+            (4, ${{ inputs.lemmario_id }}, 4, 'Procedimenti', 'Procedimenti e metodi', NOW(), NOW()),
+            (5, ${{ inputs.lemmario_id }}, 5, 'Concetti', 'Concetti matematici', NOW(), NOW()),
+            (6, ${{ inputs.lemmario_id }}, 6, 'Categorie', 'Categorie e classificazioni', NOW(), NOW())
+          ON CONFLICT (id) DO NOTHING;
+
+          -- Reset sequence to avoid conflicts
+          SELECT setval('livelli_razionalita_id_seq', (SELECT MAX(id) FROM livelli_razionalita));
+          EOSQL
+
+          echo "Livelli di razionalità creati"
+
       - name: Run migration
         if: inputs.mode == 'migrate' || inputs.mode == 'migrate-force'
         env:
