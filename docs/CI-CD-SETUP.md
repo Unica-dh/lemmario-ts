@@ -174,7 +174,7 @@ Prima di attivare GitHub Actions, testa lo script manualmente:
 
 ```bash
 # Verifica Docker compose funzionante
-cd /home/dhomeka/docker/lemmario_ts
+cd /home/dhomeka/lemmario_ts
 docker compose ps
 
 # Test deploy con tag latest (usa images già presenti localmente)
@@ -553,7 +553,7 @@ ls -lh /home/dhomeka/backups/
 
 # Restore backup
 cat /home/dhomeka/backups/lemmario-20260123-150000/lemmario_db.sql | \
-  docker compose -f /home/dhomeka/docker/lemmario_ts/docker-compose.yml \
+  docker compose -f /home/dhomeka/lemmario_ts/docker-compose.yml \
   exec -T postgres psql -U lemmario_user lemmario_db
 ```
 
@@ -571,11 +571,11 @@ cat /home/dhomeka/backups/lemmario-20260123-150000/lemmario_db.sql | \
 ssh dhomeka@90.147.144.145
 
 # Logs Docker Compose
-docker compose -f /home/dhomeka/docker/lemmario_ts/docker-compose.yml logs -f
+docker compose -f /home/dhomeka/lemmario_ts/docker-compose.yml logs -f
 
 # Logs singolo servizio
-docker compose -f /home/dhomeka/docker/lemmario_ts/docker-compose.yml logs -f payload
-docker compose -f /home/dhomeka/docker/lemmario_ts/docker-compose.yml logs -f frontend
+docker compose -f /home/dhomeka/lemmario_ts/docker-compose.yml logs -f payload
+docker compose -f /home/dhomeka/lemmario_ts/docker-compose.yml logs -f frontend
 ```
 
 ### Cleanup Backup Vecchi
@@ -649,7 +649,7 @@ journalctl -u actions.runner.* -f
 ssh dhomeka@90.147.144.145
 
 # Check logs payload
-docker compose -f /home/dhomeka/docker/lemmario_ts/docker-compose.yml logs payload
+docker compose -f /home/dhomeka/lemmario_ts/docker-compose.yml logs payload
 
 # Verifica porte
 ss -tlnp | grep -E '3000|3001'
@@ -658,7 +658,7 @@ ss -tlnp | grep -E '3000|3001'
 docker ps
 
 # Restart manuale
-docker compose -f /home/dhomeka/docker/lemmario_ts/docker-compose.yml restart
+docker compose -f /home/dhomeka/lemmario_ts/docker-compose.yml restart
 ```
 
 ### Deploy fallisce: "permission denied" su script
@@ -716,15 +716,15 @@ ssh dhomeka@90.147.144.145
 docker volume ls | grep postgres
 
 # Restart postgres
-docker compose -f /home/dhomeka/docker/lemmario_ts/docker-compose.yml restart postgres
+docker compose -f /home/dhomeka/lemmario_ts/docker-compose.yml restart postgres
 
 # Verifica logs
-docker compose -f /home/dhomeka/docker/lemmario_ts/docker-compose.yml logs postgres
+docker compose -f /home/dhomeka/lemmario_ts/docker-compose.yml logs postgres
 
 # Se necessario, ricrea database
-docker compose -f /home/dhomeka/docker/lemmario_ts/docker-compose.yml down
+docker compose -f /home/dhomeka/lemmario_ts/docker-compose.yml down
 docker volume rm lemmario_ts_postgres_data
-docker compose -f /home/dhomeka/docker/lemmario_ts/docker-compose.yml up -d
+docker compose -f /home/dhomeka/lemmario_ts/docker-compose.yml up -d
 ```
 
 ### Disco pieno su server

@@ -34,6 +34,20 @@ scripts/
 └── migration/           # Legacy data import scripts
 ```
 
+## IMPORTANTE: Percorsi del Progetto
+
+**ATTENZIONE:** I percorsi locali e remoti sono DIVERSI. Non confonderli!
+
+| Ambiente | Percorso |
+|----------|----------|
+| **Locale (sviluppo)** | `/home/ale/docker/lemmario_ts` |
+| **Remoto (server VPN)** | `/home/dhomeka/lemmario_ts` |
+
+- **Server VPN**: `dhomeka@90.147.144.145`
+- **NON esiste** `/home/dhomeka/docker/` sul server remoto
+- Gli script in `scripts/deploy/` usano i percorsi REMOTI (`/home/dhomeka/lemmario_ts`)
+- Il file `.env` sul server deve essere in `/home/dhomeka/lemmario_ts/.env`
+
 ## Common Commands
 
 ### Development (Root)
