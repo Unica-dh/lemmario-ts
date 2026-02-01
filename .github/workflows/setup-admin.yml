@@ -94,38 +94,80 @@ jobs:
           docker exec lemmario_db psql -U lemmario_user -d lemmario_db -c "DELETE FROM utenti WHERE email='${ADMIN_EMAIL}';"
           echo "User deleted"
 
-      - name: Create admin user via API
+      - name: Create admin user via Local API
         id: create_user
         if: steps.check_user.outputs.can_login != 'true'
         env:
           ADMIN_EMAIL: ${{ inputs.admin_email }}
           ADMIN_PASSWORD: ${{ inputs.admin_password }}
         run: |
-          echo "Creating admin user via API..."
+          echo "Creating admin user via Payload Local API..."
 
-          # Payload 2.x should allow first user creation without auth
-          RESPONSE=$(curl -s -X POST "http://localhost:3000/api/utenti" \
-            -H "Content-Type: application/json" \
-            -d "{
-              \"email\": \"${ADMIN_EMAIL}\",
-              \"password\": \"${ADMIN_PASSWORD}\",
-              \"nome\": \"Admin\",
-              \"cognome\": \"Lemmario\",
-              \"ruolo\": \"super_admin\",
-              \"attivo\": true
-            }")
+          # Create a script file to execute inside container
+          cat > /tmp/create-admin.mjs << 'SCRIPT'
+          import payload from 'payload';
 
-          echo "API Response: $RESPONSE"
+          async function createAdmin() {
+            const email = process.env.ADMIN_EMAIL;
+            const password = process.env.ADMIN_PASSWORD;
 
-          USER_ID=$(echo "$RESPONSE" | jq -r '.doc.id // empty')
-          if [[ -n "$USER_ID" ]]; then
-            echo "User created via API with ID: $USER_ID"
-            echo "created=true" >> $GITHUB_OUTPUT
-          else
-            ERROR=$(echo "$RESPONSE" | jq -r '.errors[0].message // "Unknown error"')
-            echo "API creation failed: $ERROR"
-            echo "created=false" >> $GITHUB_OUTPUT
-          fi
+            console.log('Initializing Payload...');
+
+            // Wait for Payload to be fully initialized
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
+            try {
+              const user = await payload.create({
+                collection: 'utenti',
+                data: {
+                  email: email,
+                  password: password,
+                  nome: 'Admin',
+                  cognome: 'Lemmario',
+                  ruolo: 'super_admin',
+                  attivo: true,
+                },
+                overrideAccess: true,
+              });
+
+              console.log('SUCCESS: User created with ID:', user.id);
+              process.exit(0);
+            } catch (error) {
+              console.error('ERROR:', error.message);
+              process.exit(1);
+            }
+          }
+
+          // Give Payload time to fully initialize
+          setTimeout(createAdmin, 3000);
+          SCRIPT
+
+          # Copy and execute the script in the running container
+          docker cp /tmp/create-admin.mjs lemmario_payload:/tmp/create-admin.mjs
+
+          # Execute with the container's environment
+          docker exec -e ADMIN_EMAIL="${ADMIN_EMAIL}" -e ADMIN_PASSWORD="${ADMIN_PASSWORD}" \
+            lemmario_payload node /tmp/create-admin.mjs 2>&1 || {
+              echo "Local API creation failed, trying direct database insert..."
+
+              # Get bcrypt hash of password using node in container
+              HASH=$(docker exec lemmario_payload node -e "
+                const bcrypt = require('bcryptjs');
+                const hash = bcrypt.hashSync('${ADMIN_PASSWORD}', 10);
+                console.log(hash);
+              ")
+
+              echo "Generated password hash"
+
+              docker exec lemmario_db psql -U lemmario_user -d lemmario_db -c "
+                INSERT INTO utenti (email, password, nome, cognome, ruolo, attivo, created_at, updated_at)
+                VALUES ('${ADMIN_EMAIL}', '${HASH}', 'Admin', 'Lemmario', 'super_admin', true, NOW(), NOW())
+                ON CONFLICT (email) DO UPDATE SET password = '${HASH}';
+              "
+              echo "User created/updated via direct SQL with bcrypt hash"
+            }
+
+          echo "created=true" >> $GITHUB_OUTPUT
 
       - name: Login after creation
         id: login
