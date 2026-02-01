@@ -85,7 +85,7 @@ docker compose up postgres -d        # Solo database
 docker compose up payload -d         # Backend
 docker compose up frontend -d        # Frontend
 ```
-
+ 
 ### 5. Avviare in locale (senza Docker)
 
 ```bash
