@@ -46,6 +46,7 @@ export const Utenti: CollectionConfig = {
         const existingUsers = await payload.find({
           collection: 'utenti',
           limit: 1,
+          overrideAccess: true, // Bypass read access check
         })
         // Permetti creazione solo se non ci sono utenti
         return existingUsers.totalDocs === 0
