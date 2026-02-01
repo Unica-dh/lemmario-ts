@@ -23,7 +23,7 @@ echo "Commit SHA: $COMMIT_SHA"
 echo "=========================================="
 
 # Pre-flight checks
-echo "[0/8] Pre-flight checks..."
+echo "[0/9] Pre-flight checks..."
 
 # Check .env file exists
 if [ ! -f "$PROJECT_DIR/.env" ]; then
@@ -45,7 +45,7 @@ else
 fi
 
 # Step 1: Backup Database
-echo "[1/8] Backing up database..."
+echo "[1/9] Backing up database..."
 mkdir -p "$BACKUP_DIR"
 cd "$PROJECT_DIR"
 $COMPOSE_CMD -f "$COMPOSE_FILE" exec -T postgres pg_dump \
@@ -56,18 +56,18 @@ $COMPOSE_CMD -f "$COMPOSE_FILE" exec -T postgres pg_dump \
 echo "Backup saved to: $BACKUP_DIR/lemmario_db.sql"
 
 # Step 2: Pull nuove images da GHCR
-echo "[2/8] Pulling new images from GHCR..."
+echo "[2/9] Pulling new images from GHCR..."
 docker pull "$GHCR_REGISTRY/lemmario-payload:sha-$COMMIT_SHA"
 docker pull "$GHCR_REGISTRY/lemmario-frontend:sha-$COMMIT_SHA"
 
 # Step 3: Stop servizi (preserva volumi)
-echo "[3/8] Stopping services..."
+echo "[3/9] Stopping services..."
 $COMPOSE_CMD -f "$COMPOSE_FILE" stop payload frontend
 
 # Step 4: Crea docker-compose.prod.yml con nuove image tags
-echo "[4/8] Updating docker-compose.prod.yml with new tags..."
+echo "[4/9] Updating docker-compose.prod.yml with new tags..."
 cat > "$COMPOSE_PROD_FILE" <<EOF
-version: "3"
+version: "2.4"
 services:
   payload:
     image: $GHCR_REGISTRY/lemmario-payload:sha-$COMMIT_SHA
@@ -75,12 +75,29 @@ services:
     image: $GHCR_REGISTRY/lemmario-frontend:sha-$COMMIT_SHA
 EOF
 
-# Step 5: Start servizi con nuove images
-echo "[5/8] Starting services with new images..."
-$COMPOSE_CMD -f "$COMPOSE_FILE" -f "$COMPOSE_PROD_FILE" up -d payload frontend
+# Step 5: Ensure postgres is up and healthy
+echo "[5/9] Ensuring postgres is healthy..."
+$COMPOSE_CMD -f "$COMPOSE_FILE" up -d postgres
+# Wait for postgres to be healthy
+for i in $(seq 1 $HEALTH_CHECK_RETRIES); do
+  if $COMPOSE_CMD -f "$COMPOSE_FILE" exec -T postgres pg_isready -U lemmario_user -d lemmario_db 2>/dev/null; then
+    echo "Postgres is healthy!"
+    break
+  fi
+  if [ $i -eq $HEALTH_CHECK_RETRIES ]; then
+    echo "ERROR: Postgres health check failed"
+    exit 1
+  fi
+  echo "Waiting for postgres... ($i/$HEALTH_CHECK_RETRIES)"
+  sleep $HEALTH_CHECK_INTERVAL
+done
 
-# Step 6: Health check payload
-echo "[6/8] Health checking payload service..."
+# Step 6: Start servizi con nuove images (senza ricreare postgres)
+echo "[6/9] Starting services with new images..."
+$COMPOSE_CMD -f "$COMPOSE_FILE" -f "$COMPOSE_PROD_FILE" up -d --no-deps payload frontend
+
+# Step 7: Health check payload
+echo "[7/9] Health checking payload service..."
 for i in $(seq 1 $HEALTH_CHECK_RETRIES); do
   if curl -f http://localhost:3000/api 2>/dev/null; then
     echo "Payload is healthy!"
@@ -97,8 +114,8 @@ for i in $(seq 1 $HEALTH_CHECK_RETRIES); do
   sleep $HEALTH_CHECK_INTERVAL
 done
 
-# Step 7: Health check frontend
-echo "[7/8] Health checking frontend service..."
+# Step 8: Health check frontend
+echo "[8/9] Health checking frontend service..."
 for i in $(seq 1 $HEALTH_CHECK_RETRIES); do
   if curl -f http://localhost:3001 2>/dev/null; then
     echo "Frontend is healthy!"
@@ -112,8 +129,8 @@ for i in $(seq 1 $HEALTH_CHECK_RETRIES); do
   sleep $HEALTH_CHECK_INTERVAL
 done
 
-# Step 8: Cleanup old images (opzionale, mantieni ultime 3 versioni)
-echo "[8/8] Cleaning up old images..."
+# Step 9: Cleanup old images (opzionale, mantieni ultime 3 versioni)
+echo "[9/9] Cleaning up old images..."
 docker images "$GHCR_REGISTRY/lemmario-payload" --format "{{.ID}} {{.CreatedAt}}" \
   | sort -rk 2 | tail -n +4 | awk '{print $1}' | xargs -r docker rmi 2>/dev/null || true
 docker images "$GHCR_REGISTRY/lemmario-frontend" --format "{{.ID}} {{.CreatedAt}}" \
