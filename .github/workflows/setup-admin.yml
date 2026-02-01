@@ -47,7 +47,10 @@ jobs:
       - name: Check if admin already exists
         id: check_admin
         run: |
-          RESPONSE=$(curl -s "http://localhost:3000/api/utenti?where[email][equals]=${{ inputs.admin_email }}&limit=1")
+          # URL encode the email
+          ENCODED_EMAIL=$(echo "${{ inputs.admin_email }}" | sed 's/@/%40/g')
+          RESPONSE=$(curl -s "http://localhost:3000/api/utenti?where[email][equals]=${ENCODED_EMAIL}&limit=1" || echo '{"totalDocs":0}')
+          echo "API Response: $RESPONSE"
           COUNT=$(echo "$RESPONSE" | jq -r '.totalDocs // 0')
           echo "Existing admins with this email: $COUNT"
           if [[ "$COUNT" -gt 0 ]]; then
@@ -58,17 +61,20 @@ jobs:
 
       - name: Create admin user
         if: steps.check_admin.outputs.admin_exists == 'false'
+        env:
+          ADMIN_EMAIL: ${{ inputs.admin_email }}
+          ADMIN_PASSWORD: ${{ inputs.admin_password }}
         run: |
           echo "Creating admin user..."
           RESPONSE=$(curl -s -X POST "http://localhost:3000/api/utenti" \
             -H "Content-Type: application/json" \
-            -d '{
-              "email": "${{ inputs.admin_email }}",
-              "password": "${{ inputs.admin_password }}",
-              "nome": "Admin",
-              "cognome": "Lemmario",
-              "ruolo": "super_admin"
-            }')
+            -d "{
+              \"email\": \"${ADMIN_EMAIL}\",
+              \"password\": \"${ADMIN_PASSWORD}\",
+              \"nome\": \"Admin\",
+              \"cognome\": \"Lemmario\",
+              \"ruolo\": \"super_admin\"
+            }")
 
           echo "Response: $RESPONSE"
 
@@ -84,14 +90,17 @@ jobs:
 
       - name: Login and get token
         id: login
+        env:
+          ADMIN_EMAIL: ${{ inputs.admin_email }}
+          ADMIN_PASSWORD: ${{ inputs.admin_password }}
         run: |
           echo "Logging in..."
           RESPONSE=$(curl -s -X POST "http://localhost:3000/api/utenti/login" \
             -H "Content-Type: application/json" \
-            -d '{
-              "email": "${{ inputs.admin_email }}",
-              "password": "${{ inputs.admin_password }}"
-            }')
+            -d "{
+              \"email\": \"${ADMIN_EMAIL}\",
+              \"password\": \"${ADMIN_PASSWORD}\"
+            }")
 
           TOKEN=$(echo "$RESPONSE" | jq -r '.token // empty')
           if [[ -z "$TOKEN" ]]; then
