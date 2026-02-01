@@ -188,12 +188,15 @@ async function importLemmi() {
       // Importa definizioni e ricorrenze
       for (const def of parsedLemma.definizioni) {
         try {
-          const defData = {
+          const defData: Record<string, unknown> = {
             lemma: lemmaId,
             numero: def.numero,
             testo: def.testo,
-            livello_razionalita: def.livello_razionalita || undefined,
           }
+          // Skip livello_razionalita for now - needs proper mapping to existing IDs
+          // if (def.livello_razionalita) {
+          //   defData.livello_razionalita = def.livello_razionalita
+          // }
 
           const defResult = await fetchPayload('/definizioni', {
             method: 'POST',
