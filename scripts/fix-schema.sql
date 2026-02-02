@@ -82,6 +82,34 @@ BEGIN
     END IF;
 END $$;
 
+-- Fix definizioni.testo: Payload crea JSONB invece di TEXT per textarea
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'definizioni' AND column_name = 'testo' AND data_type = 'jsonb'
+    ) THEN
+        ALTER TABLE definizioni ALTER COLUMN testo TYPE text USING testo::text;
+        RAISE NOTICE 'Changed definizioni.testo from JSONB to TEXT';
+    ELSE
+        RAISE NOTICE 'definizioni.testo already correct type';
+    END IF;
+END $$;
+
+-- Fix ricorrenze.testo_originale: Payload crea JSONB invece di TEXT per textarea
+DO $$
+BEGIN
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name = 'ricorrenze' AND column_name = 'testo_originale' AND data_type = 'jsonb'
+    ) THEN
+        ALTER TABLE ricorrenze ALTER COLUMN testo_originale TYPE text USING testo_originale::text;
+        RAISE NOTICE 'Changed ricorrenze.testo_originale from JSONB to TEXT';
+    ELSE
+        RAISE NOTICE 'ricorrenze.testo_originale already correct type';
+    END IF;
+END $$;
+
 -- Success message
 DO $$
 BEGIN
