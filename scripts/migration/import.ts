@@ -193,10 +193,9 @@ async function importLemmi() {
             numero: def.numero,
             testo: def.testo,
           }
-          // Skip livello_razionalita for now - needs proper mapping to existing IDs
-          // if (def.livello_razionalita) {
-          //   defData.livello_razionalita = def.livello_razionalita
-          // }
+          if (def.livello_razionalita) {
+            defData.livello_razionalita = def.livello_razionalita
+          }
 
           const defResult = await fetchPayload('/definizioni', {
             method: 'POST',
