@@ -1,8 +1,25 @@
-## Progress on Data Re-import
+## Progress on Data Re-import & Deploy Fix
 
-### Status: In Progress
+### Status: Deploy Fixed ✓
 
-### Issue
+### Latest Issue (2026-02-03 12:35)
+**Deploy pipeline failing** - CI/CD workflow was failing during frontend build
+
+#### Root Cause
+ESLint errors in `packages/frontend/src/components/lemma/DefinizioneCard.tsx`:
+- Lines 53:21 and 53:50 had unescaped double quotes in JSX
+- Violated `react/no-unescaped-entities` rule
+- Prevented production build from completing
+
+#### Fix Applied
+- ✅ Replaced `"` with `&ldquo;` and `&rdquo;` in blockquote element
+- ✅ Commit: `5ca8df9` - "fix: Escape quotes in DefinizioneCard to pass ESLint"
+- ✅ Local lint check passed
+- 🔄 CI/CD workflow restarted (ID: 21628601744)
+
+---
+
+### Previous Issue: Data Import
 - User reports duplicates in backend
 - Missing rationality levels (livelli di razionalità)
 - Sources (fonti) not properly associated with lemmas
