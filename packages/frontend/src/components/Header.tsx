@@ -1,8 +1,19 @@
 import Link from 'next/link'
-import { getGlobalContenutiStatici } from '@/lib/payload-api'
+import { getGlobalContenutiStatici, getLemmarioContenutiStatici } from '@/lib/payload-api'
 
-export default async function Header() {
-  const contenutiStatici = await getGlobalContenutiStatici()
+interface HeaderProps {
+  lemmarioSlug?: string
+  lemmarioId?: number
+  lemmarioTitolo?: string
+}
+
+export default async function Header({ lemmarioSlug, lemmarioId, lemmarioTitolo }: HeaderProps) {
+  const contenutiGlobali = await getGlobalContenutiStatici()
+
+  // Fetch lemmario-specific content if we're in a lemmario context
+  const contenutiLemmario = lemmarioId
+    ? await getLemmarioContenutiStatici(lemmarioId)
+    : []
 
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
@@ -21,7 +32,9 @@ export default async function Header() {
             >
               Dizionari
             </Link>
-            {contenutiStatici.map((contenuto) => (
+
+            {/* Global static content links */}
+            {contenutiGlobali.map((contenuto) => (
               <Link
                 key={contenuto.id}
                 href={`/pagine/${contenuto.slug}`}
@@ -30,6 +43,23 @@ export default async function Header() {
                 {contenuto.titolo}
               </Link>
             ))}
+
+            {/* Lemmario-specific static content links (with different color) */}
+            {contenutiLemmario.length > 0 && lemmarioSlug && (
+              <>
+                <span className="text-gray-300">|</span>
+                {contenutiLemmario.map((contenuto) => (
+                  <Link
+                    key={contenuto.id}
+                    href={`/${lemmarioSlug}/pagine/${contenuto.slug}`}
+                    className="text-primary-600 hover:text-primary-800 transition-colors font-medium"
+                    title={`Contenuto specifico per ${lemmarioTitolo || 'questo lemmario'}`}
+                  >
+                    {contenuto.titolo}
+                  </Link>
+                ))}
+              </>
+            )}
           </nav>
 
           <div className="flex items-center space-x-4">
