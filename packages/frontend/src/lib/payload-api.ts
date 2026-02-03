@@ -348,6 +348,46 @@ export async function getRicorrenzeByDefinizione(definizioneId: number): Promise
 }
 
 /**
+ * Get all ricorrenze for multiple definitions in a single batch
+ * Returns a map of definizione_id -> ricorrenze[]
+ */
+export async function getRicorrenzeByDefinizioniIds(definizioneIds: number[]): Promise<Map<number, Ricorrenza[]>> {
+  try {
+    if (definizioneIds.length === 0) {
+      return new Map()
+    }
+
+    // Fetch all ricorrenze with depth=2 to populate fonte
+    const response = await fetchFromPayload<PaginatedResponse<Ricorrenza>>('/ricorrenze', {
+      params: {
+        limit: 1000,
+        depth: 2,
+      },
+    })
+
+    // Group ricorrenze by definizione ID
+    const ricorrenzeMap = new Map<number, Ricorrenza[]>()
+
+    for (const ricorrenza of response.docs) {
+      const defId = typeof ricorrenza.definizione === 'number'
+        ? ricorrenza.definizione
+        : ricorrenza.definizione?.id
+
+      if (defId && definizioneIds.includes(defId)) {
+        const existing = ricorrenzeMap.get(defId) || []
+        existing.push(ricorrenza)
+        ricorrenzeMap.set(defId, existing)
+      }
+    }
+
+    return ricorrenzeMap
+  } catch (error) {
+    console.error('getRicorrenzeByDefinizioniIds error:', error)
+    return new Map()
+  }
+}
+
+/**
  * Varianti Grafiche API
  */
 export async function getVariantiByLemma(lemmaId: number): Promise<VarianteGrafica[]> {
