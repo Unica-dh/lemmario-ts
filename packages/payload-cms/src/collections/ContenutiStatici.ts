@@ -15,7 +15,7 @@ export const ContenutiStatici: CollectionConfig = {
   },
   admin: {
     useAsTitle: 'titolo',
-    defaultColumns: ['titolo', 'slug', 'lemmario', 'pubblicato'],
+    defaultColumns: ['titolo', 'slug', 'lemmario', 'ordine', 'pubblicato'],
     group: 'Contenuti',
     description: 'Pagine statiche (About, FAQ, etc.)',
   },
@@ -42,6 +42,14 @@ export const ContenutiStatici: CollectionConfig = {
       hasMany: false,
       admin: {
         description: 'Lemmario specifico (lascia vuoto per pagina globale)',
+      },
+    },
+    {
+      name: 'ordine',
+      type: 'number',
+      defaultValue: 0,
+      admin: {
+        description: 'Ordine di visualizzazione nel menu (numeri più bassi appaiono prima)',
       },
     },
     {

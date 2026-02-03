@@ -157,20 +157,51 @@ export async function getContenutiStatici(options?: {
 
 /**
  * Get published global static content for navigation
+ * These are contents without a lemmario association (global pages)
+ * Note: Payload's exists:false doesn't work reliably for relationships,
+ * so we filter client-side
  */
 export async function getGlobalContenutiStatici(): Promise<ContenutoStatico[]> {
   try {
     const response = await getContenutiStatici({
       where: {
         pubblicato: { equals: true },
-        lemmario: { exists: false },
       },
       limit: 50,
-      sort: 'titolo',
+      sort: 'ordine',
     })
-    return response.docs
+    // Filter client-side: only include items without a lemmario
+    return response.docs.filter(doc => !doc.lemmario)
   } catch (error) {
     console.error('Error fetching global static content:', error)
+    return []
+  }
+}
+
+/**
+ * Get published static content for a specific lemmario
+ * These are contents associated with a particular lemmario
+ * Note: Payload's relationship filters don't work reliably,
+ * so we filter client-side
+ */
+export async function getLemmarioContenutiStatici(lemmarioId: number): Promise<ContenutoStatico[]> {
+  try {
+    const response = await getContenutiStatici({
+      where: {
+        pubblicato: { equals: true },
+      },
+      limit: 50,
+      sort: 'ordine',
+    })
+    // Filter client-side: only include items with matching lemmario
+    return response.docs.filter(doc => {
+      const docLemmarioId = typeof doc.lemmario === 'number'
+        ? doc.lemmario
+        : doc.lemmario?.id
+      return docLemmarioId === lemmarioId
+    })
+  } catch (error) {
+    console.error('Error fetching lemmario static content:', error)
     return []
   }
 }
@@ -406,18 +437,30 @@ export async function getLivelliRazionalita(lemmarioId: number): Promise<Livello
 
 /**
  * Contenuti Statici API
+ * Note: Payload's where filters don't work reliably, so we filter client-side
  */
 export async function getContenutoStaticoBySlug(slug: string, lemmarioId?: number): Promise<ContenutoStatico | null> {
   try {
-    const where: Record<string, unknown> = { slug: { equals: slug } }
-    if (lemmarioId) {
-      where.lemmario = { equals: lemmarioId }
-    }
-
     const response = await fetchFromPayload<PaginatedResponse<ContenutoStatico>>('/contenuti-statici', {
-      params: { where: JSON.stringify(where), limit: 1 },
+      params: { limit: 100 },
     })
-    return response.docs[0] || null
+
+    // Filter client-side by slug and optionally by lemmarioId
+    const found = response.docs.find(doc => {
+      if (doc.slug !== slug) return false
+
+      if (lemmarioId !== undefined) {
+        const docLemmarioId = typeof doc.lemmario === 'number'
+          ? doc.lemmario
+          : doc.lemmario?.id
+        return docLemmarioId === lemmarioId
+      }
+
+      // For global pages, lemmario should be null/undefined
+      return !doc.lemmario
+    })
+
+    return found || null
   } catch {
     return null
   }
