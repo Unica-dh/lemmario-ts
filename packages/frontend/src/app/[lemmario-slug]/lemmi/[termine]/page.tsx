@@ -6,8 +6,9 @@ import {
   getDefinizioniByLemma,
   getVariantiByLemma,
   getRiferimentiByLemma,
+  getRicorrenzeByDefinizioniIds,
 } from '@/lib/payload-api'
-import type { LemmaDettagliato } from '@/types/payload'
+import type { LemmaDettagliato, Definizione, LivelloRazionalita, Ricorrenza, Fonte } from '@/types/payload'
 import { Badge } from '@/components/ui/Badge'
 import { DefinizioneCard } from '@/components/lemma/DefinizioneCard'
 import { VariantiGrafiche } from '@/components/lemma/VariantiGrafiche'
@@ -47,10 +48,25 @@ export default async function LemmaPage({ params, searchParams }: PageProps) {
     getRiferimentiByLemma(lemmaData.id),
   ])
 
+  // Carica le ricorrenze per tutte le definizioni
+  const definizioneIds = definizioni.map(d => d.id)
+  const ricorrenzeMap = await getRicorrenzeByDefinizioniIds(definizioneIds)
+
+  // Associa le ricorrenze alle definizioni
+  type DefinizioneConRicorrenze = Definizione & {
+    livello_razionalita?: LivelloRazionalita
+    ricorrenze?: Array<Ricorrenza & { fonte?: Fonte }>
+  }
+  const definizioniConRicorrenze: DefinizioneConRicorrenze[] = definizioni.map(def => ({
+    ...def,
+    livello_razionalita: typeof def.livello_razionalita === 'object' ? def.livello_razionalita : undefined,
+    ricorrenze: (ricorrenzeMap.get(def.id) || []) as Array<Ricorrenza & { fonte?: Fonte }>,
+  }))
+
   // Costruisci lemma dettagliato con tutte le relazioni
   const lemma: LemmaDettagliato = {
     ...lemmaData,
-    definizioni: definizioni as LemmaDettagliato['definizioni'],
+    definizioni: definizioniConRicorrenze,
     varianti,
     riferimenti_in_uscita: riferimenti as LemmaDettagliato['riferimenti_in_uscita'],
   }

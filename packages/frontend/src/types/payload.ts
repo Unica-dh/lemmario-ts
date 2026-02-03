@@ -87,6 +87,7 @@ export interface Fonte {
   luogo_pubblicazione?: string
   pagine?: string
   url?: string
+  riferimento_completo?: string
   note_bibliografiche?: string
   lemmario: number | Lemmario
   updatedAt: string
@@ -106,7 +107,8 @@ export interface Ricorrenza {
 
 export interface LivelloRazionalita {
   id: number
-  livello: number
+  livello?: number
+  numero?: number
   nome: string
   descrizione?: string
   ordine?: number
