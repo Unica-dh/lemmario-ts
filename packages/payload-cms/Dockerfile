@@ -6,6 +6,14 @@ RUN npm install -g pnpm@8.15.1
 # Set working directory
 WORKDIR /app
 
+# Build arguments for Payload Admin UI
+ARG PAYLOAD_PUBLIC_SERVER_URL=http://localhost:3000
+ARG DATABASE_URI=postgres://localhost:5432/lemmario_db
+
+# Set environment variables for build
+ENV PAYLOAD_PUBLIC_SERVER_URL=${PAYLOAD_PUBLIC_SERVER_URL}
+ENV DATABASE_URI=${DATABASE_URI}
+
 # Copy workspace files
 COPY pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY package.json ./

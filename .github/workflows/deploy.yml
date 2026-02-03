@@ -52,6 +52,8 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ steps.vars.outputs.repo_owner_lowercase }}/lemmario-payload:latest
             ${{ env.REGISTRY }}/${{ steps.vars.outputs.repo_owner_lowercase }}/lemmario-payload:sha-${{ steps.vars.outputs.sha_short }}
+          build-args: |
+            PAYLOAD_PUBLIC_SERVER_URL=https://glossari.dh.unica.it
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
