@@ -130,6 +130,51 @@ export async function getAllLemmariWithStats(): Promise<(Lemmario & { _count?: {
   }
 }
 
+/**
+ * Contenuti Statici API
+ */
+export async function getContenutiStatici(options?: {
+  limit?: number
+  page?: number
+  where?: Record<string, unknown>
+  sort?: string
+}): Promise<PaginatedResponse<ContenutoStatico>> {
+  const params: Record<string, string | number> = {
+    limit: options?.limit || 10,
+    page: options?.page || 1,
+  }
+
+  if (options?.where) {
+    params.where = JSON.stringify(options.where)
+  }
+
+  if (options?.sort) {
+    params.sort = options.sort
+  }
+
+  return fetchFromPayload<PaginatedResponse<ContenutoStatico>>('/contenuti-statici', { params })
+}
+
+/**
+ * Get published global static content for navigation
+ */
+export async function getGlobalContenutiStatici(): Promise<ContenutoStatico[]> {
+  try {
+    const response = await getContenutiStatici({
+      where: {
+        pubblicato: { equals: true },
+        lemmario: { exists: false },
+      },
+      limit: 50,
+      sort: 'titolo',
+    })
+    return response.docs
+  } catch (error) {
+    console.error('Error fetching global static content:', error)
+    return []
+  }
+}
+
 export async function getLemmarioBySlug(slug: string): Promise<Lemmario | null> {
   try {
     const response = await fetchFromPayload<PaginatedResponse<Lemmario>>('/lemmari', {

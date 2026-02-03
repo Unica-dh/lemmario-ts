@@ -22,11 +22,10 @@ export default async function Home() {
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          Dizionari del Razionale
+          Lemmari
         </h1>
         <p className="text-lg text-gray-600 max-w-3xl">
-          Benvenuto nell&apos;archivio dei dizionari storici. Seleziona un lemmario per
-          esplorare i suoi lemmi, definizioni e fonti.
+          Esplora i dizionari storici. Seleziona un lemmario per visualizzare lemmi, definizioni e fonti.
         </p>
       </div>
 

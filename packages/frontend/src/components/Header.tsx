@@ -1,6 +1,9 @@
 import Link from 'next/link'
+import { getGlobalContenutiStatici } from '@/lib/payload-api'
 
-export default function Header() {
+export default async function Header() {
+  const contenutiStatici = await getGlobalContenutiStatici()
+
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
@@ -18,18 +21,15 @@ export default function Header() {
             >
               Dizionari
             </Link>
-            <Link
-              href="/ricerca"
-              className="text-gray-600 hover:text-primary-600 transition-colors"
-            >
-              Ricerca
-            </Link>
-            <Link
-              href="/informazioni"
-              className="text-gray-600 hover:text-primary-600 transition-colors"
-            >
-              Informazioni
-            </Link>
+            {contenutiStatici.map((contenuto) => (
+              <Link
+                key={contenuto.id}
+                href={`/pagine/${contenuto.slug}`}
+                className="text-gray-600 hover:text-primary-600 transition-colors"
+              >
+                {contenuto.titolo}
+              </Link>
+            ))}
           </nav>
 
           <div className="flex items-center space-x-4">

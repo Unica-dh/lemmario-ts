@@ -1,7 +1,9 @@
 import Link from 'next/link'
+import { getGlobalContenutiStatici } from '@/lib/payload-api'
 
-export default function Footer() {
+export default async function Footer() {
   const currentYear = new Date().getFullYear()
+  const contenutiStatici = await getGlobalContenutiStatici()
 
   return (
     <footer className="bg-gray-50 border-t border-gray-200 mt-auto">
@@ -15,43 +17,30 @@ export default function Footer() {
             </p>
           </div>
 
-          <div>
-            <h3 className="font-bold text-gray-900 mb-3">Link utili</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="/informazioni" className="text-gray-600 hover:text-primary-600">
-                  Informazioni sul progetto
-                </Link>
-              </li>
-              <li>
-                <Link href="/bibliografia" className="text-gray-600 hover:text-primary-600">
-                  Bibliografia
-                </Link>
-              </li>
-              <li>
-                <Link href="/contatti" className="text-gray-600 hover:text-primary-600">
-                  Contatti
-                </Link>
-              </li>
-            </ul>
-          </div>
+          {contenutiStatici.length > 0 && (
+            <div>
+              <h3 className="font-bold text-gray-900 mb-3">Informazioni</h3>
+              <ul className="space-y-2 text-sm">
+                {contenutiStatici.map((contenuto) => (
+                  <li key={contenuto.id}>
+                    <Link
+                      href={`/pagine/${contenuto.slug}`}
+                      className="text-gray-600 hover:text-primary-600"
+                    >
+                      {contenuto.titolo}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           <div>
-            <h3 className="font-bold text-gray-900 mb-3">Ricerca</h3>
+            <h3 className="font-bold text-gray-900 mb-3">Navigazione</h3>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link href="/ricerca" className="text-gray-600 hover:text-primary-600">
-                  Ricerca avanzata
-                </Link>
-              </li>
-              <li>
-                <Link href="/lemmari" className="text-gray-600 hover:text-primary-600">
-                  Sfoglia dizionari
-                </Link>
-              </li>
-              <li>
-                <Link href="/lemmi" className="text-gray-600 hover:text-primary-600">
-                  Indice lemmi
+                <Link href="/" className="text-gray-600 hover:text-primary-600">
+                  Dizionari
                 </Link>
               </li>
             </ul>

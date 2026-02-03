@@ -119,8 +119,18 @@ export interface ContenutoStatico {
   id: number
   slug: string
   titolo: string
-  contenuto?: string
+  contenuto?: {
+    root: {
+      type: string
+      children: Array<Record<string, unknown>>
+      direction?: string
+      format?: string
+      indent?: number
+      version?: number
+    }
+  }
   lemmario?: number | Lemmario
+  pubblicato?: boolean
   updatedAt: string
   createdAt: string
 }
