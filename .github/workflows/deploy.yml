@@ -69,7 +69,7 @@ jobs:
 
   deploy:
     name: Deploy to VPN server
-    runs-on: [self-hosted, vpn]
+    runs-on: self-hosted
     needs: build-and-push
     environment: production
     permissions:
