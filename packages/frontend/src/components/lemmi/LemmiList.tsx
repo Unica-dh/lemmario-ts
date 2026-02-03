@@ -63,13 +63,13 @@ export function LemmiList({ lemmi, lemmarioSlug, className = '' }: LemmiListProp
                 </p>
               )}
 
-              {lemma._status && (
+              {lemma.status && (
                 <div className="flex items-center gap-2">
                   <Badge
-                    variant={lemma._status === 'published' ? 'success' : 'warning'}
+                    variant={lemma.status === 'published' ? 'success' : 'warning'}
                     size="sm"
                   >
-                    {lemma._status === 'published' ? 'Pubblicato' : 'Bozza'}
+                    {lemma.status === 'published' ? 'Pubblicato' : 'Bozza'}
                   </Badge>
                 </div>
               )}

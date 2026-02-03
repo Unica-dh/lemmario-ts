@@ -47,45 +47,68 @@ export default async function LemmarioPage({ params, searchParams }: PageProps) 
   const tipo = searchParams.tipo
   const searchQuery = searchParams.q
 
-  // Build query
+  // Build base query (only lemmario, no tipo filter due to Payload bug)
   const where: Record<string, unknown> = {
     lemmario: { equals: lemmario.id },
   }
 
-  if (tipo) {
-    where.tipo = { equals: tipo }
-  }
-
   if (searchQuery) {
-    where.termine = { contains: searchQuery }
+    where.OR = [
+      { termine: { like: searchQuery } },
+    ]
   }
 
   const itemsPerPage = 24
 
-  // Fetch lemmi with filters
-  const lemmiData = await getLemmi({
-    limit: itemsPerPage,
-    page,
+  // Fetch ALL lemmi for this lemmario (we'll filter client-side)
+  // Note: This is temporary workaround - Payload tipo filter doesn't work
+  const allLemmiData = await getLemmi({
+    limit: 500, // Get all lemmi (temp workaround)
+    page: 1,
     where,
     depth: 0,
-    sort: 'termine',
+    sort: '-termine', // Sort Z to A, then we'll reverse for A to Z
   })
 
-  // Fetch counts for filter badges (optional optimization: could be cached)
-  const [allCount, latinoCount, volgareCount] = await Promise.all([
-    getLemmi({
-      limit: 1,
-      where: { lemmario: { equals: lemmario.id } },
-    }).then((res) => res.totalDocs),
-    getLemmi({
-      limit: 1,
-      where: { lemmario: { equals: lemmario.id }, tipo: { equals: 'latino' } },
-    }).then((res) => res.totalDocs),
-    getLemmi({
-      limit: 1,
-      where: { lemmario: { equals: lemmario.id }, tipo: { equals: 'volgare' } },
-    }).then((res) => res.totalDocs),
-  ])
+  // Client-side filtering by tipo and search
+  let filteredLemmi = [...allLemmiData.docs].reverse() // Reverse to get A-Z order
+
+  if (tipo) {
+    filteredLemmi = filteredLemmi.filter((lemma) => lemma.tipo === tipo)
+  }
+
+  if (searchQuery) {
+    const lowerQuery = searchQuery.toLowerCase()
+    filteredLemmi = filteredLemmi.filter((lemma) =>
+      lemma.termine.toLowerCase().includes(lowerQuery)
+    )
+  }
+
+  // Manual pagination
+  const totalFiltered = filteredLemmi.length
+  const totalPages = Math.ceil(totalFiltered / itemsPerPage)
+  const startIndex = (page - 1) * itemsPerPage
+  const endIndex = startIndex + itemsPerPage
+  const paginatedLemmi = filteredLemmi.slice(startIndex, endIndex)
+
+  // Create paginated response object
+  const lemmiData = {
+    docs: paginatedLemmi,
+    totalDocs: totalFiltered,
+    limit: itemsPerPage,
+    totalPages,
+    page,
+    pagingCounter: startIndex + 1,
+    hasPrevPage: page > 1,
+    hasNextPage: page < totalPages,
+    prevPage: page > 1 ? page - 1 : null,
+    nextPage: page < totalPages ? page + 1 : null,
+  }
+
+  // Calculate counts for filters
+  const allCount = allLemmiData.totalDocs
+  const latinoCount = allLemmiData.docs.filter((l) => l.tipo === 'latino').length
+  const volgareCount = allLemmiData.docs.filter((l) => l.tipo === 'volgare').length
 
   return (
     <div className="container mx-auto px-4 py-8">
