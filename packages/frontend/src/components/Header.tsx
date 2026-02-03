@@ -13,16 +13,10 @@ export default function Header() {
 
           <nav className="hidden md:flex items-center space-x-6">
             <Link
-              href="/lemmari"
+              href="/"
               className="text-gray-600 hover:text-primary-600 transition-colors"
             >
               Dizionari
-            </Link>
-            <Link
-              href="/lemmi"
-              className="text-gray-600 hover:text-primary-600 transition-colors"
-            >
-              Lemmi
             </Link>
             <Link
               href="/ricerca"

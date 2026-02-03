@@ -33,9 +33,9 @@ services:
       - ./packages/frontend/src:/workspace/packages/frontend/src
       - ./packages/frontend/public:/workspace/packages/frontend/public
       - ./packages/frontend/next.config.js:/workspace/packages/frontend/next.config.js
-      - ./packages/frontend/tailwind.config.ts:/workspace/packages/frontend/tailwind.config.ts
+      - ./packages/frontend/tailwind.config.js:/workspace/packages/frontend/tailwind.config.js
+      - ./packages/frontend/postcss.config.js:/workspace/packages/frontend/postcss.config.js
       - ./packages/frontend/tsconfig.json:/workspace/packages/frontend/tsconfig.json
-      - ./packages/frontend/postcss.config.mjs:/workspace/packages/frontend/postcss.config.mjs
       - ./tsconfig.json:/workspace/tsconfig.json
       - ./pnpm-workspace.yaml:/workspace/pnpm-workspace.yaml
     environment:

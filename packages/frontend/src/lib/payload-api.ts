@@ -68,6 +68,7 @@ export async function getLemmari(options?: {
   limit?: number
   page?: number
   where?: Record<string, unknown>
+  sort?: string
 }): Promise<PaginatedResponse<Lemmario>> {
   const params: Record<string, string | number> = {
     limit: options?.limit || 10,
@@ -78,7 +79,55 @@ export async function getLemmari(options?: {
     params.where = JSON.stringify(options.where)
   }
 
+  if (options?.sort) {
+    params.sort = options.sort
+  }
+
   return fetchFromPayload<PaginatedResponse<Lemmario>>('/lemmari', { params })
+}
+
+/**
+ * Get all active lemmari for home page
+ * Includes count of lemmi for each lemmario
+ */
+export async function getAllLemmariWithStats(): Promise<(Lemmario & { _count?: { lemmi?: number } })[]> {
+  try {
+    const response = await getLemmari({
+      where: { attivo: { equals: true } },
+      limit: 100,
+      sort: 'ordine',
+    })
+
+    // For each lemmario, fetch the count of lemmi
+    // Note: This is a simplified approach. In production, you'd want to
+    // add a custom endpoint in Payload that returns counts in a single query
+    const lemmariWithStats = await Promise.all(
+      response.docs.map(async (lemmario) => {
+        try {
+          const lemmiResponse = await fetchFromPayload<PaginatedResponse<Lemma>>('/lemmi', {
+            params: {
+              where: JSON.stringify({ lemmario: { equals: lemmario.id } }),
+              limit: 1,
+            },
+          })
+          return {
+            ...lemmario,
+            _count: { lemmi: lemmiResponse.totalDocs },
+          }
+        } catch {
+          return {
+            ...lemmario,
+            _count: { lemmi: 0 },
+          }
+        }
+      })
+    )
+
+    return lemmariWithStats
+  } catch (error) {
+    console.error('Error fetching lemmari with stats:', error)
+    return []
+  }
 }
 
 export async function getLemmarioBySlug(slug: string): Promise<Lemmario | null> {
