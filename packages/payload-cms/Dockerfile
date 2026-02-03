@@ -14,18 +14,20 @@ ARG DATABASE_URI=postgres://localhost:5432/lemmario_db
 ENV PAYLOAD_PUBLIC_SERVER_URL=${PAYLOAD_PUBLIC_SERVER_URL}
 ENV DATABASE_URI=${DATABASE_URI}
 
-# Copy workspace files
+# LAYER CACHING OPTIMIZATION:
+# Step 1: Copy only dependency files (change rarely)
 COPY pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY package.json ./
-COPY tsconfig.json ./
+COPY packages/payload-cms/package.json ./packages/payload-cms/
 
-# Copy payload package
-COPY packages/payload-cms ./packages/payload-cms
-
-# Install ALL dependencies (including dev for build)
+# Step 2: Install dependencies (cached if lockfile unchanged)
 RUN pnpm install --frozen-lockfile
 
-# Build TypeScript and Payload Admin panel
+# Step 3: Copy source code (changes frequently)
+COPY tsconfig.json ./
+COPY packages/payload-cms ./packages/payload-cms
+
+# Step 4: Build TypeScript and Payload Admin panel
 WORKDIR /app/packages/payload-cms
 RUN pnpm build && npx payload build
 

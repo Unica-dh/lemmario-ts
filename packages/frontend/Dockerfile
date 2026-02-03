@@ -6,21 +6,20 @@ RUN npm install -g pnpm@8.15.1
 # Set working directory
 WORKDIR /app
 
-# Copy workspace files
+# LAYER CACHING OPTIMIZATION:
+# Step 1: Copy only dependency files (change rarely)
 COPY pnpm-workspace.yaml pnpm-lock.yaml ./
 COPY package.json ./
-COPY tsconfig.json ./
-
-# Copy frontend package
 COPY packages/frontend/package.json ./packages/frontend/
 
-# Install dependencies
+# Step 2: Install dependencies (cached if lockfile unchanged)
 RUN pnpm install --frozen-lockfile
 
-# Copy source code
+# Step 3: Copy source code (changes frequently)
+COPY tsconfig.json ./
 COPY packages/frontend ./packages/frontend
 
-# Build
+# Step 4: Build
 WORKDIR /app/packages/frontend
 RUN pnpm build
 
