@@ -23,6 +23,17 @@
 
 **Novità 15/01/2026:** ✨ Implementato **Form Multi-Step Unificato** per editing lemmi con tutte le entità correlate in un unico contesto!
 
+**Aggiornamenti 20/01/2026 (riepilogo requisiti):**
+- ✅ Livello di razionalità associato alle `definizioni` (non alle `fonti`).
+- ⚠️ Autocomplete `fonte` nel backend (admin) per selezione e ricerca.
+- ⚠️ Creazione entità collegate da schermata lemma senza uscire.
+- ✅ Anteprima backend del lemma (implementata) — da documentare nel piano.
+- ⚠️ Visualizzazione campi estesi della `fonte` in admin quando richiamata.
+- ⚠️ Report import con elenco importati + **estratti del testo ignorato per lemma**.
+- ⚠️ Analisi valori post-ricorrenza in HTML e estensione campo pagina/carta.
+
+**Impatto fasi:** da integrare in **FASE EXTRA (Admin UX)** e **FASE 5 (Migrazione & Report)**.
+
 ---
 
 ## Indice
@@ -690,6 +701,22 @@ export const createAuditTrail: CollectionAfterChangeHook = async ({
 
 ---
 
+### ⚠️ FASE EXTRA: Admin UX - Integrazioni 20/01/2026 (0%)
+
+**Stato:** ⚠️ Da pianificare e documentare (anteprima backend già implementata)
+
+**Obiettivo:** Completare le richieste redazionali nel backend (admin) emerse dal riepilogo 20/01/2026.
+
+**Tasks:**
+- [ ] Documentare l’anteprima backend del lemma (flusso, permessi, UI, criteri di aggiornamento).
+- [ ] Sostituire la selezione `fonte` con un campo **autocomplete** in admin (ricerca per titolo/shorthand).
+- [ ] Visualizzare nel form lemma i campi estesi della `fonte` richiamata (metadati principali).
+- [ ] Abilitare creazione di entità collegate senza lasciare la pagina (fonti, definizioni, ricorrenze, varianti).
+- [ ] Verifica QA: livello di razionalità collegato alle `definizioni`.
+- [ ] Sessione di test UX con redattori.
+
+---
+
 ### ⚠️ FASE 4: Frontend Next.js - PARZIALMENTE COMPLETATA (60%)
 
 **Stato:** ⚠️ Parziale - routing da correggere, pagine da completare
@@ -899,6 +926,10 @@ export function SearchBar({ lemmarioSlug }) {
 - [ ] Eseguire migrazione: `cd scripts && API_URL=http://localhost:3000/api LEMMARIO_ID=2 pnpm migrate`
 - [ ] Validare dati importati
 - [ ] Verificare integrità riferimenti
+- [ ] Estendere parser per includere valori post-ricorrenza nel campo pagina/carta (da HTML origine)
+- [ ] Definire regole di normalizzazione pagina/carta (multi-valore)
+- [ ] Generare report import con elenco importati + **estratti del testo ignorato per lemma**
+- [ ] Documentare formato report e retention
 
 **Agent consigliato:** Nessuno - script pronti, solo esecuzione
 
