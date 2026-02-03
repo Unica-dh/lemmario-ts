@@ -45,6 +45,18 @@ export interface Lemma {
   publishedAt?: string
 }
 
+/**
+ * Lemma con tutte le relazioni popolate (depth >= 2)
+ */
+export interface LemmaDettagliato extends Lemma {
+  definizioni?: Array<Definizione & {
+    livello_razionalita?: LivelloRazionalita
+    ricorrenze?: Array<Ricorrenza & { fonte?: Fonte }>
+  }>
+  varianti?: VarianteGrafica[]
+  riferimenti_in_uscita?: Array<RiferimentoIncrociato & { lemma_destinazione?: Lemma }>
+}
+
 export interface VarianteGrafica {
   id: number
   lemma: number | Lemma
@@ -57,9 +69,8 @@ export interface VarianteGrafica {
 export interface Definizione {
   id: number
   lemma: number | Lemma
-  numero_definizione: number
-  testo_definizione: string
-  contesto_uso?: string
+  numero: number
+  testo: string
   livello_razionalita?: number | LivelloRazionalita
   updatedAt: string
   createdAt: string
@@ -86,10 +97,9 @@ export interface Ricorrenza {
   id: number
   definizione: number | Definizione
   fonte: number | Fonte
-  citazione_originale: string
-  trascrizione_moderna?: string
-  pagina_riferimento?: string
-  note_filologiche?: string
+  testo_originale: string
+  pagina_raw?: string
+  note?: string
   updatedAt: string
   createdAt: string
 }

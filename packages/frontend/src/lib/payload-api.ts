@@ -221,16 +221,25 @@ export async function getLemmi(options?: {
 
 export async function getLemmaBySlug(slug: string, lemmarioId?: number): Promise<Lemma | null> {
   try {
-    const where: Record<string, unknown> = { slug: { equals: slug } }
+    // WORKAROUND: Payload API where filter on slug field doesn't work reliably
+    // Instead, fetch all lemmi for the lemmario and filter client-side by slug
+    // TODO: Debug why Payload where[slug][equals] returns all documents
+    
+    const where: Record<string, unknown> = {}
     if (lemmarioId) {
       where.lemmario = { equals: lemmarioId }
     }
 
     const response = await fetchFromPayload<PaginatedResponse<Lemma>>('/lemmi', {
-      params: { where: JSON.stringify(where), limit: 1, depth: 2 },
+      params: { where: JSON.stringify(where), limit: 500, depth: 2 },
     })
-    return response.docs[0] || null
-  } catch {
+    
+    // Filter client-side by slug
+    const found = response.docs.find(lemma => lemma.slug === slug)
+    
+    return found || null
+  } catch (error) {
+    console.error('getLemmaBySlug error:', error)
     return null
   }
 }
@@ -269,16 +278,22 @@ export async function searchLemmi(query: string, lemmarioId?: number): Promise<L
  */
 export async function getDefinizioniByLemma(lemmaId: number): Promise<Definizione[]> {
   try {
+    // WORKAROUND: Payload where filter doesn't work, fetch all and filter client-side
     const response = await fetchFromPayload<PaginatedResponse<Definizione>>('/definizioni', {
       params: {
-        where: JSON.stringify({ lemma: { equals: lemmaId } }),
-        sort: 'numero_definizione',
-        limit: 100,
+        limit: 500,
         depth: 2,
       },
     })
+    // Filter client-side by lemma ID
     return response.docs
-  } catch {
+      .filter(def => {
+        const lemma = typeof def.lemma === 'number' ? def.lemma : def.lemma?.id
+        return lemma === lemmaId
+      })
+      .sort((a, b) => (a.numero || 0) - (b.numero || 0))
+  } catch (error) {
+    console.error('getDefinizioniByLemma error:', error)
     return []
   }
 }
@@ -306,14 +321,19 @@ export async function getRicorrenzeByDefinizione(definizioneId: number): Promise
  */
 export async function getVariantiByLemma(lemmaId: number): Promise<VarianteGrafica[]> {
   try {
+    // WORKAROUND: Payload where filter doesn't work, fetch all and filter client-side
     const response = await fetchFromPayload<PaginatedResponse<VarianteGrafica>>('/varianti-grafiche', {
       params: {
-        where: JSON.stringify({ lemma: { equals: lemmaId } }),
-        limit: 100,
+        limit: 500,
       },
     })
-    return response.docs
-  } catch {
+    // Filter client-side by lemma ID
+    return response.docs.filter(variante => {
+      const lemma = typeof variante.lemma === 'number' ? variante.lemma : variante.lemma?.id
+      return lemma === lemmaId
+    })
+  } catch (error) {
+    console.error('getVariantiByLemma error:', error)
     return []
   }
 }
@@ -323,15 +343,20 @@ export async function getVariantiByLemma(lemmaId: number): Promise<VarianteGrafi
  */
 export async function getRiferimentiByLemma(lemmaId: number): Promise<RiferimentoIncrociato[]> {
   try {
+    // WORKAROUND: Payload where filter doesn't work, fetch all and filter client-side
     const response = await fetchFromPayload<PaginatedResponse<RiferimentoIncrociato>>('/riferimenti-incrociati', {
       params: {
-        where: JSON.stringify({ lemma_origine: { equals: lemmaId } }),
-        limit: 100,
+        limit: 500,
         depth: 2,
       },
     })
-    return response.docs
-  } catch {
+    // Filter client-side by lemma_origine ID
+    return response.docs.filter(rif => {
+      const lemma = typeof rif.lemma_origine === 'number' ? rif.lemma_origine : rif.lemma_origine?.id
+      return lemma === lemmaId
+    })
+  } catch (error) {
+    console.error('getRiferimentiByLemma error:', error)
     return []
   }
 }
