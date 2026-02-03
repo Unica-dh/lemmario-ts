@@ -93,6 +93,10 @@ export interface MigrationStats {
     total: number
     imported: number
   }
+  livelli: {
+    total: number
+    loaded: number
+  }
 }
 
 export interface MigrationReport {

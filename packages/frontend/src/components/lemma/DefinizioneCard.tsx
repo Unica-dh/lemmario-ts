@@ -50,7 +50,7 @@ export function DefinizioneCard({ definizione, numero }: DefinizioneCardProps) {
                 <div key={ricorrenza.id || idx} className="bg-gray-50 rounded p-3 text-sm">
                   {/* Testo originale */}
                   <blockquote className="italic text-gray-700 mb-2 border-l-2 border-gray-300 pl-3">
-                    "{ricorrenza.testo_originale}"
+                    &ldquo;{ricorrenza.testo_originale}&rdquo;
                   </blockquote>
                   
                   {/* Fonte */}

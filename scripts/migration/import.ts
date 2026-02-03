@@ -11,10 +11,12 @@ import { MigrationStats, MigrationReport, LemmaImportDetail } from './types'
 
 const API_URL = process.env.API_URL || 'http://localhost:3000/api'
 const OLD_WEBSITE_PATH = path.join(__dirname, '../../old_website')
-const LEMMARIO_ID = parseInt(process.env.LEMMARIO_ID || '2') // ID del lemmario "Dizionario di Test"
+const LEMMARIO_ID = parseInt(process.env.LEMMARIO_ID || '1') // ID del lemmario predefinito
 
 // Mappa per tracciare gli ID delle fonti create
 const fontiMap = new Map<string, number>()
+// Mappa per tracciare gli ID dei livelli di razionalità (numero -> id)
+const livelliMap = new Map<number, number>()
 
 const stats: MigrationStats = {
   fonti: { total: 0, imported: 0, failed: 0, errors: [] },
@@ -22,6 +24,7 @@ const stats: MigrationStats = {
   definizioni: { total: 0, imported: 0 },
   ricorrenze: { total: 0, imported: 0 },
   varianti: { total: 0, imported: 0 },
+  livelli: { total: 0, loaded: 0 },
 }
 
 // Tracking dettagliato per report
@@ -90,6 +93,34 @@ async function importFonti() {
   }
 
   console.log(`\nFonti: ${stats.fonti.imported}/${stats.fonti.total} importate\n`)
+}
+
+async function loadLivelliRazionalita() {
+  console.log('\n=== FASE 1.5: Caricamento Livelli di Razionalità ===\n')
+
+  try {
+    const result = await fetchPayload('/livelli-razionalita?limit=10')
+    const livelli = (result as any).docs || []
+    
+    stats.livelli.total = livelli.length
+
+    if (livelli.length === 0) {
+      console.warn('⚠️  ATTENZIONE: Nessun livello di razionalità trovato!')
+      console.warn('   Esegui prima: pnpm seed:livelli')
+      throw new Error('Livelli di razionalità mancanti')
+    }
+
+    for (const livello of livelli) {
+      livelliMap.set(livello.numero, livello.id)
+      console.log(`✓ Livello ${livello.numero} caricato (ID: ${livello.id})`)
+      stats.livelli.loaded++
+    }
+
+    console.log(`\n✅ ${livelliMap.size} livelli di razionalità pronti\n`)
+  } catch (error) {
+    console.error('✗ Errore caricando livelli di razionalità:', error)
+    throw error
+  }
 }
 
 async function importLemmi() {
@@ -193,8 +224,15 @@ async function importLemmi() {
             numero: def.numero,
             testo: def.testo,
           }
+          
+          // Associa il livello di razionalità tramite la relazione
           if (def.livello_razionalita) {
-            defData.livello_razionalita = def.livello_razionalita
+            const livelloId = livelliMap.get(def.livello_razionalita)
+            if (livelloId) {
+              defData.livello_razionalita = livelloId
+            } else {
+              console.warn(`  ⚠️ Livello ${def.livello_razionalita} non trovato per definizione ${def.numero}`)
+            }
           }
 
           const defResult = await fetchPayload('/definizioni', {
@@ -292,6 +330,11 @@ function generateMarkdownReport(): string {
 
   // Riepilogo statistiche
   md += '## 📊 Riepilogo Statistiche\n\n'
+  
+  md += '### Livelli di Razionalità\n'
+  md += `- **Totale**: ${stats.livelli.total}\n`
+  md += `- **Caricati**: ${stats.livelli.loaded}\n\n`
+  
   md += '### Fonti Bibliografiche\n'
   md += `- **Totale**: ${stats.fonti.total}\n`
   md += `- **Importate**: ${stats.fonti.imported}\n`
@@ -431,7 +474,8 @@ function printSummary() {
   console.log('\n' + '='.repeat(60))
   console.log('RIEPILOGO MIGRAZIONE')
   console.log('='.repeat(60))
-  console.log(`\nFonti:       ${stats.fonti.imported}/${stats.fonti.total} importate (${stats.fonti.failed} errori)`)
+  console.log(`\nLivelli:     ${stats.livelli.loaded}/${stats.livelli.total} caricati`)
+  console.log(`Fonti:       ${stats.fonti.imported}/${stats.fonti.total} importate (${stats.fonti.failed} errori)`)
   console.log(`Lemmi:       ${stats.lemmi.imported}/${stats.lemmi.total} importati (${stats.lemmi.failed} errori)`)
   console.log(`Definizioni: ${stats.definizioni.imported} importate`)
   console.log(`Ricorrenze:  ${stats.ricorrenze.imported} importate`)
@@ -474,6 +518,7 @@ async function main() {
 
   try {
     await importFonti()
+    await loadLivelliRazionalita()
     await importLemmi()
     printSummary()
 

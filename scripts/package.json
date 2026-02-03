@@ -6,7 +6,10 @@
   "scripts": {
     "migrate": "ts-node migration/import.ts",
     "migrate:test": "API_URL=http://localhost:3000/api LEMMARIO_ID=2 ts-node migration/import.ts",
-    "move-data": "ts-node migration/move-data.ts"
+    "move-data": "ts-node migration/move-data.ts",
+    "seed:livelli": "ts-node migration/seed-livelli-razionalita.ts",
+    "reset:db": "ts-node migration/reset-database.ts",
+    "migrate:full": "npm run reset:db && npm run seed:livelli && npm run migrate"
   },
   "dependencies": {
     "cheerio": "^1.0.0-rc.12",

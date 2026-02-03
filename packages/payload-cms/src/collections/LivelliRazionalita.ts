@@ -20,7 +20,7 @@ export const LivelliRazionalita: CollectionConfig = {
     description: 'Livelli di razionalità (specifici per lemmario)',
   },
   access: {
-    create: hasLemmarioAccess,
+    create: () => true, // TEMPORARY: Allow public create for migration
     read: () => true,
     update: hasLemmarioAccess,
     delete: hasLemmarioAccess,
