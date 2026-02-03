@@ -3,7 +3,7 @@
  * Converts Lexical JSON format to React elements
  */
 
-interface LexicalNode {
+export interface LexicalNode {
   type: string
   tag?: string
   text?: string
@@ -12,7 +12,7 @@ interface LexicalNode {
   version?: number
 }
 
-interface LexicalContent {
+export interface LexicalContent {
   root: {
     type: string
     children: LexicalNode[]

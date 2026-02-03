@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import { getContenutoStaticoBySlug } from '@/lib/payload-api'
 import { LexicalRenderer } from '@/components/LexicalRenderer'
 import type { Metadata } from 'next'
+import type { LexicalContent } from '@/components/LexicalRenderer'
 
 interface PageProps {
   params: {
@@ -50,7 +51,7 @@ export default async function ContenutoStaticoPage({ params }: PageProps) {
         </header>
 
         <LexicalRenderer
-          content={contenuto.contenuto}
+          content={contenuto.contenuto as unknown as LexicalContent}
           className="prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-primary-600"
         />
       </article>

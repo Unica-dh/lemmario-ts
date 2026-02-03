@@ -14,11 +14,11 @@ const tipoLabels: Record<string, string> = {
   vedi_anche: 'Vedi anche',
 }
 
-const tipoColors: Record<string, 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'outline'> = {
+const tipoColors: Record<string, 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info'> = {
   sinonimo: 'success',
   contrario: 'danger',
   correlato: 'primary',
-  vedi_anche: 'outline',
+  vedi_anche: 'info',
 }
 
 export function RiferimentiIncrociati({ riferimenti, lemmarioSlug }: RiferimentiIncrociatiProps) {
@@ -60,7 +60,7 @@ export function RiferimentiIncrociati({ riferimenti, lemmarioSlug }: Riferimenti
                     className="group"
                   >
                     <Badge
-                      variant={tipoColors[tipo] || 'outline'}
+                      variant={tipoColors[tipo] || 'default'}
                       size="md"
                       className="group-hover:shadow-md transition-shadow"
                     >

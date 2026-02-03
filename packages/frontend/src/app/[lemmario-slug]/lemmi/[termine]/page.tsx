@@ -50,9 +50,9 @@ export default async function LemmaPage({ params, searchParams }: PageProps) {
   // Costruisci lemma dettagliato con tutte le relazioni
   const lemma: LemmaDettagliato = {
     ...lemmaData,
-    definizioni,
+    definizioni: definizioni as LemmaDettagliato['definizioni'],
     varianti,
-    riferimenti_in_uscita: riferimenti,
+    riferimenti_in_uscita: riferimenti as LemmaDettagliato['riferimenti_in_uscita'],
   }
 
   // Costruisci URL di ritorno con parametri di ricerca
@@ -95,7 +95,7 @@ export default async function LemmaPage({ params, searchParams }: PageProps) {
                 {lemma.tipo === 'latino' ? 'Latino' : 'Volgare'}
               </Badge>
               {lemma.status === 'published' && (
-                <Badge variant="outline" size="sm">
+                <Badge variant="info" size="sm">
                   Pubblicato
                 </Badge>
               )}

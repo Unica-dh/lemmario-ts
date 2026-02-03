@@ -23,7 +23,7 @@ export function DefinizioneCard({ definizione, numero }: DefinizioneCardProps) {
             {numero}
           </span>
           {livello && (
-            <Badge variant="outline" size="sm">
+            <Badge variant="info" size="sm">
               Livello {livello.livello}: {livello.nome}
             </Badge>
           )}

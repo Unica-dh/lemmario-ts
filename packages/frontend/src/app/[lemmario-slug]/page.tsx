@@ -67,7 +67,6 @@ export default async function LemmarioPage({ params, searchParams }: PageProps) 
     page: 1,
     where,
     depth: 0,
-    sort: '-termine', // Sort Z to A, then we'll reverse for A to Z
   })
 
   // Client-side filtering by tipo and search
