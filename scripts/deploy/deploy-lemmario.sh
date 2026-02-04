@@ -120,14 +120,11 @@ done
 echo "[6/10] Running database migrations..."
 
 # 6a: Applica script SQL idempotente per garantire schema aggiornato
-MIGRATION_SQL="/tmp/lemmario-deploy-$$/apply-schema-updates.sql"
 if [ -f "$PROJECT_DIR/scripts/deploy/migrations/apply-schema-updates.sql" ]; then
   echo "Applying SQL schema updates..."
-  cp "$PROJECT_DIR/scripts/deploy/migrations/apply-schema-updates.sql" "$MIGRATION_SQL"
-  $COMPOSE_CMD -f "$COMPOSE_FILE" exec -T postgres psql -U lemmario_user -d lemmario_db -f - < "$MIGRATION_SQL" || {
+  $COMPOSE_CMD -f "$COMPOSE_FILE" exec -T postgres psql -U lemmario_user -d lemmario_db < "$PROJECT_DIR/scripts/deploy/migrations/apply-schema-updates.sql" || {
     echo "WARNING: SQL migration failed"
   }
-  rm -f "$MIGRATION_SQL"
 fi
 
 # 6b: Tenta migrazioni Payload (può fallire se non ci sono migrazioni pendenti)
