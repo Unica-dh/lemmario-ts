@@ -117,6 +117,11 @@ jobs:
           cp /tmp/lemmario-deploy-${{ github.run_id }}/scripts/deploy/deploy-lemmario.sh /home/dhruby/deploy-lemmario.sh
           chmod +x /home/dhruby/deploy-lemmario.sh
 
+      - name: Copy migration scripts to server
+        run: |
+          mkdir -p /home/dhruby/lemmario-ts/scripts/deploy/migrations
+          cp -r /tmp/lemmario-deploy-${{ github.run_id }}/scripts/deploy/migrations/* /home/dhruby/lemmario-ts/scripts/deploy/migrations/ 2>/dev/null || true
+
       - name: Update docker-compose.yml on server
         run: |
           cp /tmp/lemmario-deploy-${{ github.run_id }}/docker-compose.yml /home/dhruby/lemmario-ts/docker-compose.yml

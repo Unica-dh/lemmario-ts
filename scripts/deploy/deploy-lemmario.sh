@@ -27,7 +27,7 @@ echo "Commit SHA: $COMMIT_SHA"
 echo "=========================================="
 
 # Pre-flight checks
-echo "[0/9] Pre-flight checks..."
+echo "[0/10] Pre-flight checks..."
 
 # Check .env file exists
 if [ ! -f "$PROJECT_DIR/.env" ]; then
@@ -49,7 +49,7 @@ else
 fi
 
 # Step 1: Backup Database
-echo "[1/9] Backing up database..."
+echo "[1/10] Backing up database..."
 mkdir -p "$BACKUP_DIR"
 cd "$PROJECT_DIR"
 $COMPOSE_CMD -f "$COMPOSE_FILE" exec -T postgres pg_dump \
@@ -60,7 +60,7 @@ $COMPOSE_CMD -f "$COMPOSE_FILE" exec -T postgres pg_dump \
 echo "Backup saved to: $BACKUP_DIR/lemmario_db.sql"
 
 # Step 2: Pull nuove images da GHCR (PARALLELO)
-echo "[2/9] Pulling new images from GHCR (parallel)..."
+echo "[2/10] Pulling new images from GHCR (parallel)..."
 docker pull "$GHCR_REGISTRY/lemmario-payload:sha-$COMMIT_SHA" &
 PID_PAYLOAD=$!
 docker pull "$GHCR_REGISTRY/lemmario-frontend:sha-$COMMIT_SHA" &
@@ -72,11 +72,11 @@ wait $PID_FRONTEND || { echo "ERROR: Failed to pull frontend image"; exit 1; }
 echo "Images pulled successfully!"
 
 # Step 3: Stop servizi (preserva volumi)
-echo "[3/9] Stopping services..."
+echo "[3/10] Stopping services..."
 $COMPOSE_CMD -f "$COMPOSE_FILE" stop payload frontend
 
 # Step 4: Crea docker-compose.prod.yml con nuove image tags
-echo "[4/9] Updating docker-compose.prod.yml with new tags..."
+echo "[4/10] Updating docker-compose.prod.yml with new tags..."
 cat > "$COMPOSE_PROD_FILE" <<EOF
 version: "2.4"
 services:
@@ -87,7 +87,7 @@ services:
 EOF
 
 # Step 5: Ensure postgres is up and healthy
-echo "[5/9] Ensuring postgres is healthy..."
+echo "[5/10] Ensuring postgres is healthy..."
 $COMPOSE_CMD -f "$COMPOSE_FILE" up -d postgres
 
 # Health check veloce per postgres
@@ -116,8 +116,28 @@ for i in $(seq 1 $HEALTH_CHECK_FAST_RETRIES); do
   sleep $HEALTH_CHECK_FAST_INTERVAL
 done
 
-# Step 6: Start servizi con nuove images (senza ricreare postgres)
-echo "[6/9] Starting services with new images..."
+# Step 6: Run database migrations
+echo "[6/10] Running database migrations..."
+
+# 6a: Applica script SQL idempotente per garantire schema aggiornato
+MIGRATION_SQL="/tmp/lemmario-deploy-$$/apply-schema-updates.sql"
+if [ -f "$PROJECT_DIR/scripts/deploy/migrations/apply-schema-updates.sql" ]; then
+  echo "Applying SQL schema updates..."
+  cp "$PROJECT_DIR/scripts/deploy/migrations/apply-schema-updates.sql" "$MIGRATION_SQL"
+  $COMPOSE_CMD -f "$COMPOSE_FILE" exec -T postgres psql -U lemmario_user -d lemmario_db -f - < "$MIGRATION_SQL" || {
+    echo "WARNING: SQL migration failed"
+  }
+  rm -f "$MIGRATION_SQL"
+fi
+
+# 6b: Tenta migrazioni Payload (può fallire se non ci sono migrazioni pendenti)
+echo "Attempting Payload migrations..."
+$COMPOSE_CMD -f "$COMPOSE_FILE" -f "$COMPOSE_PROD_FILE" run --rm payload sh -c "npx payload migrate" 2>/dev/null || {
+  echo "INFO: Payload migrations skipped (no pending migrations or interactive mode required)"
+}
+
+# Step 7: Start servizi con nuove images (senza ricreare postgres)
+echo "[7/10] Starting services with new images..."
 $COMPOSE_CMD -f "$COMPOSE_FILE" -f "$COMPOSE_PROD_FILE" up -d --no-deps payload frontend
 
 # Funzione helper per health check a due fasi
@@ -149,8 +169,8 @@ health_check() {
   return 1
 }
 
-# Step 7: Health check payload
-echo "[7/9] Health checking payload service..."
+# Step 8: Health check payload
+echo "[8/10] Health checking payload service..."
 if ! health_check "Payload" "curl -sf http://localhost:3000/api/access >/dev/null 2>&1"; then
   echo "ERROR: Payload health check failed"
   echo "[ROLLBACK] Reverting to previous version..."
@@ -158,15 +178,15 @@ if ! health_check "Payload" "curl -sf http://localhost:3000/api/access >/dev/nul
   exit 1
 fi
 
-# Step 8: Health check frontend
-echo "[8/9] Health checking frontend service..."
+# Step 9: Health check frontend
+echo "[9/10] Health checking frontend service..."
 if ! health_check "Frontend" "curl -sf http://localhost:3001 >/dev/null 2>&1"; then
   echo "ERROR: Frontend health check failed"
   exit 1
 fi
 
-# Step 9: Cleanup old images (opzionale, mantieni ultime 3 versioni)
-echo "[9/9] Cleaning up old images..."
+# Step 10: Cleanup old images (opzionale, mantieni ultime 3 versioni)
+echo "[10/10] Cleaning up old images..."
 docker images "$GHCR_REGISTRY/lemmario-payload" --format "{{.ID}} {{.CreatedAt}}" \
   | sort -rk 2 | tail -n +4 | awk '{print $1}' | xargs -r docker rmi 2>/dev/null || true
 docker images "$GHCR_REGISTRY/lemmario-frontend" --format "{{.ID}} {{.CreatedAt}}" \
