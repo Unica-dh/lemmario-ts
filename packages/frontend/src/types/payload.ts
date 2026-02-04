@@ -3,6 +3,11 @@
  * These are simplified versions for frontend use
  */
 
+export interface LemmarioSEO {
+  consenti_ai_crawler?: boolean
+  meta_description?: string
+}
+
 export interface Lemmario {
   id: number
   slug: string
@@ -12,6 +17,7 @@ export interface Lemmario {
   attivo?: boolean
   ordine?: number
   configurazione?: Record<string, unknown>
+  seo?: LemmarioSEO
   data_pubblicazione?: string
   updatedAt: string
   createdAt: string

@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import {
   getLemmarioBySlug,
   getLemmaBySlug,
@@ -13,8 +14,11 @@ import { Badge } from '@/components/ui/Badge'
 import { DefinizioneCard } from '@/components/lemma/DefinizioneCard'
 import { VariantiGrafiche } from '@/components/lemma/VariantiGrafiche'
 import { RiferimentiIncrociati } from '@/components/lemma/RiferimentiIncrociati'
+import { LemmaSchema, BreadcrumbSchema } from '@/components/seo'
 
 export const dynamic = 'force-dynamic'
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://glossari.dh.unica.it'
 
 interface PageProps {
   params: {
@@ -25,6 +29,102 @@ interface PageProps {
     q?: string
     tipo?: string
     page?: string
+  }
+}
+
+/**
+ * Generate metadata for lemma page
+ * This enables rich previews in search engines and social media
+ */
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const lemmarioSlug = params['lemmario-slug']
+  const termine = params.termine
+
+  // Fetch data for metadata
+  const lemmario = await getLemmarioBySlug(lemmarioSlug)
+  if (!lemmario) {
+    return { title: 'Lemmario non trovato' }
+  }
+
+  const lemma = await getLemmaBySlug(termine, lemmario.id)
+  if (!lemma) {
+    return { title: 'Lemma non trovato' }
+  }
+
+  // Get definitions for description
+  const definizioni = await getDefinizioniByLemma(lemma.id)
+
+  // Build description from first definition or etymology
+  let description = ''
+  if (definizioni.length > 0 && definizioni[0].testo) {
+    // Strip HTML tags if present
+    const testoPlain = definizioni[0].testo.replace(/<[^>]*>/g, '')
+    description = testoPlain.length > 155
+      ? testoPlain.substring(0, 152) + '...'
+      : testoPlain
+  } else if (lemma.etimologia) {
+    description = lemma.etimologia.length > 155
+      ? lemma.etimologia.substring(0, 152) + '...'
+      : lemma.etimologia
+  } else {
+    description = `Definizione del termine "${lemma.termine}" nel ${lemmario.titolo}`
+  }
+
+  const title = `${lemma.termine} - ${lemmario.titolo}`
+  const url = `${SITE_URL}/${lemmarioSlug}/lemmi/${termine}`
+
+  // Keywords
+  const keywords = [
+    lemma.termine,
+    lemmario.titolo,
+    'glossario storico',
+    'lessico italiano',
+    'terminologia',
+  ]
+  if (lemma.tipo === 'latino') {
+    keywords.push('latino', 'lessico latino')
+  } else {
+    keywords.push('volgare', 'italiano antico')
+  }
+
+  return {
+    title,
+    description,
+    keywords,
+    authors: [{ name: 'Centro Umanistica Digitale - UniCa' }],
+
+    alternates: {
+      canonical: url,
+    },
+
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: 'Glossari - Universita di Cagliari',
+      type: 'article',
+      locale: 'it_IT',
+      images: [
+        {
+          url: `${SITE_URL}/og-image.jpg`,
+          width: 1200,
+          height: 630,
+          alt: `${lemma.termine} - ${lemmario.titolo}`,
+        },
+      ],
+    },
+
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [`${SITE_URL}/og-image.jpg`],
+    },
+
+    other: {
+      'citation_title': lemma.termine,
+      'citation_publisher': 'Universita degli Studi di Cagliari',
+    },
   }
 }
 
@@ -78,9 +178,38 @@ export default async function LemmaPage({ params, searchParams }: PageProps) {
   if (searchParams.page) backParams.set('page', searchParams.page)
   const backUrl = `/${lemmario.slug}${backParams.toString() ? `?${backParams}` : ''}`
 
+  // Prepare description for JSON-LD from first definition
+  const primaDefinizione = definizioniConRicorrenze[0]?.testo
+    ? definizioniConRicorrenze[0].testo.replace(/<[^>]*>/g, '')
+    : undefined
+
+  // Breadcrumb items for JSON-LD
+  const breadcrumbItems = [
+    { name: 'Home', url: SITE_URL },
+    { name: lemmario.titolo, url: `${SITE_URL}/${lemmario.slug}` },
+    { name: lemma.termine, url: `${SITE_URL}/${lemmario.slug}/lemmi/${lemma.slug}` },
+  ]
+
   return (
-    <div className="container mx-auto px-4 py-8 max-w-5xl">
-      {/* Breadcrumb */}
+    <>
+      {/* JSON-LD Structured Data */}
+      <LemmaSchema
+        lemma={{
+          termine: lemma.termine,
+          slug: lemma.slug,
+          tipo: lemma.tipo,
+          etimologia: lemma.etimologia,
+        }}
+        lemmario={{
+          slug: lemmario.slug,
+          titolo: lemmario.titolo,
+        }}
+        definizione={primaDefinizione}
+      />
+      <BreadcrumbSchema items={breadcrumbItems} />
+
+      <div className="container mx-auto px-4 py-8 max-w-5xl">
+        {/* Breadcrumb */}
       <nav className="mb-6 text-sm text-gray-600" aria-label="Breadcrumb">
         <ol className="flex items-center space-x-2">
           <li>
@@ -189,7 +318,7 @@ export default async function LemmaPage({ params, searchParams }: PageProps) {
 
       {/* Footer Navigation */}
       <nav className="mt-12 pt-6 border-t border-gray-200 flex justify-between items-center">
-        <Link 
+        <Link
           href={backUrl}
           className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-800 transition-colors font-medium"
         >
@@ -199,6 +328,7 @@ export default async function LemmaPage({ params, searchParams }: PageProps) {
           Torna ai lemmi
         </Link>
       </nav>
-    </div>
+      </div>
+    </>
   )
 }

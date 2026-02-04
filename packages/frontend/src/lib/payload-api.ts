@@ -505,3 +505,128 @@ export async function getContenutoStaticoBySlug(slug: string, lemmarioId?: numbe
     return null
   }
 }
+
+/**
+ * SEO API Functions
+ */
+
+/**
+ * Get AI crawler configuration for all active lemmari
+ * Returns array of { slug, consenti_ai } for robots.txt generation
+ */
+export async function getAICrawlerConfig(): Promise<Array<{ slug: string; consenti_ai: boolean }>> {
+  try {
+    const response = await getLemmari({
+      where: { attivo: { equals: true } },
+      limit: 100,
+    })
+
+    return response.docs.map(lemmario => ({
+      slug: lemmario.slug,
+      consenti_ai: lemmario.seo?.consenti_ai_crawler ?? true,
+    }))
+  } catch (error) {
+    console.error('Error fetching AI crawler config:', error)
+    return []
+  }
+}
+
+/**
+ * Get all published lemmi for sitemap generation
+ * Returns lemmi with lemmario info for URL construction
+ */
+export async function getAllPublishedLemmiForSitemap(): Promise<Array<{
+  slug: string
+  updatedAt: string
+  lemmarioSlug: string
+}>> {
+  try {
+    // First get all active lemmari
+    const lemmariResponse = await getLemmari({
+      where: { attivo: { equals: true } },
+      limit: 100,
+    })
+
+    const allLemmi: Array<{ slug: string; updatedAt: string; lemmarioSlug: string }> = []
+
+    // For each lemmario, fetch published lemmi
+    for (const lemmario of lemmariResponse.docs) {
+      try {
+        const lemmiResponse = await fetchFromPayload<PaginatedResponse<Lemma>>('/lemmi', {
+          params: {
+            where: JSON.stringify({
+              lemmario: { equals: lemmario.id },
+              pubblicato: { equals: true },
+            }),
+            limit: 1000,
+          },
+        })
+
+        for (const lemma of lemmiResponse.docs) {
+          allLemmi.push({
+            slug: lemma.slug,
+            updatedAt: lemma.updatedAt,
+            lemmarioSlug: lemmario.slug,
+          })
+        }
+      } catch (error) {
+        console.error(`Error fetching lemmi for lemmario ${lemmario.slug}:`, error)
+      }
+    }
+
+    return allLemmi
+  } catch (error) {
+    console.error('Error fetching lemmi for sitemap:', error)
+    return []
+  }
+}
+
+/**
+ * Get all active lemmari for sitemap
+ */
+export async function getActiveLemmariForSitemap(): Promise<Array<{
+  slug: string
+  updatedAt: string
+}>> {
+  try {
+    const response = await getLemmari({
+      where: { attivo: { equals: true } },
+      limit: 100,
+    })
+
+    return response.docs.map(lemmario => ({
+      slug: lemmario.slug,
+      updatedAt: lemmario.updatedAt,
+    }))
+  } catch (error) {
+    console.error('Error fetching lemmari for sitemap:', error)
+    return []
+  }
+}
+
+/**
+ * Get all published contenuti statici for sitemap
+ */
+export async function getPublishedContenutiForSitemap(): Promise<Array<{
+  slug: string
+  updatedAt: string
+  lemmarioSlug: string | null
+}>> {
+  try {
+    const response = await getContenutiStatici({
+      where: { pubblicato: { equals: true } },
+      limit: 100,
+    })
+
+    return response.docs.map(contenuto => ({
+      slug: contenuto.slug,
+      updatedAt: contenuto.updatedAt,
+      lemmarioSlug: typeof contenuto.lemmario === 'object' && contenuto.lemmario
+        ? contenuto.lemmario.slug
+        : null,
+    }))
+  } catch (error) {
+    console.error('Error fetching contenuti for sitemap:', error)
+    return []
+  }
+}
