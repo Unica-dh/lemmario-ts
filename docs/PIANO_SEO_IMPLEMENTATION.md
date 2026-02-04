@@ -798,10 +798,11 @@ Creare o copiare:
 - [x] JSON-LD Organization e WebSite nel layout
 - [ ] Testare condivisione social (post-deploy)
 
-### Fase 6: JSON-LD Avanzato (Effort: Alto) 🔜 DA FARE
-- [ ] Creare componenti Schema per lemmi (DefinedTerm)
-- [ ] BreadcrumbList schema nelle pagine
-- [ ] Testare con Google Rich Results Test
+### Fase 6: JSON-LD Avanzato (Effort: Alto) ✅ COMPLETATA
+
+- [x] Creare componenti Schema per lemmi (DefinedTerm)
+- [x] BreadcrumbList schema nelle pagine
+- [x] Testare con Google Rich Results Test (locale)
 
 ### Fase 7: Configurazione (Effort: Basso) ✅ COMPLETATA
 - [x] Aggiornare next.config.js

@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/Badge'
 import { DefinizioneCard } from '@/components/lemma/DefinizioneCard'
 import { VariantiGrafiche } from '@/components/lemma/VariantiGrafiche'
 import { RiferimentiIncrociati } from '@/components/lemma/RiferimentiIncrociati'
+import { LemmaSchema, BreadcrumbSchema } from '@/components/seo'
 
 export const dynamic = 'force-dynamic'
 
@@ -177,9 +178,38 @@ export default async function LemmaPage({ params, searchParams }: PageProps) {
   if (searchParams.page) backParams.set('page', searchParams.page)
   const backUrl = `/${lemmario.slug}${backParams.toString() ? `?${backParams}` : ''}`
 
+  // Prepare description for JSON-LD from first definition
+  const primaDefinizione = definizioniConRicorrenze[0]?.testo
+    ? definizioniConRicorrenze[0].testo.replace(/<[^>]*>/g, '')
+    : undefined
+
+  // Breadcrumb items for JSON-LD
+  const breadcrumbItems = [
+    { name: 'Home', url: SITE_URL },
+    { name: lemmario.titolo, url: `${SITE_URL}/${lemmario.slug}` },
+    { name: lemma.termine, url: `${SITE_URL}/${lemmario.slug}/lemmi/${lemma.slug}` },
+  ]
+
   return (
-    <div className="container mx-auto px-4 py-8 max-w-5xl">
-      {/* Breadcrumb */}
+    <>
+      {/* JSON-LD Structured Data */}
+      <LemmaSchema
+        lemma={{
+          termine: lemma.termine,
+          slug: lemma.slug,
+          tipo: lemma.tipo,
+          etimologia: lemma.etimologia,
+        }}
+        lemmario={{
+          slug: lemmario.slug,
+          titolo: lemmario.titolo,
+        }}
+        definizione={primaDefinizione}
+      />
+      <BreadcrumbSchema items={breadcrumbItems} />
+
+      <div className="container mx-auto px-4 py-8 max-w-5xl">
+        {/* Breadcrumb */}
       <nav className="mb-6 text-sm text-gray-600" aria-label="Breadcrumb">
         <ol className="flex items-center space-x-2">
           <li>
@@ -288,7 +318,7 @@ export default async function LemmaPage({ params, searchParams }: PageProps) {
 
       {/* Footer Navigation */}
       <nav className="mt-12 pt-6 border-t border-gray-200 flex justify-between items-center">
-        <Link 
+        <Link
           href={backUrl}
           className="inline-flex items-center gap-2 text-primary-600 hover:text-primary-800 transition-colors font-medium"
         >
@@ -298,6 +328,7 @@ export default async function LemmaPage({ params, searchParams }: PageProps) {
           Torna ai lemmi
         </Link>
       </nav>
-    </div>
+      </div>
+    </>
   )
 }
