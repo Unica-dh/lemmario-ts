@@ -1,9 +1,25 @@
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import { getLemmi, getLemmari } from '@/lib/payload-api'
 import type { Lemma, Lemmario } from '@/types/payload'
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic'
+
+export const metadata: Metadata = {
+  title: 'Ricerca Avanzata',
+  description: 'Cerca tra i lemmi dei glossari storici della terminologia matematica ed economica italiana. Filtra per lingua, dizionario e periodo storico.',
+  robots: {
+    index: true,
+    follow: true,
+    nocache: true, // Don't cache search results
+  },
+  openGraph: {
+    title: 'Ricerca Avanzata - Glossari UniCa',
+    description: 'Cerca tra i lemmi dei glossari storici della terminologia matematica ed economica italiana.',
+    type: 'website',
+  },
+}
 
 interface PageProps {
   searchParams: {

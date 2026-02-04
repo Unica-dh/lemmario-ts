@@ -772,45 +772,46 @@ Creare o copiare:
 
 ## Checklist Implementazione
 
-### Fase 1: Backend (Effort: Basso)
-- [ ] Aggiungere campo `seo` alla collection Lemmari
-- [ ] Creare endpoint `/api/seo/ai-config`
-- [ ] Testare configurazione per-lemmario
+### Fase 1: Backend (Effort: Basso) ✅ COMPLETATA
+- [x] Aggiungere campo `seo` alla collection Lemmari
+- [x] Funzioni API per configurazione AI crawler
+- [x] Tipo TypeScript aggiornato
 
-### Fase 2: robots.txt (Effort: Basso)
-- [ ] Creare `src/app/robots.ts`
-- [ ] Testare con Google Search Console
-- [ ] Verificare blocco AI crawler condizionale
+### Fase 2: robots.txt (Effort: Basso) ✅ COMPLETATA
+- [x] Creare `src/app/robots.ts`
+- [x] Blocco dinamico AI crawler per-lemmario
+- [ ] Testare con Google Search Console (post-deploy)
 
-### Fase 3: sitemap.xml (Effort: Medio)
-- [ ] Creare `src/app/sitemap.ts`
-- [ ] Testare generazione con tutti i lemmi
-- [ ] Sottomettere a Google Search Console
+### Fase 3: sitemap.xml (Effort: Medio) ✅ COMPLETATA
+- [x] Creare `src/app/sitemap.ts`
+- [x] Include lemmari, lemmi e contenuti statici
+- [ ] Sottomettere a Google Search Console (post-deploy)
 
-### Fase 4: Metadata Lemma (Effort: Medio)
-- [ ] Aggiungere `generateMetadata` a pagina lemma
-- [ ] Aggiungere metadata a pagina ricerca
-- [ ] Testare con og:debugger Facebook
+### Fase 4: Metadata Lemma (Effort: Medio) ✅ COMPLETATA
+- [x] Aggiungere `generateMetadata` a pagina lemma
+- [x] Aggiungere metadata a pagina ricerca
+- [ ] Testare con og:debugger Facebook (post-deploy)
 
-### Fase 5: Open Graph (Effort: Basso)
-- [ ] Copiare immagine OG in public/
-- [ ] Aggiornare layout.tsx con metadata base
-- [ ] Testare condivisione social
+### Fase 5: Open Graph (Effort: Basso) ✅ COMPLETATA
+- [x] Copiare immagine OG in public/
+- [x] Aggiornare layout.tsx con metadata base
+- [x] JSON-LD Organization e WebSite nel layout
+- [ ] Testare condivisione social (post-deploy)
 
-### Fase 6: JSON-LD (Effort: Alto)
-- [ ] Creare componenti Schema
-- [ ] Integrare in layout e pagine
+### Fase 6: JSON-LD Avanzato (Effort: Alto) 🔜 DA FARE
+- [ ] Creare componenti Schema per lemmi (DefinedTerm)
+- [ ] BreadcrumbList schema nelle pagine
 - [ ] Testare con Google Rich Results Test
 
-### Fase 7: Configurazione (Effort: Basso)
-- [ ] Aggiornare next.config.js
-- [ ] Configurare headers sicurezza
-- [ ] Testare build produzione
+### Fase 7: Configurazione (Effort: Basso) ✅ COMPLETATA
+- [x] Aggiornare next.config.js
+- [x] Configurare headers sicurezza
+- [x] remotePatterns per immagini
 
-### Fase 8: File Statici (Effort: Basso)
-- [ ] Copiare og-image.jpg
-- [ ] Verificare/creare favicon
-- [ ] Testare manifest
+### Fase 8: File Statici (Effort: Basso) ✅ COMPLETATA
+- [x] Copiare og-image.jpg
+- [ ] Verificare/creare favicon (opzionale)
+- [ ] Testare manifest (opzionale)
 
 ---
 

@@ -121,6 +121,34 @@ export const Lemmari: CollectionConfig = {
         position: 'sidebar',
       },
     },
+    // SEO Configuration
+    {
+      name: 'seo',
+      type: 'group',
+      label: 'Impostazioni SEO',
+      admin: {
+        description: 'Configurazioni per motori di ricerca e crawler AI',
+      },
+      fields: [
+        {
+          name: 'consenti_ai_crawler',
+          type: 'checkbox',
+          defaultValue: true,
+          label: 'Consenti indicizzazione AI',
+          admin: {
+            description: 'Se abilitato, crawler AI (GPTBot, ClaudeBot, etc.) possono indicizzare i contenuti di questo lemmario',
+          },
+        },
+        {
+          name: 'meta_description',
+          type: 'textarea',
+          label: 'Meta Description',
+          admin: {
+            description: 'Descrizione per motori di ricerca (150-160 caratteri). Se vuoto, usa il campo "descrizione"',
+          },
+        },
+      ],
+    },
   ],
   timestamps: true,
   // Hooks per logging

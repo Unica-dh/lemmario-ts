@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import type { Metadata } from 'next'
 import {
   getLemmarioBySlug,
   getLemmaBySlug,
@@ -16,6 +17,8 @@ import { RiferimentiIncrociati } from '@/components/lemma/RiferimentiIncrociati'
 
 export const dynamic = 'force-dynamic'
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://glossari.dh.unica.it'
+
 interface PageProps {
   params: {
     'lemmario-slug': string
@@ -25,6 +28,102 @@ interface PageProps {
     q?: string
     tipo?: string
     page?: string
+  }
+}
+
+/**
+ * Generate metadata for lemma page
+ * This enables rich previews in search engines and social media
+ */
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const lemmarioSlug = params['lemmario-slug']
+  const termine = params.termine
+
+  // Fetch data for metadata
+  const lemmario = await getLemmarioBySlug(lemmarioSlug)
+  if (!lemmario) {
+    return { title: 'Lemmario non trovato' }
+  }
+
+  const lemma = await getLemmaBySlug(termine, lemmario.id)
+  if (!lemma) {
+    return { title: 'Lemma non trovato' }
+  }
+
+  // Get definitions for description
+  const definizioni = await getDefinizioniByLemma(lemma.id)
+
+  // Build description from first definition or etymology
+  let description = ''
+  if (definizioni.length > 0 && definizioni[0].testo) {
+    // Strip HTML tags if present
+    const testoPlain = definizioni[0].testo.replace(/<[^>]*>/g, '')
+    description = testoPlain.length > 155
+      ? testoPlain.substring(0, 152) + '...'
+      : testoPlain
+  } else if (lemma.etimologia) {
+    description = lemma.etimologia.length > 155
+      ? lemma.etimologia.substring(0, 152) + '...'
+      : lemma.etimologia
+  } else {
+    description = `Definizione del termine "${lemma.termine}" nel ${lemmario.titolo}`
+  }
+
+  const title = `${lemma.termine} - ${lemmario.titolo}`
+  const url = `${SITE_URL}/${lemmarioSlug}/lemmi/${termine}`
+
+  // Keywords
+  const keywords = [
+    lemma.termine,
+    lemmario.titolo,
+    'glossario storico',
+    'lessico italiano',
+    'terminologia',
+  ]
+  if (lemma.tipo === 'latino') {
+    keywords.push('latino', 'lessico latino')
+  } else {
+    keywords.push('volgare', 'italiano antico')
+  }
+
+  return {
+    title,
+    description,
+    keywords,
+    authors: [{ name: 'Centro Umanistica Digitale - UniCa' }],
+
+    alternates: {
+      canonical: url,
+    },
+
+    openGraph: {
+      title,
+      description,
+      url,
+      siteName: 'Glossari - Universita di Cagliari',
+      type: 'article',
+      locale: 'it_IT',
+      images: [
+        {
+          url: `${SITE_URL}/og-image.jpg`,
+          width: 1200,
+          height: 630,
+          alt: `${lemma.termine} - ${lemmario.titolo}`,
+        },
+      ],
+    },
+
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [`${SITE_URL}/og-image.jpg`],
+    },
+
+    other: {
+      'citation_title': lemma.termine,
+      'citation_publisher': 'Universita degli Studi di Cagliari',
+    },
   }
 }
 
