@@ -1,5 +1,13 @@
 FROM node:20-alpine AS base
 
+# Build arguments for environment variables
+ARG NEXT_PUBLIC_SITE_URL=https://glossari.dh.unica.it
+ARG NEXT_PUBLIC_API_URL=https://glossari.dh.unica.it/api
+
+# Set as environment variables for build
+ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
 # Install pnpm
 RUN npm install -g pnpm@8.15.1
 
@@ -19,7 +27,7 @@ RUN pnpm install --frozen-lockfile
 COPY tsconfig.json ./
 COPY packages/frontend ./packages/frontend
 
-# Step 4: Build
+# Step 4: Build (with environment variables)
 WORKDIR /app/packages/frontend
 RUN pnpm build
 

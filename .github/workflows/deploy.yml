@@ -94,6 +94,9 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ steps.vars.outputs.repo_owner_lowercase }}/lemmario-frontend:latest
             ${{ env.REGISTRY }}/${{ steps.vars.outputs.repo_owner_lowercase }}/lemmario-frontend:sha-${{ steps.vars.outputs.sha_short }}
+          build-args: |
+            NEXT_PUBLIC_SITE_URL=https://glossari.dh.unica.it
+            NEXT_PUBLIC_API_URL=https://glossari.dh.unica.it/api
           cache-from: type=gha,scope=frontend
           cache-to: type=gha,mode=max,scope=frontend
 
