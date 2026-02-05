@@ -1,5 +1,15 @@
 # Copilot Instructions
 
+## Project Overview
+
+**Lemmario** is a multi-tenancy digital humanities platform for managing historical Italian mathematical and economic terminology dictionaries. This is a specialized lexicographic application hosting independent research dictionaries (multiple lemmari) with role-based access control, enabling scholars to edit, organize, and publish historical terminology alongside medieval source citations.
+
+**Key domain context:**
+- Historical Italian (medieval/Renaissance) economic and mathematical terminology
+- Latin legal and commercial texts from sources like *Liber Abaci*, *Statuti di Genova*
+- Multi-dictionary support: each "lemmario" is an independent scholarly dictionary (e.g., "Lemmario di Matematica")
+- Legacy system migrated from static website (https://lemmario.netlify.app/)
+
 ## Project Architecture
 
 **Multi-tenancy lexicon platform** for historical Italian terminology dictionaries. Monorepo with Payload CMS backend + Next.js 14 frontend.
@@ -59,8 +69,27 @@ During data import, collections temporarily use `create: public_` in access cont
 
 ## Backend Collections & Hooks
 
-### Collections ([packages/payload-cms/src/collections/](packages/payload-cms/src/collections/))
-13 collections: `Lemmari`, `Lemmi`, `VariantiGrafiche`, `Definizioni`, `Ricorrenze`, `Fonti`, `RiferimentiIncrociati`, `LivelliRazionalita`, `ContenutiStatici`, `Utenti`, `UtentiRuoliLemmari`, `StoricoModifiche`, plus legacy `CampiCustomLemmario`.
+### Collections Overview ([packages/payload-cms/src/collections/](packages/payload-cms/src/collections/))
+13 collections modeling complete lexicographic domain with multi-tenancy:
+
+**Multi-tenancy/Auth collections:**
+- `Lemmari` - Dictionary instances (e.g., "Lemmario di Matematica")
+- `Utenti` - Users with global roles (super_admin, lemmario_admin, redattore, lettore)
+- `UtentiRuoliLemmari` - Junction assigning per-dictionary roles
+
+**Core lexicon collections:**
+- `Lemmi` - Dictionary entries/terms; auto-generates slug from `termine` field
+- `VariantiGrafiche` - Alternate spellings (e.g., "camara" for "camera"); ordered via `ordine`
+- `Definizioni` - Multiple numbered definitions per lemma; link to rationality levels; ordered via `ordine`
+- `Livelli di Razionalità` - Fixed 6-level taxonomy (codes 1-6) for mathematical concepts
+- `Ricorrenze` - Source citations with original medieval text excerpts
+- `Fonti` - Bibliographic sources; **crucial field:** `shorthand_id` (e.g., "Stat.fornai.1339") for legacy URL compatibility
+- `RiferimentiIncrociati` - Bidirectional cross-references between lemmi (types: CFR, VEDI, VEDI_ANCHE)
+
+**System collections:**
+- `ContenutiStatici` - Static pages (about, methodology descriptions)
+- `StoricoModifiche` - Audit trail logging all changes with before/after snapshots
+- Plus legacy `CampiCustomLemmario` (deprecated)
 
 **Relationships**:
 - `Lemma` → N `Definizioni` → N `Ricorrenze` → 1 `Fonte`
@@ -69,8 +98,18 @@ During data import, collections temporarily use `create: public_` in access cont
 - `Definizione` → 1 `LivelliRazionalita` (6 fixed levels: codes 1-6)
 
 ### Hooks ([packages/payload-cms/src/hooks/](packages/payload-cms/src/hooks/))
-- **Audit trail** (`auditTrail.ts`): Auto-log all create/update/delete to `StoricoModifiche` with before/after snapshots. Used by `Lemmi`, `Definizioni`, `Fonti`, `RiferimentiIncrociati`.
-- **Bidirectional refs** (`riferimentiIncrociati.ts`): When creating A→B reference, auto-create B→A. Delete both when one removed.
+
+Lifecycle hooks automate business logic:
+
+- **Audit trail** (`auditTrail.ts`):
+  - Auto-logs all create/update/delete operations to `StoricoModifiche`
+  - Stores before/after snapshots + user/IP/timestamp
+  - Used by: `Lemmi`, `Definizioni`, `Fonti`, `RiferimentiIncrociati`
+
+- **Bidirectional references** (`riferimentiIncrociati.ts`):
+  - When creating A→B reference, automatically creates B→A with `auto_creato: true`
+  - When deleting A→B, deletes auto-created B→A (prevents duplicate deletion via flag)
+  - **Important:** Check `auto_creato` flag to prevent infinite loops
 
 **Hook registration pattern**:
 ```typescript
@@ -82,14 +121,39 @@ export const MyCollection: CollectionConfig = {
 }
 ```
 
+**Hook best practices:**
+- Keep hooks synchronous and fast (they block operations)
+- Use `operation` parameter to differentiate create vs update logic
+- Check prevention flags (like `auto_creato`) to avoid infinite loops
+- Log errors but don't throw to avoid blocking main operation
+
 ## Frontend Patterns
 
 ### Route Structure
 - `app/(global)/page.tsx` - Home page listing all lemmari
-- `app/[lemmario-slug]/lemmi/[termine]/page.tsx` - Lemma detail page
-- `app/[lemmario-slug]/pagine/[slug]/page.tsx` - Static content pages
+- `app/[lemmario-slug]/(global)/page.tsx` - Dictionary-specific home
+- `app/[lemmario-slug]/lemmi/[termine]/page.tsx` - Lemma detail page (e.g., `/matematica/lemmi/additio`)
+- `app/[lemmario-slug]/pagine/[slug]/page.tsx` - Static content pages (e.g., methodology, bibliography)
+- `app/[lemmario-slug]/ricerca/page.tsx` - Dictionary search interface
 
-**Dynamic params**: `params['lemmario-slug']` and `params.termine` (NOT `params.lemmario` or `params.slug`).
+**Dynamic params**: `params['lemmario-slug']` and `params.termine` (NOT `params.lemmario` or `params.slug`). Route groups use `(global)` for site-wide pages.
+
+### Rendering Strategy
+- **SSR with ISR**: Most routes use `revalidate` for incremental static regeneration (avoid unnecessary dynamic rendering)
+  - Lemmari list: revalidate ~3600s (data changes infrequently)
+  - Lemma pages: revalidate ~1800s when definitions edited
+- **Force dynamic**: Use `force-dynamic` sparingly on search/filter routes needing real-time data
+
+### Frontend Script Integration
+Scripts (like Google Analytics) are added via Next.js `<Script>` component in [packages/frontend/src/app/layout.tsx](packages/frontend/src/app/layout.tsx):
+```typescript
+import Script from 'next/script'
+
+<Script
+  src="https://www.example.com/script.js?id=ID"
+  strategy="afterInteractive"  // Doesn't block page rendering
+/>
+```
 
 ### Data Fetching ([packages/frontend/src/lib/payload-api.ts](packages/frontend/src/lib/payload-api.ts))
 ```typescript
@@ -134,19 +198,128 @@ pnpm reset:db         # Delete all data across collections (DESTRUCTIVE)
 pnpm migrate:full     # Full reset + seed + import pipeline
 ```
 
+## Custom Admin UI
+
+### Integrated Lemma Edit Form
+Location: [packages/payload-cms/src/admin/views/LemmaEdit/](packages/payload-cms/src/admin/views/LemmaEdit/)
+
+Payload's default UI requires navigating between separate collections (update Lemma, then switch to VariantiGrafiche, then Definizioni, etc.). This project implements a **unified multi-step edit form** integrating all related entities:
+
+**Architecture:**
+- Step-based navigation: DatiBase → Varianti → Definizioni → RiferimentiIncrociati
+- Uses `useSync` hook to load cross-referenced data with proper filtering (excludes auto_creato references to avoid duplication)
+- Components in `/components/` directory for each step
+- Registered in Lemmi collection via `admin.components.views.Edit`
+
+**Why it exists:** UX efficiency for lexicographers editing complex entries with multiple variants, definitions, and cross-references in a single workflow.
+
+
+
 ## CI/CD Pipeline
 
-### GitHub Actions ([.github/workflows/](https://github.com/Unica-dh/lemmario-ts/tree/main/.github/workflows))
-- **ci.yml**: Lint + typecheck on push
-- **deploy.yml**: Build Docker images → push to GHCR → deploy to VPN server
-  - Uses self-hosted runner with label `vpn`
+### GitHub Actions Workflows ([.github/workflows/](https://github.com/Unica-dh/lemmario-ts/tree/main/.github/workflows))
+- **ci.yml**: Lint + typecheck on push/PR
+- **deploy.yml**: Build Docker images → GHCR → deploy to VPN server (self-hosted runner with label `vpn`)
   - Calls [scripts/deploy/deploy-lemmario.sh](scripts/deploy/deploy-lemmario.sh) on server
   - Server path: `/home/dhruby/lemmario-ts` (NOT `/home/dhruby/docker/`)
+  - Includes automatic DB backup and health checks with rollback on failure
+- **data-migration.yml**: Manual workflow for running data import from legacy system (requires `LEMMARIO_ID` input)
+- **reset-db.yml**: Manual workflow to destructively reset database (requires confirmation via `YES_DELETE_DATABASE` input)
+- **setup-admin.yml**: Manual workflow to initialize admin user (idempotent)
 
 ### Deploy Script Requirements
 - Must update `GHCR_REGISTRY` variable with GitHub owner (lowercase)
 - Requires `.env` file at `/home/dhruby/lemmario-ts/.env` with production secrets
 - See [scripts/deploy/SETUP_SERVER.md](scripts/deploy/SETUP_SERVER.md) for initial server setup
+
+## Development Conventions
+
+### Code Style & Naming
+- **TypeScript strict mode** enabled across monorepo
+- Use **snake_case** for database fields (e.g., `livello_razionalita`, `note_redazionali`, `riferimento_fonte`)
+- Use **slug fields** for URL-friendly identifiers (auto-generated from human-readable names, typically via Payload)
+- Preserve **`ordine` fields** on `Definizioni` and `VariantiGrafiche` for maintaining display sequence
+
+### Critical Database Fields (Multi-Tenancy Pattern)
+```typescript
+// Always filter by lemmario for multi-tenancy enforcement
+const lemmi = await payload.find({
+  collection: 'lemmi',
+  where: {
+    lemmario: { equals: lemmarioId },      // CRITICAL: tenant isolation
+    pubblicato: { equals: true },           // Control visibility
+  },
+})
+
+// Other important fields:
+// - shorthand_id (Fonti): Preserved from legacy system for URL compatibility
+// - auto_creato (RiferimentiIncrociati): Flag prevents infinite hook loops
+// - slug (Lemmi): Auto-generated from termine, unique identifier
+// - ordine: Maintains display sequence on variants/definitions
+```
+
+### Payload Types
+- Use auto-generated types from `payload-types.ts` in backend
+- Regenerate types after schema changes: `pnpm payload build-types`
+
+## Troubleshooting
+
+### Database Connection Issues
+```bash
+# Check if PostgreSQL is running
+docker ps | grep lemmario
+
+# View logs
+docker logs lemmario_postgres
+
+# Reset database (WARNING: data loss)
+docker compose down -v
+docker compose up postgres -d
+```
+
+### Port Conflicts
+```bash
+# Kill processes occupying ports
+lsof -ti:3000 | xargs kill -9  # Backend
+lsof -ti:3001 | xargs kill -9  # Frontend
+lsof -ti:5432 | xargs kill -9  # PostgreSQL
+```
+
+### Build / Lint Failures
+**ESLint error on unescaped quotes:**
+```
+react/no-unescaped-entities: "text content has unescaped entities"
+```
+Solution: Use HTML entities in JSX text content:
+```tsx
+// ❌ Wrong
+<p>Vedi la "Critica della ragione pura"</p>
+
+// ✅ Correct
+<p>Vedi la &ldquo;Critica della ragione pura&rdquo;</p>
+```
+
+**Access denied during import:** 
+Collections have `create: public_` temporarily during migration. Must revert to `canCreateInLemmario` afterward to prevent unauthorized creation.
+
+**Migration 429 errors:**
+Rate limiting intentional (~100ms delay per lemma). Do not remove without server confirmation.
+
+### Clean Installation
+```bash
+pnpm clean
+rm -rf node_modules packages/*/node_modules
+pnpm install
+```
+
+## Common Issues
+
+1. **Build fails in CI**: Run `pnpm lint` locally first; fix unescaped HTML entities in JSX
+2. **Migration 429 errors**: Rate limiting is intentional (100ms delay). Don't remove without testing
+3. **Access denied during import**: Temporarily use `create: public_` on collections, then revert
+4. **Missing livelli**: Run `pnpm seed:livelli` before migration
+5. **Type errors in frontend**: Regenerate payload types with `pnpm payload build-types` after backend schema changes
+6. **Forgot to close bidirectional refs**: Check `auto_creato` flag when querying `RiferimentiIncrociati` to avoid duplicates
 
 ## Data Conventions
 
@@ -253,5 +426,3 @@ No automated tests exist in monorepo. QA is manual + CI linting/typecheck.
 
 1. **Build fails in CI**: Check for ESLint errors (especially unescaped quotes). Run `pnpm lint` locally first.
 2. **Migration 429 errors**: Rate limiting too aggressive. Verify `delay(100)` exists between API calls.
-3. **Access denied during import**: Temporarily set collection `create: public_`, then revert after migration.
-4. **Missing livelli**: Run `pnpm seed:livelli` before migration to populate lookup table.
