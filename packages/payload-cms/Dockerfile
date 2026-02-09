@@ -64,6 +64,8 @@ WORKDIR /app/packages/payload-cms
 
 # Use production mode
 ENV NODE_ENV=production
+# Tell Payload where to find the compiled config (findConfig looks in CWD by default)
+ENV PAYLOAD_CONFIG_PATH=dist/payload.config.js
 
 # Start server
 CMD ["node", "dist/server.js"]

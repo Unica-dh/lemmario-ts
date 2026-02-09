@@ -32,7 +32,9 @@ parsed.definizioni.forEach((def) => {
     console.log(`  Ricorrenza ${j + 1}:`)
     console.log(`    Shorthand: ${ric.shorthand_id}`)
     console.log(`    Citazione: ${ric.citazione_originale.substring(0, 50)}...`)
-    console.log(`    Pagina: ${ric.pagina_riferimento || 'N/A'}`)
+    console.log(`    Pagina raw: ${ric.pagina_raw || 'N/A'}`)
+    console.log(`    Tipo: ${ric.tipo_riferimento || 'N/A'}`)
+    console.log(`    Numero: ${ric.numero || 'N/A'}`)
   })
 })
 

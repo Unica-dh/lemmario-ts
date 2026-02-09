@@ -5,10 +5,10 @@ Questo documento descrive il processo di importazione dei dati dal vecchio sito 
 ## Panoramica
 
 La migrazione importa:
-- **83 fonti bibliografiche** da `old_website/bibliografia.json`
+- **83 fonti bibliografiche** da `old_website/bibliografia.json` (incluse 3 aggiunte manualmente)
 - **234 lemmi** (voci del dizionario) da `old_website/lemmi/*.html`
-- **Definizioni multiple** per ciascun lemma
-- **Ricorrenze** (citazioni) per ciascuna definizione con riferimenti alle fonti
+- **~460+ definizioni** per ciascun lemma (con gestione multilinea)
+- **~600+ ricorrenze** (citazioni) per ciascuna definizione con riferimenti strutturati alle fonti
 
 ## Architettura della Migrazione
 
@@ -116,12 +116,18 @@ I file HTML legacy hanno questa struttura:
 Il parser (`parsers/htmlParser.ts`) estrae:
 
 1. **Definizioni**: Separate da tag `<hr>`, identificate da `<strong>N.</strong>`
+   - Regex multilinea con `[\s\S]+?` per gestire testi su più righe
 2. **Testo definizione**: Rimosso HTML, convertito in plain text
+   - Pre-processing HTML malformato (tag incompleti come `p>` senza `<`)
 3. **Livello di razionalità**: Estratto da regex `/Livello di razionalità:<\/strong>\s*(\d+)/`
-4. **Ricorrenze**: Da elementi `<li>` con:
+4. **Ricorrenze**: Da elementi `<li>` con iterazione su ogni `<p>` individuale:
    - `shorthand_id`: Attributo `data-biblio` del link
    - `citazione_originale`: Testo tra virgolette `«...»`
-   - `pagina_riferimento`: Pattern `colonna|p.|pp.|f.|ff.` seguito dal numero
+   - `pagina_raw`: Testo completo del riferimento
+   - Riferimenti strutturati con pattern ampliati:
+     - `c. Nr/v` + `rubr. N "Titolo"` (carta + rubrica)
+     - `col. N` / `colonna N` (colonna, anche senza spazi)
+     - `p. N` + `Libro X, cap. N` (pagina + libro + capitolo)
 
 ### Gestione Lemmi Bilingue
 
@@ -164,6 +170,30 @@ const testoDefinizione = $temp.text().trim()
 const slug = tipo === 'latino' ? `${slugBase}-lat` : slugBase
 ```
 
+### Definizioni Multilinea
+
+**Problema**: Il parser non gestiva testi di definizione su più righe nell'HTML.
+
+**Soluzione**: Uso di `[\s\S]+?` al posto di `.+?` nelle regex per matchare anche i newline:
+```typescript
+// Prima (bug):
+const defMatch = $section.html()?.match(/<p><strong>(\d+)\.<\/strong>\s*(.+?)<\/p>/)
+// Dopo (fix):
+const defMatch = $section.html()?.match(/<p><strong>(\d+)\.<\/strong>\s*([\s\S]+?)<\/p>/)
+```
+
+### HTML Malformato
+
+**Problema**: Alcuni file HTML hanno tag incompleti (es. `p>` senza `<`).
+
+**Soluzione**: Pre-processing dell'HTML prima del parsing Cheerio per correggere tag malformati.
+
+### Citazioni Multiple per Ricorrenza
+
+**Problema**: Un singolo `<li>` può contenere più `<p>` con citazioni separate. Il parser concatenava tutto in una stringa unica.
+
+**Soluzione**: Iterazione su ogni `<p>` individualmente per estrarre citazioni separate.
+
 ## Mapping Campi
 
 ### Bibliografia → Fonti
@@ -199,8 +229,13 @@ const slug = tipo === 'latino' ? `${slugBase}-lat` : slugBase
 | HTML | Collection Ricorrenze |
 |------|----------------------|
 | `data-biblio` | `fonte` (relationship) |
-| `«...»` | `citazione_originale` |
-| `colonna N` / `p. N` | `pagina_riferimento` |
+| `«...»` | `testo_originale` |
+| Full reference text | `pagina_raw` |
+| `col. N` / `colonna N` | `tipo_riferimento: colonna`, `numero` |
+| `p. N` | `tipo_riferimento: pagina`, `numero` |
+| `c. Nr/v` | `tipo_riferimento: carta`, `numero` |
+| `rubr. N "Titolo"` | `rubrica_numero`, `rubrica_titolo` |
+| `Libro X, cap. N` | `libro`, `capitolo` |
 
 ## Controlli e Validazione
 
@@ -229,7 +264,7 @@ if (!fonteId) {
 
 ## Statistiche di Migrazione
 
-Lo script produce statistiche dettagliate:
+Lo script produce statistiche dettagliate con report Markdown:
 
 ```
 ============================================================
@@ -238,11 +273,16 @@ RIEPILOGO MIGRAZIONE
 
 Fonti:       83/83 importate (0 errori)
 Lemmi:       234/234 importati (0 errori)
-Definizioni: 456 importate
-Ricorrenze:  1203 importate
+Definizioni: ~460+ importate
+Ricorrenze:  ~600+ importate
 
 ============================================================
 ```
+
+Le statistiche sono migliorate rispetto alla v1.0 grazie a:
+- **Definizioni**: da ~430 a ~460+ (recupero di ~18 sezioni perse per il bug multilinea)
+- **Ricorrenze**: da ~555 a ~600+ (estrazione citazioni multiple e fix multilinea)
+- **Fonti**: 83 complete (incluse 3 precedentemente mancanti: Stat.Rigattieri, Stat.Correggiai, Memoriale_abacho)
 
 ### Log Dettagliati
 
@@ -313,7 +353,7 @@ Collections interessate:
 - `Lemmi.ts`
 - `Definizioni.ts`
 - `VariantiGrafiche.ts`
-- `Ricorrenze.ts`
+- `Ricorrenze.ts` (include campi aggiuntivi per riferimenti strutturati: `pagina_raw`, `tipo_riferimento`, `numero`, `rubrica_numero`, `rubrica_titolo`, `libro`, `capitolo`)
 
 ## Sviluppi Futuri
 
@@ -337,6 +377,24 @@ const defPromises = parsedLemma.definizioni.map(def =>
 )
 await Promise.all(defPromises)
 ```
+
+## Changelog
+
+### v2.0 (Febbraio 2026)
+
+- **Fix**: Gestione testo multilinea nelle definizioni e citazioni
+- **Fix**: Pre-processing HTML malformato (tag `<p>` incompleti)
+- **Fix**: Gestione definizioni con testo vuoto (placeholder automatico)
+- **Fix**: Citazioni multiple per singola ricorrenza ora estratte separatamente
+- **Miglioramento**: Pattern di riferimento ampliati (carta+rubrica, colonna senza spazi, pagina+libro+capitolo)
+- **Dati**: Aggiunte 3 fonti mancanti a bibliografia.json (Stat.Rigattieri, Stat.Correggiai, Memoriale_abacho)
+- **Report**: Statistiche dettagliate per tipo nel report di migrazione
+
+### v1.0 (Gennaio 2026)
+
+- Prima versione dello script di migrazione
+- Import fonti, lemmi, definizioni, ricorrenze
+- Report Markdown automatico
 
 ## Riferimenti
 

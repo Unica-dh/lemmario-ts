@@ -15,7 +15,7 @@ function parseRiferimento(riferimentoText: string): Partial<ParsedRicorrenza> {
 
   // Pattern 1: Colonna + rubrica + titolo (più complesso)
   // Es: "col. 102, rubr. 176 "De quinque soldis...""
-  const colRubrPattern = /(?:col\.|colonna)\s+(\d+),\s+(?:rubr\.|rubrica)\.?\s*(\d+)?\s*"([^"]+)"/
+  const colRubrPattern = /(?:col\.|colonna)\s*(\d+),\s+(?:rubr\.|rubrica)\.?\s*(\d+)?\s*"([^"]+)"/
   let match = riferimentoText.match(colRubrPattern)
   if (match) {
     result.tipo_riferimento = 'colonna'
@@ -92,9 +92,33 @@ function parseRiferimento(riferimentoText: string): Partial<ParsedRicorrenza> {
     return result
   }
 
+  // Pattern 7b: Carta + rubrica + titolo
+  // Es: "c. 404, rubr. \"De precio altrocrearum...\""
+  const cRubrPattern = /c\.\s*(\d+),\s+(?:rubr\.|rubrica)\.?\s*(\d*)\s*"([^"]+)"/
+  match = riferimentoText.match(cRubrPattern)
+  if (match) {
+    result.tipo_riferimento = 'carta'
+    result.numero = match[1]
+    if (match[2]) result.rubrica_numero = match[2]
+    result.rubrica_titolo = match[3]
+    return result
+  }
+
+  // Pattern 7c: Pagina + Libro + Capitolo
+  // Es: "p. 74, Libro I, cap. 10"
+  const pLibroCapPattern = /p\.\s+(\d+),\s+Libro\s+([IVX\d]+),?\s+cap\.\s+(\d+)/
+  match = riferimentoText.match(pLibroCapPattern)
+  if (match) {
+    result.tipo_riferimento = 'pagina'
+    result.numero = match[1]
+    result.libro = match[2]
+    result.capitolo = match[3]
+    return result
+  }
+
   // Pattern 8: Carta con range recto-verso
   // Es: "c. 11r-v."
-  const cRvRangePattern = /c\.\s+(\d+)r-v/
+  const cRvRangePattern = /c\.\s*(\d+)r-v/
   match = riferimentoText.match(cRvRangePattern)
   if (match) {
     result.tipo_riferimento = 'carta'
@@ -104,7 +128,7 @@ function parseRiferimento(riferimentoText: string): Partial<ParsedRicorrenza> {
 
   // Pattern 9: Carta con recto/verso
   // Es: "c. 150r.", "c. 16v."
-  const cRvPattern = /c\.\s+(\d+)([rv])/
+  const cRvPattern = /c\.\s*(\d+)([rv])/
   match = riferimentoText.match(cRvPattern)
   if (match) {
     result.tipo_riferimento = 'carta'
@@ -122,9 +146,22 @@ function parseRiferimento(riferimentoText: string): Partial<ParsedRicorrenza> {
     return result
   }
 
+  // Pattern 10b: Colonna + rubrica + titolo (con/senza spazi)
+  // Es: "colonna950, rubrica \"De sententiis...\""
+  // Es: "colonna111, rubrica 187 \"De banchis...\""
+  const colRubrNoSpacePattern = /(?:col\.|colonna)\s*(\d+),\s+(?:rubrica|rubr\.)\s*(\d*)\s*"([^"]+)"/
+  match = riferimentoText.match(colRubrNoSpacePattern)
+  if (match) {
+    result.tipo_riferimento = 'colonna'
+    result.numero = match[1]
+    if (match[2]) result.rubrica_numero = match[2]
+    result.rubrica_titolo = match[3]
+    return result
+  }
+
   // Pattern 11: Colonna semplice
   // Es: "col. 161."
-  const colSimplePattern = /(?:col\.|colonna)\s+(\d+)/
+  const colSimplePattern = /(?:col\.|colonna)\s*(\d+)/
   match = riferimentoText.match(colSimplePattern)
   if (match) {
     result.tipo_riferimento = 'colonna'
@@ -137,6 +174,9 @@ function parseRiferimento(riferimentoText: string): Partial<ParsedRicorrenza> {
 }
 
 export function parseLemmaHTML(html: string, termine: string, tipo: 'volgare' | 'latino'): ParsedLemma {
+  // Fix common HTML malformations (e.g., partire.html has "p>" instead of "<p>")
+  html = html.replace(/(?<![<\/])p>/g, '<p>')
+
   const $ = cheerio.load(html)
   const definizioni: ParsedDefinizione[] = []
   const varianti: Set<string> = new Set()
@@ -153,7 +193,7 @@ export function parseLemmaHTML(html: string, termine: string, tipo: 'volgare' | 
     const $section = cheerio.load(section)
 
     // Cerca il numero della definizione e il testo
-    const defMatch = $section.html()?.match(/<p><strong>(\d+)\.<\/strong>\s*(.+?)<\/p>/)
+    const defMatch = $section.html()?.match(/<p><strong>(\d+)\.<\/strong>\s*([\s\S]+?)<\/p>/)
     if (!defMatch) {
       // Sezione senza numero di definizione - potrebbe essere contenuto ignorato
       const sectionText = $section.text().trim()
@@ -166,7 +206,13 @@ export function parseLemmaHTML(html: string, termine: string, tipo: 'volgare' | 
     const numero = parseInt(defMatch[1])
     // Rimuovi HTML tags dal testo della definizione e decodifica entities
     const $temp = cheerio.load(`<div>${defMatch[2]}</div>`)
-    const testoDefinizione = $temp.text().trim()
+    let testoDefinizione = $temp.text().trim()
+
+    // Se il testo della definizione e' vuoto, usa un placeholder
+    if (!testoDefinizione || testoDefinizione.length < 2) {
+      testoDefinizione = `[Definizione ${numero} - testo mancante nel documento originale]`
+      contenuto_ignorato.push(`Definizione ${numero} con testo vuoto, usato placeholder`)
+    }
 
     // Estrai livello di razionalità
     let livello_razionalita: number | undefined
@@ -182,38 +228,46 @@ export function parseLemmaHTML(html: string, termine: string, tipo: 'volgare' | 
       const link = $li.find('a.bibliografia-link')
       const shorthand_id = link.attr('data-biblio') || ''
 
-      // Estrai la citazione
-      const citazioneP = $li.find('p').text()
+      // Processa ogni <p> separatamente - ognuno contiene una citazione
+      const paragraphs = $li.find('p')
 
-      // Cerca la citazione tra virgolette
-      const citazioneMatch = citazioneP.match(/«(.+?)»/)
-      const citazione_originale = citazioneMatch ? citazioneMatch[1].trim() : ''
-
-      // Estrai tutto il testo dopo le virgolette chiuse (») fino alla fine
-      const riferimentoFullMatch = citazioneP.match(/»\s*-?\s*(.+)$/)
-      const riferimentoText = riferimentoFullMatch ? riferimentoFullMatch[1].trim() : ''
-
-      // Parsa il riferimento per estrarre campi strutturati
-      const riferimentoParsed = riferimentoText ? parseRiferimento(riferimentoText) : {}
-
-      // Verifica se il riferimento è stato parsato correttamente
-      if (riferimentoText && !riferimentoParsed.tipo_riferimento) {
-        contenuto_ignorato.push(`Riferimento non parsato: "${riferimentoText}"`)
-      }
-
-      if (citazione_originale && shorthand_id) {
-        ricorrenze.push({
-          citazione_originale,
-          shorthand_id,
-          ...riferimentoParsed,
-        })
-      } else {
-        // Ricorrenza incompleta
+      if (paragraphs.length === 0) {
         const ricText = $li.text().trim()
         if (ricText.length > 10) {
-          contenuto_ignorato.push(`Ricorrenza incompleta (citazione o fonte mancante): ${ricText.substring(0, 100)}...`)
+          contenuto_ignorato.push(`Ricorrenza senza paragrafi: ${ricText.substring(0, 100)}...`)
         }
+        return
       }
+
+      paragraphs.each((j, p) => {
+        const pText = $(p).text().replace(/\s+/g, ' ').trim()
+
+        // Cerca la citazione tra virgolette ([\s\S] per gestire eventuali newline)
+        const citazioneMatch = pText.match(/«([\s\S]+?)»/)
+        const citazione_originale = citazioneMatch ? citazioneMatch[1].trim() : ''
+
+        // Estrai tutto il testo dopo le virgolette chiuse (») fino alla fine
+        const riferimentoFullMatch = pText.match(/»\s*-?\s*([\s\S]+)$/)
+        const riferimentoText = riferimentoFullMatch ? riferimentoFullMatch[1].trim() : ''
+
+        // Parsa il riferimento per estrarre campi strutturati
+        const riferimentoParsed = riferimentoText ? parseRiferimento(riferimentoText) : {}
+
+        // Verifica se il riferimento è stato parsato correttamente
+        if (riferimentoText && !riferimentoParsed.tipo_riferimento) {
+          contenuto_ignorato.push(`Riferimento non parsato: "${riferimentoText}"`)
+        }
+
+        if (citazione_originale && shorthand_id) {
+          ricorrenze.push({
+            citazione_originale,
+            shorthand_id,
+            ...riferimentoParsed,
+          })
+        } else if (pText.includes('«')) {
+          contenuto_ignorato.push(`Ricorrenza incompleta (citazione o fonte mancante): ${pText.substring(0, 100)}...`)
+        }
+      })
     })
 
     definizioni.push({

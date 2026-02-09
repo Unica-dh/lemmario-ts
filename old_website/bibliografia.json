@@ -17,12 +17,24 @@
         "reference": "Statuti dell'arte dei correggiai, tavolacciai e scudai (1338-1345), Archivio di Stato di Firenze, fondo Arte dei Correggiai, reg. 1."
     },
 
+    "Stat.Correggiai": {
+        "title": "Statuto dei correggiai, tavolacciai e scudai di Firenze",
+        "date": "1338-1345",
+        "reference": "Statuti dell'arte dei correggiai, tavolacciai e scudai (1338-1345), Archivio di Stato di Firenze, fondo Arte dei Correggiai, reg. 1."
+    },
+
     "Stat.rigattieri.1324": {
         "title": "Statuto dei rigattieri di Firenze",
         "date": "1324",
         "reference": "Statuti dell'arte dei rigattieri e linaioli di Firenze (1296-1340), a cura di F. Sartini, Felice Le Monnier, Firenze, 1940."
     },
-    
+
+    "Stat.Rigattieri": {
+        "title": "Statuto dei rigattieri di Firenze",
+        "date": "1324",
+        "reference": "Statuti dell'arte dei rigattieri e linaioli di Firenze (1296-1340), a cura di F. Sartini, Felice Le Monnier, Firenze, 1940."
+    },
+
     "Cap.Conserv.G14": {
         "title": "Capitula conservatorum di Genova (XIV secolo, prima metà)",
         "date": "XIV secolo, prima metà",
@@ -160,6 +172,12 @@
                 "date": "1450 circa",
                 "reference": "Firenze, Biblioteca Nazionale Centrale, ms. Magliabechiano XI 86 (ed. in Paolo dell'Abbaco, Trattato d'aritmetica. Secondo la lezione del Codice Magliabechiano XI, 86 della Biblioteca Nazionale di Firenze, a cura di G. Arrighi, Pisa 1964)"
             },
+
+        "Memoriale_abacho": {
+                "title": "Giuliamo Da Maiano, Alcuno memoriale della abacho",
+                "date": "1500 circa",
+                "reference": "Giuliamo Da Maiano, Alcuno memoriale della abacho, manoscritto (1500 circa)"
+        },
 
         "Operetta_abbaco": {
                 "title": "Antonio Grassini, Operetta d'abacho",
