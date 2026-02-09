@@ -181,7 +181,8 @@ async function importLemmi() {
           tipo: parsedLemma.tipo,
           slug: parsedLemma.slug,
           lemmario: LEMMARIO_ID,
-          status: 'published',
+          _status: 'published',
+          pubblicato: true,
         }
 
         const lemmaResult = await fetchPayload('/lemmi', {

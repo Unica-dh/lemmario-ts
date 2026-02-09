@@ -16,7 +16,10 @@ import type {
   PaginatedResponse,
 } from '@/types/payload'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api'
+// Server-side uses internal Docker URL; client-side uses public URL
+const API_URL = typeof window === 'undefined'
+  ? (process.env.INTERNAL_API_URL || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api')
+  : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000/api')
 
 interface FetchOptions extends RequestInit {
   params?: Record<string, string | number | boolean>
