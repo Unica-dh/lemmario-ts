@@ -352,6 +352,51 @@ const lemmi = await payload.find({
 ### ESLint Gotcha
 Unescaped quotes in JSX violate `react/no-unescaped-entities`. Use HTML entities `&ldquo;`/`&rdquo;` instead of `"` in text content.
 
+## Operational Guardrails
+
+Regole operative derivate dall'analisi delle sessioni di sviluppo per prevenire errori ricorrenti.
+
+### Database & Migrations
+
+- **SEMPRE** usare il sistema di migrazione Payload CMS per modifiche schema — **MAI** aggiungere colonne manualmente o estrarre SQL direttamente
+- Workflow: `pnpm payload migrate:create` → `pnpm payload migrate`
+- **MAI** usare `push: true` nelle operazioni schema — usare sempre il workflow di migrazione
+- Prima di importare dati, verificare che TUTTE le colonne richieste esistano (storico_modifiche, livelli_razionalita_id, ricorrenze, campi draft status)
+- Per prompt interattivi di Drizzle: usare flag non-interattivi o pre-generare le migrations
+
+### CI/CD & Deployment
+
+- I tag GHCR (GitHub Container Registry) **DEVONO** usare lowercase per il repository owner — **MAI** uppercase
+- Verificare **SEMPRE** che la label del self-hosted runner corrisponda al workflow file prima di pushare
+- Dopo aver fixato problemi di deploy, eseguire un ciclo deploy completo end-to-end prima di considerare risolto
+- Testare il container Docker localmente (`docker compose build`) prima di pushare alla CI
+- Approccio step-by-step per debug deploy: (1) fix errori TypeScript, (2) verifica config CI, (3) test Docker build, (4) verifica runner
+
+### Payload CMS Quirks
+
+- I query filter Payload CMS (`exists`, `equals`, `where by slug`) sono **inaffidabili** per filtri complessi — preferire fetch ampio e filtro client-side
+- Quando si traducono label o si modifica la config Payload, fare uno sweep **COMPLETO** di TUTTE le collection, globals e fields — copertura parziale causa iterazioni ripetute
+- Prima di implementare qualsiasi modifica Payload: spiegare l'approccio, quali API/filtri verranno usati, e quale fallback se non funziona
+
+### Remote Server Access
+
+- **SEMPRE** confermare che la VPN è attiva prima di tentativi SSH
+- Controllare attentamente i percorsi remoti — attenzione a underscore vs trattino:
+  - **Locale**: `/home/ale/docker/lemmario_ts` (underscore)
+  - **Remoto**: `/home/dhruby/lemmario-ts` (trattino)
+- **NON ESISTE** `/home/dhruby/docker/` sul server remoto
+
+### TypeScript & Code Quality
+
+- Eseguire **SEMPRE** `pnpm typecheck` dopo modifiche al codice, prima di commitare
+- Eseguire `pnpm lint` prima di pushare
+- In caso di errori TypeScript nel frontend: rigenerare i tipi Payload con `pnpm payload build-types`
+
+### MCP Server Configuration
+
+- Dopo aver aggiunto o modificato configurazione MCP server, **SEMPRE** riavviare la sessione Claude Code
+- Verificare con `claude mcp list` che la configurazione sia stata rilevata
+
 ## Environment Variables
 
 Required variables (see [.env.example](.env.example), [.env.production.example](.env.production.example)):
