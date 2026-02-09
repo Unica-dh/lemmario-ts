@@ -15,21 +15,25 @@ The project migrated from a static website (https://lemmario.netlify.app/) to th
 - Frontend: Next.js 14 with App Router
 - Database: PostgreSQL 16
 - Monorepo: pnpm workspace
-- Deployment: Docker Compose
+- Deployment: Docker Compose + GitHub Actions CI/CD
 
 **Structure:**
 ```
 packages/
 ├── payload-cms/         # Backend API + Admin UI
 │   ├── src/
-│   │   ├── collections/  # 13 Payload collections (data entities)
+│   │   ├── collections/  # 12 Payload collections (data entities)
 │   │   ├── access/       # Multi-tenancy access control helpers
 │   │   ├── hooks/        # Lifecycle hooks (audit trail, bidirectional refs)
-│   │   └── admin/        # Custom admin UI components
-│   └── Dockerfile
+│   │   ├── admin/        # Custom admin UI components
+│   │   └── seed/         # Seed scripts (create-admin, initial data)
+│   ├── Dockerfile        # Production
+│   └── Dockerfile.dev    # Development
 ├── frontend/            # Public-facing Next.js app
 │   ├── src/app/         # App Router pages
-│   └── Dockerfile
+│   ├── e2e/             # Playwright E2E tests
+│   ├── Dockerfile       # Production
+│   └── Dockerfile.dev   # Development
 scripts/
 └── migration/           # Legacy data import scripts
 ```
@@ -52,15 +56,10 @@ scripts/
 
 ### Development (Root)
 ```bash
-# Install dependencies
-pnpm install
-
-# Start all services locally (no Docker)
+pnpm install                # Install dependencies
 pnpm dev                    # Runs both payload and frontend
 pnpm dev:payload            # Backend only (port 3000)
 pnpm dev:frontend           # Frontend only (port 3001)
-
-# Build & type checking
 pnpm build                  # Build all packages
 pnpm typecheck              # TypeScript check all packages
 pnpm lint                   # Lint all packages
@@ -89,31 +88,34 @@ docker compose up postgres -d
 ```bash
 cd packages/payload-cms
 
-# Development
 pnpm dev                    # Hot reload with nodemon
 pnpm build                  # Compile TypeScript to dist/
 pnpm start                  # Run production build
+pnpm typecheck              # TypeScript validation
+pnpm lint                   # ESLint
+pnpm clean                  # Remove dist/
 
 # Database operations
 pnpm db:migrate             # Run Payload migrations
 pnpm db:seed                # Seed initial data
-
-# Maintenance
-pnpm typecheck              # TypeScript validation
-pnpm lint                   # ESLint
-pnpm clean                  # Remove dist/
+pnpm db:seed:static         # Seed static content pages
 ```
 
 ### Frontend (packages/frontend)
 ```bash
 cd packages/frontend
 
-pnpm dev                    # Development server
+pnpm dev                    # Development server (port 3001)
 pnpm build                  # Production build
 pnpm start                  # Serve production build
 pnpm lint                   # Next.js linting
 pnpm typecheck              # TypeScript validation
 pnpm clean                  # Remove .next/
+
+# E2E Testing (Playwright)
+pnpm test:e2e               # Run Playwright tests (headless)
+pnpm test:e2e:ui            # Playwright UI mode (interactive)
+pnpm test:e2e:headed        # Run tests in headed browser
 ```
 
 ### Data Migration (scripts)
@@ -123,12 +125,23 @@ cd scripts
 # Full migration from legacy data
 API_URL=http://localhost:3000/api LEMMARIO_ID=2 pnpm migrate
 
-# Test single lemma import
-pnpm test:lemma
+# Convenience script (uses localhost:3000, LEMMARIO_ID=2)
+pnpm migrate:test
+
+# Seed rationality levels (must run before first migration)
+pnpm seed:livelli
+
+# Full reset + seed + import pipeline
+pnpm migrate:full           # reset:db → seed:livelli → migrate
 
 # Move data between lemmari
 pnpm move-data
+
+# Reset all data (DESTRUCTIVE)
+pnpm reset:db
 ```
+
+**Note:** Migration scripts use `ts-node` (not `tsx`) and require Node.js 22+ (`source ~/.nvm/nvm.sh && nvm use 22`) due to undici/File dependency.
 
 ## URLs & Services
 
@@ -138,9 +151,9 @@ When running with Docker Compose or locally:
 - **Payload Admin**: http://localhost:3000/admin
 - **PostgreSQL**: localhost:5432 (user: lemmario_user, db: lemmario_db)
 
-## Data Model Essentials
+## Data Model
 
-The system uses **13 Payload collections** modeling a complex lexicographic domain with multi-tenancy:
+The system uses **12 Payload collections** modeling a complex lexicographic domain with multi-tenancy:
 
 ### Multi-Tenancy Collections
 - **Lemmari**: Dictionary instances (e.g., "Lemmario di Matematica")
@@ -148,27 +161,13 @@ The system uses **13 Payload collections** modeling a complex lexicographic doma
 - **UtentiRuoliLemmari**: Junction table assigning per-dictionary roles to users
 
 ### Core Lexicon Collections
-- **Lemmi**: Dictionary entries/terms (e.g., "additio", "camera")
-  - Belongs to one Lemmario
-  - Has tipo: "latino" or "volgare" (Italian)
-  - Auto-generates slug from termine field
-  - Has pubblicato flag for visibility control
-- **VariantiGrafiche**: Alternate spellings of a lemma (e.g., "camara", "chamera")
-- **Definizioni**: Multiple numbered definitions per lemma
-  - Links to livello_razionalita (rationality level)
-  - Has ordine field for display sequence
-- **Livelli di Razionalità**: Fixed 6-level taxonomy (codes 1-6) for classifying mathematical concepts
-- **Ricorrenze**: Occurrences/citations from historical sources
-  - Contains testo_originale (medieval Italian/Latin excerpt)
-  - Links to Fonte via riferimento_fonte
-  - Has pagina field for source location
-- **Fonti**: Bibliographic sources
-  - Has shorthand_id (e.g., "Stat.fornai.1339") preserved from legacy system for URLs and citations
-  - Used by Ricorrenze to link citations to sources
-- **RiferimentiIncrociati**: Cross-references between lemmi
-  - Bidirectional: when A→B created, hook auto-creates B→A
-  - Has auto_creato flag to prevent infinite loops
-  - Types: CFR (confer), VEDI (see), VEDI_ANCHE (see also)
+- **Lemmi**: Dictionary entries/terms. Has `tipo` ("latino"/"volgare"), auto-generates `slug` from `termine`, `pubblicato` flag for visibility
+- **VariantiGrafiche**: Alternate spellings of a lemma (e.g., "camara" for "camera"), ordered via `ordine`
+- **Definizioni**: Multiple numbered definitions per lemma, linked to `livello_razionalita`, ordered via `ordine`
+- **Livelli di Razionalita**: Fixed 6-level taxonomy (codes 1-6) for classifying mathematical concepts
+- **Ricorrenze**: Occurrences/citations from historical sources with `testo_originale` (medieval text excerpt), links to Fonte
+- **Fonti**: Bibliographic sources with `shorthand_id` (e.g., "Stat.fornai.1339") preserved for legacy URL compatibility
+- **RiferimentiIncrociati**: Bidirectional cross-references between lemmi (CFR, VEDI, VEDI_ANCHE). Hook auto-creates inverse with `auto_creato` flag
 
 ### System Collections
 - **ContenutiStatici**: Static pages (about, methodology, etc.)
@@ -259,24 +258,44 @@ Location: [packages/payload-cms/src/admin/views/LemmaEdit/](packages/payload-cms
 
 **Why it exists:** Default Payload UI requires navigating between separate collections to edit related entities. This form provides a streamlined workflow for lexicographers.
 
-## Frontend Routing
+## Frontend
 
-Next.js App Router structure (see [packages/frontend/src/app/](packages/frontend/src/app/)):
-
+### Route Structure ([packages/frontend/src/app/](packages/frontend/src/app/))
 ```
-/                                    # Home page
-/[lemmario-slug]/                    # Dictionary home (e.g., /matematica)
-/[lemmario-slug]/lemmi/[termine]     # Lemma detail page
-/[lemmario-slug]/bibliografia        # Bibliography for dictionary
+app/(global)/page.tsx                              # Home page listing all lemmari
+app/[lemmario-slug]/(global)/page.tsx              # Dictionary home
+app/[lemmario-slug]/lemmi/[termine]/page.tsx       # Lemma detail
+app/[lemmario-slug]/pagine/[slug]/page.tsx         # Static content pages
+app/[lemmario-slug]/ricerca/page.tsx               # Search interface
+app/[lemmario-slug]/bibliografia/page.tsx          # Bibliography
 ```
 
-**SSR/ISR:** Frontend emphasizes Server-Side Rendering for SEO. Uses `force-dynamic` for real-time data.
+**Dynamic params**: Use `params['lemmario-slug']` and `params.termine` (NOT `params.lemmario`). Route groups use `(global)` for site-wide pages.
 
-**API client:** Functions in [packages/frontend/src/lib/payload-api.ts](packages/frontend/src/lib/payload-api.ts) fetch from Payload REST API.
+### Rendering Strategy
+- Most routes use `revalidate` for ISR (lemmari list ~3600s, lemma pages ~1800s)
+- `force-dynamic` only on search/filter routes needing real-time data
+- Use `Promise.all()` for parallel API calls when fetching related data
+
+### API Client ([packages/frontend/src/lib/payload-api.ts](packages/frontend/src/lib/payload-api.ts))
+```typescript
+getLemmarioBySlug(slug) → Lemmario
+getLemmaBySlug(termine, lemmarioId) → Lemma
+getDefinizioniByLemma(lemmaId) → Definizione[]
+getVariantiByLemma(lemmaId) → VarianteGrafica[]
+```
+Pattern: Fetch lemmario first, then query child entities filtered by `lemmario.id`.
+
+### E2E Testing
+Playwright configured in `packages/frontend/playwright.config.ts`:
+- Test directory: `packages/frontend/e2e/`
+- Base URL: `E2E_BASE_URL` env var or `http://localhost:3001`
+- Auto-starts dev server in non-CI mode
+- Chromium only, HTML reporter, screenshots on failure
 
 ## Data Migration
 
-Legacy data import is handled by TypeScript scripts in [scripts/migration/](scripts/migration/).
+Legacy data import via TypeScript scripts in [scripts/migration/](scripts/migration/).
 
 **Source data:**
 - [old_website/bibliografia.json](old_website/bibliografia.json) → Fonti collection
@@ -289,13 +308,7 @@ Legacy data import is handled by TypeScript scripts in [scripts/migration/](scri
 3. Definitions split on `<hr>` tags in HTML
 4. Rationality levels parsed via regex from HTML
 5. Occurrences extract fonte references from `data-biblio` attributes
-6. Rate limiting: ~100ms pause per lemma to avoid 429 errors
-
-**Running migration:**
-```bash
-cd scripts
-API_URL=http://localhost:3000/api LEMMARIO_ID=2 pnpm migrate
-```
+6. Rate limiting: ~100ms pause per lemma to avoid 429 errors - do not remove
 
 Ensure collections have temporary `create: public_` access during migration.
 
@@ -303,24 +316,23 @@ Ensure collections have temporary `create: public_` access during migration.
 
 ### Code Style
 - TypeScript strict mode enabled
-- Use Payload's generated types from `payload-types.ts`
+- Use Payload's generated types from `payload-types.ts` (regenerate after schema changes: `pnpm payload build-types`)
 - ESLint + Prettier configured
-- Node 20+ compatibility required
+- Node 20+ for main project, Node 22+ for migration scripts
 
 ### Field Naming
 - Use snake_case for database fields (e.g., `livello_razionalita`, `note_redazionali`)
 - Use slug fields for URL-friendly identifiers (auto-generated from human-readable names)
 - Preserve `ordine` fields for maintaining display sequence
 
-### Important Database Fields
-- **shorthand_id on Fonti**: Legacy compatibility field, must remain unique
-- **auto_creato on RiferimentiIncrociati**: Flag for hook-created inverse references
-- **pubblicato on Lemmi**: Controls public visibility
-- **lemmario relationship**: Present on all content collections for multi-tenancy filtering
-- **slug on Lemmi**: Unique URL identifier, auto-generated from termine field
+### Critical Database Fields
+- `shorthand_id` on Fonti: Legacy compatibility, must remain unique
+- `auto_creato` on RiferimentiIncrociati: Flag for hook-created inverse references
+- `pubblicato` on Lemmi: Controls public visibility
+- `lemmario` relationship: Present on all content collections for multi-tenancy filtering
 
 ### Multi-Tenancy Query Pattern
-When querying content, always filter by lemmario:
+Always filter by lemmario:
 ```typescript
 const lemmi = await payload.find({
   collection: 'lemmi',
@@ -332,14 +344,17 @@ const lemmi = await payload.find({
 ```
 
 ### Hooks Best Practices
-- Hooks run synchronously and block operations - keep them fast
+- Hooks block operations - keep them fast
 - Check for flags (like `auto_creato`) to prevent infinite loops
 - Log errors but don't throw (to avoid blocking the main operation)
 - Use `operation` parameter to differentiate create/update logic
 
+### ESLint Gotcha
+Unescaped quotes in JSX violate `react/no-unescaped-entities`. Use HTML entities `&ldquo;`/`&rdquo;` instead of `"` in text content.
+
 ## Environment Variables
 
-Required variables (see [.env.example](.env.example)):
+Required variables (see [.env.example](.env.example), [.env.production.example](.env.production.example)):
 
 ```bash
 # Database
@@ -357,6 +372,13 @@ NODE_ENV=development
 # Next.js Frontend
 NEXT_PUBLIC_API_URL=http://localhost:3000/api
 NEXT_PUBLIC_SITE_URL=http://localhost:3001
+
+# Migration (scripts only)
+API_URL=http://localhost:3000/api
+LEMMARIO_ID=2
+
+# E2E Testing (optional)
+E2E_BASE_URL=http://localhost:3001
 ```
 
 **Security:** Never commit `.env` file. Use `.env.example` as template.
@@ -393,102 +415,36 @@ rm -rf node_modules packages/*/node_modules
 pnpm install
 ```
 
-### Migration Rate Limiting
-If hitting 429 errors during migration, the script has built-in ~100ms delays. Don't remove these - they're intentional to respect rate limits.
-
-## Testing
-
-The project includes an end-to-end test script for validating the full data flow:
-```bash
-cd scripts
-./test-e2e.sh
-```
-
-This tests: Bibliografia import → Lemma creation → Definition creation → Ricorrenza creation with proper linking.
+### Common Issues
+1. **Build fails in CI**: Run `pnpm lint` locally; fix unescaped HTML entities in JSX
+2. **Migration 429 errors**: Rate limiting intentional (~100ms delay). Don't remove
+3. **Access denied during import**: Temporarily use `create: public_` on collections, revert after
+4. **Missing livelli**: Run `pnpm seed:livelli` before migration
+5. **Type errors in frontend**: Regenerate payload types with `pnpm payload build-types`
+6. **Duplicate cross-references**: Filter `auto_creato` when querying `RiferimentiIncrociati`
 
 ## CI/CD
 
-Il progetto utilizza GitHub Actions con self-hosted runner per continuous integration e deployment automatico.
+GitHub Actions con self-hosted runner per CI e deployment automatico.
 
-### Workflow
+### Workflows ([.github/workflows/](.github/workflows/))
 
-Sono presenti 3 workflow in [.github/workflows/](.github/workflows/):
+1. **CI** (`ci.yml`): Push su qualsiasi branch / PR verso main → `pnpm lint`, `pnpm typecheck`, `pnpm build`
+2. **CD** (`deploy.yml`): Push su `main` → Build Docker images → GHCR → deploy su server VPN con backup DB e health checks + rollback automatico
+3. **Database Reset** (`reset-db.yml`): Manual, richiede `YES_DELETE_DATABASE` per conferma
+4. **Setup Admin** (`setup-admin.yml`): Manual, inizializza utente admin e lemmario (idempotente)
+5. **Data Migration** (`data-migration.yml`): Manual, con modalità dry-run/migrate/migrate-force
 
-1. **CI** ([ci.yml](.github/workflows/ci.yml)):
-   - Trigger: push su qualsiasi branch, PR verso main
-   - Esegue: `pnpm lint`, `pnpm typecheck`, `pnpm build`
-   - Runner: `ubuntu-latest` (GitHub-hosted)
+### Deploy
+Ogni push su `main` attiva: CI → Build Docker → Push GHCR → Deploy VPN → Health checks.
 
-2. **CD** ([deploy.yml](.github/workflows/deploy.yml)):
-   - Trigger: push su `main`, manual workflow_dispatch
-   - Build Docker images per payload e frontend
-   - Push a GitHub Container Registry (GHCR) con tags `latest` e `sha-<commit>`
-   - Deploy automatico su server VPN (90.147.144.147) tramite self-hosted runner
-   - Esegue script `/home/dhruby/deploy-lemmario.sh` con backup DB e health checks
+Il database (`postgres_data`) e media files (`payload_media`) sono preservati durante tutti i deploy.
 
-3. **Database Reset** ([reset-db.yml](.github/workflows/reset-db.yml)):
-   - Trigger: manual workflow_dispatch con conferma obbligatoria
-   - Operazione distruttiva: cancella e ricrea database
-   - Richiede input `YES_DELETE_DATABASE` per conferma
-   - Environment `production-destructive` con required reviewers
+Script deploy in [scripts/deploy/](scripts/deploy/): `deploy-lemmario.sh` (con rollback automatico), `reset-db-lemmario.sh`.
 
-### Self-Hosted Runner
-
-Il runner GitHub Actions è installato sul server VPN in `/home/dhruby/actions-runner/`:
-- Nome: `lemmario-vpn-runner`
-- Labels: `self-hosted`, `Linux`, `X64`, `vpn`
-- Servizio systemd: `actions.runner.<owner-repo>.<runner-name>.service`
-- Accesso diretto a Docker per deploy
-
-### Script Deploy
-
-Script bash in [scripts/deploy/](scripts/deploy/) da copiare sul server:
-
-1. **[deploy-lemmario.sh](scripts/deploy/deploy-lemmario.sh)**:
-   - Backup database pre-deploy
-   - Pull nuove images da GHCR
-   - Stop servizi (preserva volumi)
-   - Update `docker-compose.prod.yml` con nuovi image tags
-   - Start servizi e health checks
-   - Rollback automatico su failure
-   - Cleanup images vecchie
-
-2. **[reset-db-lemmario.sh](scripts/deploy/reset-db-lemmario.sh)**:
-   - Backup finale pre-reset
-   - Cancella volume `postgres_data`
-   - Ricrea database con `init-db.sql` e migrations
-   - Opzionale: seed dati
-   - Preserva SEMPRE `payload_media`
-
-### GitHub Container Registry
-
-Images Docker ospitate su GHCR:
-- `ghcr.io/<owner>/lemmario-payload:latest` e `sha-<commit>`
-- `ghcr.io/<owner>/lemmario-frontend:latest` e `sha-<commit>`
-
-### Deployment
-
-Ogni push su `main` attiva automaticamente:
-1. Build e test con CI workflow
-2. Build Docker images (~5-7 min)
-3. Push a GHCR
-4. Deploy su server VPN (~3-5 min)
-5. Backup database automatico
-6. Health checks con rollback automatico su failure
-
-Il database (`postgres_data`) e media files (`payload_media`) sono **preservati** durante tutti i deploy.
-
-### Documentazione Completa
-
-Per setup dettagliato, troubleshooting e operazioni comuni, consulta:
-- [docs/CI-CD-SETUP.md](docs/CI-CD-SETUP.md) - Guida completa setup CI/CD
-- [scripts/deploy/README.md](scripts/deploy/README.md) - Documentazione script deploy
+Per setup dettagliato: [docs/CI-CD-SETUP.md](docs/CI-CD-SETUP.md), [scripts/deploy/README.md](scripts/deploy/README.md).
 
 ### Rollback
-
-**Automatico**: Script deploy fa rollback automatico se health check fallisce
-
-**Manuale**:
 ```bash
 ssh dhruby@90.147.144.147
 docker images ghcr.io/<owner>/lemmario-payload  # Trova SHA precedente
@@ -498,11 +454,11 @@ docker images ghcr.io/<owner>/lemmario-payload  # Trova SHA precedente
 ## Documentation
 
 Key docs in [docs/](docs/):
-- [PIANO_IMPLEMENTAZIONE.md](docs/PIANO_IMPLEMENTAZIONE.md): 6-phase implementation plan with current status
+- [PIANO_IMPLEMENTAZIONE.md](docs/PIANO_IMPLEMENTAZIONE.md): 6-phase implementation plan
 - [MIGRATION.md](docs/MIGRATION.md): Detailed migration guide with mapping rules
-- [Lemmario - Requisiti struttura dati - AGGIORNATO.md](docs/Lemmario%20-%20Requisiti%20struttura%20dati%20-%20AGGIORNATO.md): Complete data model specification (13 entities)
+- [Lemmario - Requisiti struttura dati - AGGIORNATO.md](docs/Lemmario%20-%20Requisiti%20struttura%20dati%20-%20AGGIORNATO.md): Complete data model specification
 - [IMPLEMENTAZIONE_FORM_LEMMA_INTEGRATO.md](docs/IMPLEMENTAZIONE_FORM_LEMMA_INTEGRATO.md): Custom admin form architecture
-- [AGENT_E_SKILLS_GUIDE.md](docs/AGENT_E_SKILLS_GUIDE.md): Guide for AI agent usage
+- [CI-CD-SETUP.md](docs/CI-CD-SETUP.md): Guida completa setup CI/CD
 
 ## Project Domain
 
