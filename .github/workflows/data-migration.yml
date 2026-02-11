@@ -182,16 +182,32 @@ jobs:
           echo "=========================================="
 
           # Crea i 6 livelli di razionalità per il lemmario se non esistono
+          # NOTA: In Payload CMS le relazioni sono nella tabella _rels separata,
+          # NON nella tabella principale (che non ha colonna lemmario_id)
           docker exec lemmario_db psql -U lemmario_user -d lemmario_db << 'EOSQL'
-          INSERT INTO "livelli_razionalita" (id, lemmario_id, numero, nome, descrizione, created_at, updated_at)
+          INSERT INTO "livelli_razionalita" (id, numero, nome, descrizione, created_at, updated_at)
           VALUES
-            (1, ${{ inputs.lemmario_id }}, 1, 'Operazioni', 'Operazioni matematiche fondamentali', NOW(), NOW()),
-            (2, ${{ inputs.lemmario_id }}, 2, 'Elementi tecnici', 'Elementi tecnici di base', NOW(), NOW()),
-            (3, ${{ inputs.lemmario_id }}, 3, 'Strumenti operativi', 'Strumenti per le operazioni', NOW(), NOW()),
-            (4, ${{ inputs.lemmario_id }}, 4, 'Procedimenti', 'Procedimenti e metodi', NOW(), NOW()),
-            (5, ${{ inputs.lemmario_id }}, 5, 'Concetti', 'Concetti matematici', NOW(), NOW()),
-            (6, ${{ inputs.lemmario_id }}, 6, 'Categorie', 'Categorie e classificazioni', NOW(), NOW())
-          ON CONFLICT (id) DO NOTHING;
+            (1, 1, 'Concetti astratti', 'Concetti astratti della razionalità economica e matematica', NOW(), NOW()),
+            (2, 2, 'Operazioni', 'Operazioni matematiche e contabili', NOW(), NOW()),
+            (3, 3, 'Modi di argomentare', 'Modi di argomentare e ragionare in ambito economico', NOW(), NOW()),
+            (4, 4, 'Elementi tecnici', 'Elementi tecnici della pratica economica e contabile', NOW(), NOW()),
+            (5, 5, 'Giudizi di valore', 'Giudizi di valore in ambito economico e commerciale', NOW(), NOW()),
+            (6, 6, 'Istituzioni', 'Istituzioni economiche, commerciali e giuridiche', NOW(), NOW())
+          ON CONFLICT (id) DO UPDATE SET
+            nome = EXCLUDED.nome,
+            descrizione = EXCLUDED.descrizione,
+            updated_at = NOW();
+
+          -- Crea le relazioni lemmario nella tabella _rels
+          INSERT INTO "livelli_razionalita_rels" (parent_id, path, lemmari_id, "order")
+          VALUES
+            (1, 'lemmario', ${{ inputs.lemmario_id }}, 1),
+            (2, 'lemmario', ${{ inputs.lemmario_id }}, 1),
+            (3, 'lemmario', ${{ inputs.lemmario_id }}, 1),
+            (4, 'lemmario', ${{ inputs.lemmario_id }}, 1),
+            (5, 'lemmario', ${{ inputs.lemmario_id }}, 1),
+            (6, 'lemmario', ${{ inputs.lemmario_id }}, 1)
+          ON CONFLICT DO NOTHING;
 
           -- Reset sequence to avoid conflicts
           SELECT setval('livelli_razionalita_id_seq', (SELECT MAX(id) FROM livelli_razionalita));
