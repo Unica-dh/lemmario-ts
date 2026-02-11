@@ -112,7 +112,16 @@ async function main() {
                 definizione: defId,
                 fonte: fonteId,
                 testo_originale: ric.citazione_originale,
-                pagina: ric.pagina_riferimento,
+                pagina_raw: ric.pagina_raw,
+                tipo_riferimento: ric.tipo_riferimento,
+                numero: ric.numero,
+                numero_secondario: ric.numero_secondario,
+                rubrica_numero: ric.rubrica_numero,
+                rubrica_titolo: ric.rubrica_titolo,
+                libro: ric.libro,
+                capitolo: ric.capitolo,
+                sezione: ric.sezione,
+                supplemento: ric.supplemento,
               }
 
               await fetchPayload('/ricorrenze', {

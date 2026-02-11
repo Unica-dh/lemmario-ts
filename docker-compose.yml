@@ -48,11 +48,15 @@ services:
     build:
       context: .
       dockerfile: ./packages/frontend/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
     container_name: lemmario_frontend
     restart: unless-stopped
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
       NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+      INTERNAL_API_URL: http://payload:3000/api
       NODE_ENV: ${NODE_ENV}
     ports:
       - "3001:3000"
