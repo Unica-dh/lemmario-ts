@@ -1,0 +1,39 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "Lemmario Razionale" [ref=e4] [cursor=pointer]:
+        - /url: "#"
+      - list [ref=e6]:
+        - listitem [ref=e7]:
+          - link "Progetto" [ref=e8] [cursor=pointer]:
+            - /url: "#"
+        - listitem [ref=e9]:
+          - link "Termini chiave" [ref=e10] [cursor=pointer]:
+            - /url: "#"
+        - listitem [ref=e11]:
+          - link "Livelli di razionalità" [ref=e12] [cursor=pointer]:
+            - /url: "#"
+        - listitem [ref=e13]:
+          - link "Legenda" [ref=e14] [cursor=pointer]:
+            - /url: "#"
+        - listitem [ref=e15]:
+          - link "Saggi" [ref=e16] [cursor=pointer]:
+            - /url: "#"
+        - listitem [ref=e17]:
+          - link "Bibliografia" [ref=e18] [cursor=pointer]:
+            - /url: "#"
+  - navigation [ref=e19]:
+    - heading "Elenco Lemmi" [level=5] [ref=e20]
+    - searchbox "Cerca un lemma" [ref=e21]
+    - generic [ref=e22]:
+      - generic [ref=e23] [cursor=pointer]:
+        - checkbox "Solo latino" [ref=e24]
+        - text: Solo latino
+      - generic [ref=e25] [cursor=pointer]:
+        - checkbox "Solo volgare" [ref=e26]
+        - text: Solo volgare
+    - generic [ref=e27]: Caricamento...
+  - generic [ref=e28] [cursor=pointer]: ❮
+  - generic [ref=e29]:
+    - heading "Seleziona un lemma" [level=1] [ref=e30]
+    - generic [ref=e31]: Clicca su un lemma per visualizzare il suo contenuto.

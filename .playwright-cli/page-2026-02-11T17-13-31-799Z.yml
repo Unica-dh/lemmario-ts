@@ -1,0 +1,497 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e3]:
+      - link "Lemmario Razionale" [ref=e4] [cursor=pointer]:
+        - /url: "#"
+      - list [ref=e6]:
+        - listitem [ref=e7]:
+          - link "Progetto" [ref=e8] [cursor=pointer]:
+            - /url: "#"
+        - listitem [ref=e9]:
+          - link "Termini chiave" [ref=e10] [cursor=pointer]:
+            - /url: "#"
+        - listitem [ref=e11]:
+          - link "Livelli di razionalità" [ref=e12] [cursor=pointer]:
+            - /url: "#"
+        - listitem [ref=e13]:
+          - link "Legenda" [ref=e14] [cursor=pointer]:
+            - /url: "#"
+        - listitem [ref=e15]:
+          - link "Saggi" [ref=e16] [cursor=pointer]:
+            - /url: "#"
+        - listitem [ref=e17]:
+          - link "Bibliografia" [ref=e18] [cursor=pointer]:
+            - /url: "#"
+  - navigation [ref=e19]:
+    - heading "Elenco Lemmi" [level=5] [ref=e20]
+    - searchbox "Cerca un lemma" [ref=e21]
+    - generic [ref=e22]:
+      - generic [ref=e23] [cursor=pointer]:
+        - checkbox "Solo latino" [ref=e24]
+        - text: Solo latino
+      - generic [ref=e25] [cursor=pointer]:
+        - checkbox "Solo volgare" [ref=e26]
+        - text: Solo volgare
+    - generic [ref=e27]:
+      - link "Abbattere" [ref=e32] [cursor=pointer]:
+        - /url: "#"
+      - link "Abbattimento" [ref=e33] [cursor=pointer]:
+        - /url: "#"
+      - link "Acconciamento" [ref=e34] [cursor=pointer]:
+        - /url: "#"
+      - link "Acconciare" [ref=e35] [cursor=pointer]:
+        - /url: "#"
+      - link "Additio" [ref=e36] [cursor=pointer]:
+        - /url: "#"
+      - link "Administratio" [ref=e37] [cursor=pointer]:
+        - /url: "#"
+      - link "Aequalitas" [ref=e38] [cursor=pointer]:
+        - /url: "#"
+      - link "Aggiungere" [ref=e39] [cursor=pointer]:
+        - /url: "#"
+      - link "Aguagliare" [ref=e40] [cursor=pointer]:
+        - /url: "#"
+      - link "Algebra" [ref=e41] [cursor=pointer]:
+        - /url: "#"
+      - link "Algorismo" [ref=e42] [cursor=pointer]:
+        - /url: "#"
+      - link "Alio modo" [ref=e43] [cursor=pointer]:
+        - /url: "#"
+      - link "Amendare" [ref=e44] [cursor=pointer]:
+        - /url: "#"
+      - link "Amendazione" [ref=e45] [cursor=pointer]:
+        - /url: "#"
+      - link "Amministrazione" [ref=e46] [cursor=pointer]:
+        - /url: "#"
+      - link "Amucabala" [ref=e47] [cursor=pointer]:
+        - /url: "#"
+      - link "Annoverare" [ref=e48] [cursor=pointer]:
+        - /url: "#"
+      - link "Arismetrica" [ref=e49] [cursor=pointer]:
+        - /url: "#"
+      - link "Avanzo" [ref=e50] [cursor=pointer]:
+        - /url: "#"
+      - link "Bericuocolo" [ref=e51] [cursor=pointer]:
+        - /url: "#"
+      - link "Bilanciare" [ref=e52] [cursor=pointer]:
+        - /url: "#"
+      - link "Camarlingato" [ref=e53] [cursor=pointer]:
+        - /url: "#"
+      - link "Camarlingo" [ref=e54] [cursor=pointer]:
+        - /url: "#"
+      - link "Cambiare" [ref=e55] [cursor=pointer]:
+        - /url: "#"
+      - link "Cambio" [ref=e56] [cursor=pointer]:
+        - /url: "#"
+      - link "Cambium" [ref=e57] [cursor=pointer]:
+        - /url: "#"
+      - link "Camera" [ref=e58] [cursor=pointer]:
+        - /url: "#"
+      - link "Camera" [ref=e59] [cursor=pointer]:
+        - /url: "#"
+      - link "Camerarius" [ref=e60] [cursor=pointer]:
+        - /url: "#"
+      - link "Capitale" [ref=e61] [cursor=pointer]:
+        - /url: "#"
+      - link "Capitale" [ref=e62] [cursor=pointer]:
+        - /url: "#"
+      - link "Castelluccio" [ref=e63] [cursor=pointer]:
+        - /url: "#"
+      - link "Chiarezza" [ref=e64] [cursor=pointer]:
+        - /url: "#"
+      - link "Coequare" [ref=e65] [cursor=pointer]:
+        - /url: "#"
+      - link "Cognoscere" [ref=e66] [cursor=pointer]:
+        - /url: "#"
+      - link "Compensatio" [ref=e67] [cursor=pointer]:
+        - /url: "#"
+      - link "Compositio" [ref=e68] [cursor=pointer]:
+        - /url: "#"
+      - link "Compositio" [ref=e69] [cursor=pointer]:
+        - /url: "#"
+      - link "Computare" [ref=e70] [cursor=pointer]:
+        - /url: "#"
+      - link "Computare" [ref=e71] [cursor=pointer]:
+        - /url: "#"
+      - link "Computista" [ref=e72] [cursor=pointer]:
+        - /url: "#"
+      - link "Concordare" [ref=e73] [cursor=pointer]:
+        - /url: "#"
+      - link "Concordare" [ref=e74] [cursor=pointer]:
+        - /url: "#"
+      - link "Conoscere" [ref=e75] [cursor=pointer]:
+        - /url: "#"
+      - link "Constitutio" [ref=e76] [cursor=pointer]:
+        - /url: "#"
+      - link "Constitutio" [ref=e77] [cursor=pointer]:
+        - /url: "#"
+      - link "Contare" [ref=e78] [cursor=pointer]:
+        - /url: "#"
+      - link "Correctio" [ref=e79] [cursor=pointer]:
+        - /url: "#"
+      - link "Correggere" [ref=e80] [cursor=pointer]:
+        - /url: "#"
+      - link "Correggiare" [ref=e81] [cursor=pointer]:
+        - /url: "#"
+      - link "Corrigere" [ref=e82] [cursor=pointer]:
+        - /url: "#"
+      - link "Credentia" [ref=e83] [cursor=pointer]:
+        - /url: "#"
+      - link "Credenza" [ref=e84] [cursor=pointer]:
+        - /url: "#"
+      - link "Credito" [ref=e85] [cursor=pointer]:
+        - /url: "#"
+      - link "Creditor" [ref=e86] [cursor=pointer]:
+        - /url: "#"
+      - link "Creditore" [ref=e87] [cursor=pointer]:
+        - /url: "#"
+      - link "Creditum" [ref=e88] [cursor=pointer]:
+        - /url: "#"
+      - link "Curataggio" [ref=e89] [cursor=pointer]:
+        - /url: "#"
+      - link "Dazio" [ref=e90] [cursor=pointer]:
+        - /url: "#"
+      - link "Debito" [ref=e91] [cursor=pointer]:
+        - /url: "#"
+      - link "Debitum" [ref=e92] [cursor=pointer]:
+        - /url: "#"
+      - link "Diffinire" [ref=e93] [cursor=pointer]:
+        - /url: "#"
+      - link "Diffinitor" [ref=e94] [cursor=pointer]:
+        - /url: "#"
+      - link "Dimostrare" [ref=e95] [cursor=pointer]:
+        - /url: "#"
+      - link "Dimostrazione" [ref=e96] [cursor=pointer]:
+        - /url: "#"
+      - link "Emendare" [ref=e97] [cursor=pointer]:
+        - /url: "#"
+      - link "Emendare" [ref=e98] [cursor=pointer]:
+        - /url: "#"
+      - link "Emendator" [ref=e99] [cursor=pointer]:
+        - /url: "#"
+      - link "Entrata" [ref=e100] [cursor=pointer]:
+        - /url: "#"
+      - link "Equalità" [ref=e101] [cursor=pointer]:
+        - /url: "#"
+      - link "Equità" [ref=e102] [cursor=pointer]:
+        - /url: "#"
+      - link "Esaminare" [ref=e103] [cursor=pointer]:
+        - /url: "#"
+      - link "Exceptio" [ref=e104] [cursor=pointer]:
+        - /url: "#"
+      - link "Exceptione" [ref=e105] [cursor=pointer]:
+        - /url: "#"
+      - link "Extimare" [ref=e106] [cursor=pointer]:
+        - /url: "#"
+      - link "Extimare" [ref=e107] [cursor=pointer]:
+        - /url: "#"
+      - link "Extimatione" [ref=e108] [cursor=pointer]:
+        - /url: "#"
+      - link "Extimator" [ref=e109] [cursor=pointer]:
+        - /url: "#"
+      - link "Facere racione" [ref=e110] [cursor=pointer]:
+        - /url: "#"
+      - link "Facere ragione" [ref=e111] [cursor=pointer]:
+        - /url: "#"
+      - link "Falsa posizione" [ref=e112] [cursor=pointer]:
+        - /url: "#"
+      - link "Figura" [ref=e113] [cursor=pointer]:
+        - /url: "#"
+      - link "Finire" [ref=e114] [cursor=pointer]:
+        - /url: "#"
+      - link "Finire" [ref=e115] [cursor=pointer]:
+        - /url: "#"
+      - link "Forma" [ref=e116] [cursor=pointer]:
+        - /url: "#"
+      - link "Forma" [ref=e117] [cursor=pointer]:
+        - /url: "#"
+      - link "Formare" [ref=e118] [cursor=pointer]:
+        - /url: "#"
+      - link "Gabella" [ref=e119] [cursor=pointer]:
+        - /url: "#"
+      - link "Galera" [ref=e120] [cursor=pointer]:
+        - /url: "#"
+      - link "Geometria" [ref=e121] [cursor=pointer]:
+        - /url: "#"
+      - link "Giustizia" [ref=e122] [cursor=pointer]:
+        - /url: "#"
+      - link "Honus" [ref=e123] [cursor=pointer]:
+        - /url: "#"
+      - link "Imponere" [ref=e124] [cursor=pointer]:
+        - /url: "#"
+      - link "Impositio" [ref=e125] [cursor=pointer]:
+        - /url: "#"
+      - link "Infilzare" [ref=e126] [cursor=pointer]:
+        - /url: "#"
+      - link "Ingegno" [ref=e127] [cursor=pointer]:
+        - /url: "#"
+      - link "Iniquità" [ref=e128] [cursor=pointer]:
+        - /url: "#"
+      - link "Iniquitas" [ref=e129] [cursor=pointer]:
+        - /url: "#"
+      - link "Interesse" [ref=e130] [cursor=pointer]:
+        - /url: "#"
+      - link "Interesse" [ref=e131] [cursor=pointer]:
+        - /url: "#"
+      - link "Inventario" [ref=e132] [cursor=pointer]:
+        - /url: "#"
+      - link "Inventarium" [ref=e133] [cursor=pointer]:
+        - /url: "#"
+      - link "Ius" [ref=e134] [cursor=pointer]:
+        - /url: "#"
+      - link "Iustitia" [ref=e135] [cursor=pointer]:
+        - /url: "#"
+      - link "Lettera" [ref=e136] [cursor=pointer]:
+        - /url: "#"
+      - link "Levare" [ref=e137] [cursor=pointer]:
+        - /url: "#"
+      - link "Levare" [ref=e138] [cursor=pointer]:
+        - /url: "#"
+      - link "Liber" [ref=e139] [cursor=pointer]:
+        - /url: "#"
+      - link "Libra" [ref=e140] [cursor=pointer]:
+        - /url: "#"
+      - link "Librettine" [ref=e141] [cursor=pointer]:
+        - /url: "#"
+      - link "Libro" [ref=e142] [cursor=pointer]:
+        - /url: "#"
+      - link "Littera" [ref=e143] [cursor=pointer]:
+        - /url: "#"
+      - link "Maestro" [ref=e144] [cursor=pointer]:
+        - /url: "#"
+      - link "Mensura" [ref=e145] [cursor=pointer]:
+        - /url: "#"
+      - link "Merito" [ref=e146] [cursor=pointer]:
+        - /url: "#"
+      - link "Mesurare" [ref=e147] [cursor=pointer]:
+        - /url: "#"
+      - link "Misura" [ref=e148] [cursor=pointer]:
+        - /url: "#"
+      - link "Misurare" [ref=e149] [cursor=pointer]:
+        - /url: "#"
+      - link "Misuratore" [ref=e150] [cursor=pointer]:
+        - /url: "#"
+      - link "Moltiplicare" [ref=e151] [cursor=pointer]:
+        - /url: "#"
+      - link "Moneta" [ref=e152] [cursor=pointer]:
+        - /url: "#"
+      - link "Non obstat" [ref=e153] [cursor=pointer]:
+        - /url: "#"
+      - link "Nonostante" [ref=e154] [cursor=pointer]:
+        - /url: "#"
+      - link "Notai" [ref=e155] [cursor=pointer]:
+        - /url: "#"
+      - link "Numerare" [ref=e156] [cursor=pointer]:
+        - /url: "#"
+      - link "Numerare" [ref=e157] [cursor=pointer]:
+        - /url: "#"
+      - link "Obedire" [ref=e158] [cursor=pointer]:
+        - /url: "#"
+      - link "Obedire" [ref=e159] [cursor=pointer]:
+        - /url: "#"
+      - link "Obligagione" [ref=e160] [cursor=pointer]:
+        - /url: "#"
+      - link "Obligare" [ref=e161] [cursor=pointer]:
+        - /url: "#"
+      - link "Obligatio" [ref=e162] [cursor=pointer]:
+        - /url: "#"
+      - link "Observagione" [ref=e163] [cursor=pointer]:
+        - /url: "#"
+      - link "Observamento" [ref=e164] [cursor=pointer]:
+        - /url: "#"
+      - link "Observantia" [ref=e165] [cursor=pointer]:
+        - /url: "#"
+      - link "Omologare" [ref=e166] [cursor=pointer]:
+        - /url: "#"
+      - link "Onus" [ref=e167] [cursor=pointer]:
+        - /url: "#"
+      - link "Opinio" [ref=e168] [cursor=pointer]:
+        - /url: "#"
+      - link "Ordinamente" [ref=e169] [cursor=pointer]:
+        - /url: "#"
+      - link "Ordinamento" [ref=e170] [cursor=pointer]:
+        - /url: "#"
+      - link "Ordinamentum" [ref=e171] [cursor=pointer]:
+        - /url: "#"
+      - link "Ordinare" [ref=e172] [cursor=pointer]:
+        - /url: "#"
+      - link "Ordinare" [ref=e173] [cursor=pointer]:
+        - /url: "#"
+      - link "Ordinario" [ref=e174] [cursor=pointer]:
+        - /url: "#"
+      - link "Ordinazione" [ref=e175] [cursor=pointer]:
+        - /url: "#"
+      - link "Ordine" [ref=e176] [cursor=pointer]:
+        - /url: "#"
+      - link "Ordo" [ref=e177] [cursor=pointer]:
+        - /url: "#"
+      - link "Osservanza" [ref=e178] [cursor=pointer]:
+        - /url: "#"
+      - link "Osservare" [ref=e179] [cursor=pointer]:
+        - /url: "#"
+      - link "Osservazione" [ref=e180] [cursor=pointer]:
+        - /url: "#"
+      - link "Partire" [ref=e181] [cursor=pointer]:
+        - /url: "#"
+      - link "Partire" [ref=e182] [cursor=pointer]:
+        - /url: "#"
+      - link "Partitamente" [ref=e183] [cursor=pointer]:
+        - /url: "#"
+      - link "Pesatore" [ref=e184] [cursor=pointer]:
+        - /url: "#"
+      - link "Posta" [ref=e185] [cursor=pointer]:
+        - /url: "#"
+      - link "Posta" [ref=e186] [cursor=pointer]:
+        - /url: "#"
+      - link "Presta" [ref=e187] [cursor=pointer]:
+        - /url: "#"
+      - link "Prestanza" [ref=e188] [cursor=pointer]:
+        - /url: "#"
+      - link "Prestare" [ref=e189] [cursor=pointer]:
+        - /url: "#"
+      - link "Prestatore" [ref=e190] [cursor=pointer]:
+        - /url: "#"
+      - link "Pretium" [ref=e191] [cursor=pointer]:
+        - /url: "#"
+      - link "Prezzo" [ref=e192] [cursor=pointer]:
+        - /url: "#"
+      - link "Prior" [ref=e193] [cursor=pointer]:
+        - /url: "#"
+      - link "Prova" [ref=e194] [cursor=pointer]:
+        - /url: "#"
+      - link "Provedere" [ref=e195] [cursor=pointer]:
+        - /url: "#"
+      - link "Proveditore" [ref=e196] [cursor=pointer]:
+        - /url: "#"
+      - link "Puta" [ref=e197] [cursor=pointer]:
+        - /url: "#"
+      - link "Quaderno" [ref=e198] [cursor=pointer]:
+        - /url: "#"
+      - link "Raccorre" [ref=e199] [cursor=pointer]:
+        - /url: "#"
+      - link "Ragionamento" [ref=e200] [cursor=pointer]:
+        - /url: "#"
+      - link "Ragionare" [ref=e201] [cursor=pointer]:
+        - /url: "#"
+      - link "Ragione" [ref=e202] [cursor=pointer]:
+        - /url: "#"
+      - link "Ragionevolemente" [ref=e203] [cursor=pointer]:
+        - /url: "#"
+      - link "Ragioniere" [ref=e204] [cursor=pointer]:
+        - /url: "#"
+      - link "Ragiungere" [ref=e205] [cursor=pointer]:
+        - /url: "#"
+      - link "Raguagliare" [ref=e206] [cursor=pointer]:
+        - /url: "#"
+      - link "Raguaglio" [ref=e207] [cursor=pointer]:
+        - /url: "#"
+      - link "Rapportare" [ref=e208] [cursor=pointer]:
+        - /url: "#"
+      - link "Rassegnare" [ref=e209] [cursor=pointer]:
+        - /url: "#"
+      - link "Ratio" [ref=e210] [cursor=pointer]:
+        - /url: "#"
+      - link "Reggimento" [ref=e211] [cursor=pointer]:
+        - /url: "#"
+      - link "Registrare" [ref=e212] [cursor=pointer]:
+        - /url: "#"
+      - link "Registrare" [ref=e213] [cursor=pointer]:
+        - /url: "#"
+      - link "Registrum" [ref=e214] [cursor=pointer]:
+        - /url: "#"
+      - link "Regola" [ref=e215] [cursor=pointer]:
+        - /url: "#"
+      - link "Regolatore" [ref=e216] [cursor=pointer]:
+        - /url: "#"
+      - link "Repertorium" [ref=e217] [cursor=pointer]:
+        - /url: "#"
+      - link "Ridurre" [ref=e218] [cursor=pointer]:
+        - /url: "#"
+      - link "Riformare" [ref=e219] [cursor=pointer]:
+        - /url: "#"
+      - link "Rivedere" [ref=e220] [cursor=pointer]:
+        - /url: "#"
+      - link "Salario" [ref=e221] [cursor=pointer]:
+        - /url: "#"
+      - link "Salarium" [ref=e222] [cursor=pointer]:
+        - /url: "#"
+      - link "Saldare" [ref=e223] [cursor=pointer]:
+        - /url: "#"
+      - link "Sano" [ref=e224] [cursor=pointer]:
+        - /url: "#"
+      - link "Sbattere" [ref=e225] [cursor=pointer]:
+        - /url: "#"
+      - link "Scontare" [ref=e226] [cursor=pointer]:
+        - /url: "#"
+      - link "Sconto" [ref=e227] [cursor=pointer]:
+        - /url: "#"
+      - link "Scribere" [ref=e228] [cursor=pointer]:
+        - /url: "#"
+      - link "Scriptura" [ref=e229] [cursor=pointer]:
+        - /url: "#"
+      - link "Scriptura" [ref=e230] [cursor=pointer]:
+        - /url: "#"
+      - link "Scritta" [ref=e231] [cursor=pointer]:
+        - /url: "#"
+      - link "Scrivere" [ref=e232] [cursor=pointer]:
+        - /url: "#"
+      - link "Sicurtà" [ref=e233] [cursor=pointer]:
+        - /url: "#"
+      - link "Solutio" [ref=e234] [cursor=pointer]:
+        - /url: "#"
+      - link "Somma" [ref=e235] [cursor=pointer]:
+        - /url: "#"
+      - link "Sostanza" [ref=e236] [cursor=pointer]:
+        - /url: "#"
+      - link "Statuta" [ref=e237] [cursor=pointer]:
+        - /url: "#"
+      - link "Stima" [ref=e238] [cursor=pointer]:
+        - /url: "#"
+      - link "Stimare" [ref=e239] [cursor=pointer]:
+        - /url: "#"
+      - link "Substantia" [ref=e240] [cursor=pointer]:
+        - /url: "#"
+      - link "Summa" [ref=e241] [cursor=pointer]:
+        - /url: "#"
+      - link "Summa" [ref=e242] [cursor=pointer]:
+        - /url: "#"
+      - link "Tabula" [ref=e243] [cursor=pointer]:
+        - /url: "#"
+      - link "Tavola" [ref=e244] [cursor=pointer]:
+        - /url: "#"
+      - link "Terminagione" [ref=e245] [cursor=pointer]:
+        - /url: "#"
+      - link "Terminare" [ref=e246] [cursor=pointer]:
+        - /url: "#"
+      - link "Terminatore" [ref=e247] [cursor=pointer]:
+        - /url: "#"
+      - link "Termine" [ref=e248] [cursor=pointer]:
+        - /url: "#"
+      - link "Terminus" [ref=e249] [cursor=pointer]:
+        - /url: "#"
+      - link "Trarre" [ref=e250] [cursor=pointer]:
+        - /url: "#"
+      - link "Tratta" [ref=e251] [cursor=pointer]:
+        - /url: "#"
+      - link "Usura" [ref=e252] [cursor=pointer]:
+        - /url: "#"
+      - link "Usura" [ref=e253] [cursor=pointer]:
+        - /url: "#"
+      - link "Utile" [ref=e254] [cursor=pointer]:
+        - /url: "#"
+      - link "Utile" [ref=e255] [cursor=pointer]:
+        - /url: "#"
+      - link "Valuta" [ref=e256] [cursor=pointer]:
+        - /url: "#"
+      - link "Valuta" [ref=e257] [cursor=pointer]:
+        - /url: "#"
+      - link "Vicario" [ref=e258] [cursor=pointer]:
+        - /url: "#"
+      - link "Vicarius" [ref=e259] [cursor=pointer]:
+        - /url: "#"
+      - link "Visitatores" [ref=e260] [cursor=pointer]:
+        - /url: "#"
+  - generic [ref=e28] [cursor=pointer]: ❮
+  - generic [ref=e29]:
+    - heading "Seleziona un lemma" [level=1] [ref=e30]
+    - generic [ref=e31]: Clicca su un lemma per visualizzare il suo contenuto.

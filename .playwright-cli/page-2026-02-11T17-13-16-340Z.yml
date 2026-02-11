@@ -1,0 +1,112 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - generic [ref=e4]:
+      - link "Lemmario" [ref=e5] [cursor=pointer]:
+        - /url: /
+        - heading "Lemmario" [level=1] [ref=e6]
+      - navigation [ref=e7]:
+        - link "Dizionari" [ref=e8] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e9]: "|"
+        - link "Progetto" [ref=e10] [cursor=pointer]:
+          - /url: /lemmario-ragioneria/pagine/progetto
+  - main [ref=e11]:
+    - generic [ref=e12]:
+      - navigation "Breadcrumb" [ref=e13]:
+        - list [ref=e14]:
+          - listitem [ref=e15]:
+            - link "Home" [ref=e16] [cursor=pointer]:
+              - /url: /
+          - listitem [ref=e17]: /
+          - listitem [ref=e18]:
+            - link "Lemmario della Ragioneria Medievale" [ref=e19] [cursor=pointer]:
+              - /url: /lemmario-ragioneria
+          - listitem [ref=e20]: /
+          - listitem [ref=e21]: additio
+      - generic [ref=e24]:
+        - heading "additio" [level=1] [ref=e25]
+        - generic [ref=e27]: Latino
+      - main [ref=e28]:
+        - generic [ref=e29]:
+          - heading "Definizioni (3)" [level=2] [ref=e30]:
+            - img [ref=e31]
+            - text: Definizioni (3)
+          - generic [ref=e33]:
+            - generic [ref=e34]:
+              - generic [ref=e35]:
+                - generic [ref=e36]: "1"
+                - paragraph [ref=e37]: "s.f. Aggiunta. In relazione alla compravendita di merci: aggiunta sul peso."
+              - generic [ref=e38]:
+                - heading "Ricorrenza:" [level=4] [ref=e39]
+                - generic [ref=e41]:
+                  - paragraph [ref=e43]: "Capitula conservatorum di Genova (1383-1386) (1383-1386):"
+                  - blockquote [ref=e44]:
+                    - text: «...Volenti autem emere libras quatuor carnium, vel ab inde infra, dentur carnes sineadditionevel iuncta aliqua, et tantum quantum volet, nec plus nec minus...»
+                    - generic [ref=e45]: "- colonna 413, rubrica 42 \"De iunctis non dandis\"."
+                  - paragraph [ref=e47]: "Riferimento bibliografico: Historiae Patriae Monumenta, vol. XVIII, Leges Genuenses, Torino, 1901."
+              - paragraph [ref=e49]:
+                - text: "Livello di razionalità:"
+                - generic [ref=e50]: 2. Elementi tecnici
+            - generic [ref=e51]:
+              - generic [ref=e52]:
+                - generic [ref=e53]: "2"
+                - paragraph [ref=e54]: "s.f. Aggiunta. In relazione alla compilazione degli statuti e al loro aggiornamento: norma aggiuntiva di una rubrica compilata precedentemente, aggiornamento."
+              - generic [ref=e55]:
+                - heading "Ricorrenze (2):" [level=4] [ref=e56]
+                - generic [ref=e57]:
+                  - generic [ref=e58]:
+                    - paragraph [ref=e60]: "Capitula conservatorum di Genova (XIV secolo, prima metà) (XIV secolo, prima metà):"
+                    - blockquote [ref=e61]:
+                      - text: «...laudaverunt et confirmaverunt omnia et singula supradicta capitula,additiones, correctiones et supletiones…»
+                      - generic [ref=e62]: "- colonna 452, rubrica 115 \"De porcis restringendis, et quod non possint ire per civitatem, nixi ut infra\". [2] «... extracta sunt supradicta capitula etadditionesde libro...» - colonna 452, rubrica 115 \"De porcis restringendis, et quod non possint ire per civitatem, nixi ut infra\". [3] «...qui capitula, correctiones,additiones, suppleciones…» - colonna 456, rubrica 119 \"De axinariis et bestias ducentibus etc\"."
+                    - paragraph [ref=e64]: "Riferimento bibliografico: Historiae Patriae Monumenta, vol. XVIII, Leges Genuenses, Torino, 1901."
+                  - generic [ref=e65]:
+                    - paragraph [ref=e67]: "Regulae Comperarum Capituli di Genova (XIV secolo, prima metà):"
+                    - blockquote [ref=e68]:
+                      - text: «...additiofacta millesimo CCC XXVI...»
+                      - generic [ref=e69]: "- colonna 55, rubrica 51 \"Qualiter debent compare disbitari ex suis residuis ut infra\"."
+                    - paragraph [ref=e71]: "Riferimento bibliografico: Historiae Patriae Monumenta, vol. XVIII, Leges Genuenses, Torino, 1901."
+              - paragraph [ref=e73]:
+                - text: "Livello di razionalità:"
+                - generic [ref=e74]: 2. Elementi tecnici
+            - generic [ref=e75]:
+              - generic [ref=e76]:
+                - generic [ref=e77]: "3"
+                - paragraph [ref=e78]: Norme o note aggiunte alla redazione precedente dello statuto corporativo.
+              - generic [ref=e79]:
+                - heading "Ricorrenze (2):" [level=4] [ref=e80]
+                - generic [ref=e81]:
+                  - generic [ref=e82]:
+                    - paragraph [ref=e84]: "Statuto dei correggiai, tavolacciai e scudai di Firenze (1338-1345):"
+                    - blockquote [ref=e85]:
+                      - text: «...cives florentini, officiales pro comuni Florentie electi et deputati... approvaverunt et affirmaverunt... cum eorumadditionibus...»
+                      - generic [ref=e86]: "- pp. 54-55. [2] «Infrascripte sunt emendationes,correctiones, interpetrationes, declarationes et additiones facte et composite per consules et consiliarios novos et veteres artium coreggiariorum et tabulacciariorum...» - p. 55-56. [3] «...statuta e capitula supra in volumine huius libri scripta cum eorum novis et veteribusadditionibuset correctionibus [...] approvaverunt e confermarunt...» - pp. 57-58. [4] «...statuta et capitula supra in volumine huius libri contenta e scripta, cum eorumadditionibuset correctionibus in eis vel aliquo eorum facta [...] approvaverunt e confermarunt...» - pp. 59-60."
+                    - paragraph [ref=e88]: "Riferimento bibliografico: Statuti dell'arte dei correggiai, tavolacciai e scudai (1338-1345), Archivio di Stato di Firenze, fondo Arte dei Correggiai, reg. 1."
+                  - generic [ref=e89]:
+                    - paragraph [ref=e91]: "Statuto dei rigattieri di Firenze (1324):"
+                    - blockquote [ref=e92]:
+                      - text: «...officiales pro comuni Florentie... approvaverunt et firmaverunt omnia e singola supra scripta capitula et statuta, cumadditionibus, correctionibus et cassationibus in eis scriptis et factis...»
+                      - generic [ref=e93]: "- p. 135."
+                    - paragraph [ref=e95]: "Riferimento bibliografico: Statuti dell'arte dei rigattieri e linaioli di Firenze (1296-1340), a cura di F. Sartini, Felice Le Monnier, Firenze, 1940."
+              - paragraph [ref=e97]:
+                - text: "Livello di razionalità:"
+                - generic [ref=e98]: 4. Procedimenti
+      - navigation [ref=e99]:
+        - link "Torna ai lemmi" [ref=e100] [cursor=pointer]:
+          - /url: /lemmario-ragioneria
+          - img [ref=e101]
+          - text: Torna ai lemmi
+  - contentinfo [ref=e103]:
+    - generic [ref=e104]:
+      - generic [ref=e105]:
+        - generic [ref=e106]:
+          - heading "Lemmario" [level=3] [ref=e107]
+          - paragraph [ref=e108]: Dizionario specializzato della terminologia matematica ed economica italiana storica da statuti e documenti medievali e rinascimentali.
+        - generic [ref=e109]:
+          - heading "Navigazione" [level=3] [ref=e110]
+          - list [ref=e111]:
+            - listitem [ref=e112]:
+              - link "Dizionari" [ref=e113] [cursor=pointer]:
+                - /url: /
+      - paragraph [ref=e115]: © 2026 Lemmario. Tutti i diritti riservati.
+  - alert [ref=e116]
