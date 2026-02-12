@@ -10,7 +10,7 @@ set -euo pipefail
 BACKUP_DIR="/home/dhruby/backups/pre-reset-$(date +%Y%m%d-%H%M%S)"
 COMPOSE_FILE="/home/dhruby/lemmario-ts/docker-compose.yml"
 PROJECT_DIR="/home/dhruby/lemmario-ts"
-VOLUME_NAME="lemmario_ts_postgres_data"
+VOLUME_NAME="lemmario-ts_postgres_data"
 RUN_SEED=false
 
 # Detect docker compose command (v1 vs v2)
