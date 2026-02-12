@@ -3,7 +3,7 @@
  */
 
 import * as cheerio from 'cheerio'
-import { ParsedLemma, ParsedDefinizione, ParsedRicorrenza } from '../types'
+import { ParsedLemma, ParsedDefinizione, ParsedRicorrenza, ParsedCrossReference } from '../types'
 
 /**
  * Parsa un riferimento pagina/carta/colonna complesso e estrae i campi strutturati
@@ -291,6 +291,9 @@ export function parseLemmaHTML(html: string, termine: string, tipo: 'volgare' | 
 
   const slug = tipo === 'latino' ? `${slugBase}-lat` : slugBase
 
+  // Estrai riferimenti incrociati (CFR)
+  const riferimenti_incrociati = extractCrossReferences(html)
+
   return {
     termine,
     tipo,
@@ -298,7 +301,34 @@ export function parseLemmaHTML(html: string, termine: string, tipo: 'volgare' | 
     definizioni,
     varianti: variantiArray,
     contenuto_ignorato,
+    riferimenti_incrociati,
   }
+}
+
+/**
+ * Estrae i riferimenti incrociati (CFR) dall'HTML del lemma.
+ * Pattern: <span class="cfr">(<i>cfr.</i> <a href="#" class="link-lemma" data-lemma="FILE.html">LANG <i>NAME</i></a>)</span>
+ */
+export function extractCrossReferences(html: string): ParsedCrossReference[] {
+  const $ = cheerio.load(html)
+  const refs: ParsedCrossReference[] = []
+
+  $('span.cfr a.link-lemma').each((_i, el) => {
+    const targetFilename = $(el).attr('data-lemma')
+    if (!targetFilename) return
+
+    const lemmaName = $(el).find('i').text().trim()
+    const fullText = $(el).text().trim()
+    const langPrefix = fullText.replace(lemmaName, '').trim()
+
+    refs.push({
+      target_filename: targetFilename,
+      target_lemma_name: lemmaName,
+      language_prefix: langPrefix,
+    })
+  })
+
+  return refs
 }
 
 export function extractShorthandIds(html: string): string[] {

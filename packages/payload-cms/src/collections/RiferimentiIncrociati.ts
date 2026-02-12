@@ -1,5 +1,6 @@
 import { CollectionConfig } from 'payload/types'
-import { hasLemmarioAccess, canCreateInLemmario } from '../access'
+// canCreateInLemmario: da usare dopo la migrazione al posto di public_
+import { hasLemmarioAccess, public_ } from '../access'
 import { createAuditTrail, createAuditTrailDelete, createBidirezionalita, deleteBidirezionalita } from '../hooks'
 
 /**
@@ -21,7 +22,7 @@ export const RiferimentiIncrociati: CollectionConfig = {
     description: 'Collegamenti bidirezionali tra lemmi',
   },
   access: {
-    create: canCreateInLemmario,
+    create: public_, // Temporaneo per migrazione - revertire a canCreateInLemmario dopo
     read: () => true,
     update: hasLemmarioAccess,
     delete: hasLemmarioAccess,

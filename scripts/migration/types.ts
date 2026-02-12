@@ -21,6 +21,12 @@ export interface LegacyBibliografia {
   }
 }
 
+export interface ParsedCrossReference {
+  target_filename: string    // es. "camera_volg.html"
+  target_lemma_name: string  // es. "camera"
+  language_prefix: string    // "lat." o "volg."
+}
+
 export interface ParsedLemma {
   termine: string
   tipo: 'volgare' | 'latino'
@@ -29,6 +35,7 @@ export interface ParsedLemma {
   definizioni: ParsedDefinizione[]
   varianti: string[]
   contenuto_ignorato: string[]  // Porzioni HTML non parsate
+  riferimenti_incrociati: ParsedCrossReference[]
 }
 
 export interface ParsedDefinizione {
@@ -64,6 +71,7 @@ export interface LemmaImportDetail {
   definizioni_importate: number
   ricorrenze_importate: number
   varianti_importate: number
+  riferimenti_importati: number
   contenuto_ignorato: string[]
   errori: string[]
 }
@@ -96,6 +104,14 @@ export interface MigrationStats {
   livelli: {
     total: number
     loaded: number
+  }
+  riferimenti_incrociati: {
+    total: number
+    imported: number
+    skipped_duplicate: number
+    skipped_missing_target: number
+    failed: number
+    errors: string[]
   }
 }
 
