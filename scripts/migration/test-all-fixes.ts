@@ -5,7 +5,7 @@
 
 import * as fs from 'fs'
 import * as path from 'path'
-import { parseLemmaHTML, extractShorthandIds } from './parsers/htmlParser'
+import { parseLemmaHTML, extractShorthandIds, extractCrossReferences } from './parsers/htmlParser'
 import { parseBibliografia } from './parsers/jsonParser'
 
 const OLD_WEBSITE_PATH = path.join(__dirname, '../../old_website')
@@ -197,11 +197,100 @@ missingFonti.forEach(fonte => {
 
 console.log()
 
-// ===== Full scan: count all definitions and ricorrenze =====
-console.log('--- SCANSIONE COMPLETA: Statistiche globali ---')
-
+// Carica indice per scansioni globali (CFR + statistiche)
 const indicePath = path.join(OLD_WEBSITE_PATH, 'indice.json')
 const indice = JSON.parse(fs.readFileSync(indicePath, 'utf-8')).lemmi as Array<{nome: string, tipo: 'volgare' | 'latino', file: string}>
+
+// ===== FIX 8: Cross-references (CFR) =====
+console.log('--- FIX 8: Riferimenti incrociati (CFR) ---')
+
+// Test 1: camera_lat.html -> camera_volg.html
+totalTests++
+{
+  const html = fs.readFileSync(path.join(OLD_WEBSITE_PATH, 'lemmi', 'camera_lat.html'), 'utf-8')
+  const refs = extractCrossReferences(html)
+  if (refs.length === 1 && refs[0].target_filename === 'camera_volg.html') {
+    passedTests++
+    console.log(`✅ camera_lat.html -> 1 CFR verso camera_volg.html`)
+  } else {
+    console.log(`❌ camera_lat.html: atteso 1 CFR verso camera_volg.html, ottenuto ${JSON.stringify(refs)}`)
+  }
+}
+
+// Test 2: algebra.html -> nessun CFR
+totalTests++
+{
+  const html = fs.readFileSync(path.join(OLD_WEBSITE_PATH, 'lemmi', 'algebra.html'), 'utf-8')
+  const refs = extractCrossReferences(html)
+  if (refs.length === 0) {
+    passedTests++
+    console.log(`✅ algebra.html -> 0 CFR (atteso)`)
+  } else {
+    console.log(`❌ algebra.html: atteso 0 CFR, ottenuto ${refs.length}`)
+  }
+}
+
+// Test 3: cambio.html -> cambium.html con prefisso lat.
+totalTests++
+{
+  const html = fs.readFileSync(path.join(OLD_WEBSITE_PATH, 'lemmi', 'cambio.html'), 'utf-8')
+  const refs = extractCrossReferences(html)
+  if (refs.length === 1 && refs[0].target_filename === 'cambium.html' && refs[0].language_prefix === 'lat.') {
+    passedTests++
+    console.log(`✅ cambio.html -> 1 CFR verso cambium.html (lat.)`)
+  } else {
+    console.log(`❌ cambio.html: atteso 1 CFR verso cambium.html lat., ottenuto ${JSON.stringify(refs)}`)
+  }
+}
+
+// Test 4: parseLemmaHTML integra i CFR
+totalTests++
+{
+  const html = fs.readFileSync(path.join(OLD_WEBSITE_PATH, 'lemmi', 'usura_volg.html'), 'utf-8')
+  const parsed = parseLemmaHTML(html, 'Usura', 'volgare')
+  if (parsed.riferimenti_incrociati.length === 1 && parsed.riferimenti_incrociati[0].target_filename === 'usura_lat.html') {
+    passedTests++
+    console.log(`✅ usura_volg.html parseLemmaHTML -> 1 CFR integrato`)
+  } else {
+    console.log(`❌ usura_volg.html parseLemmaHTML: atteso 1 CFR, ottenuto ${parsed.riferimenti_incrociati.length}`)
+  }
+}
+
+console.log()
+
+// Scansione completa CFR
+console.log('--- SCANSIONE CFR: Conteggio globale ---')
+{
+  const indiceFileSet = new Set(indice.map((e: { file: string }) => e.file))
+  let totalCfr = 0
+  let cfrWithMissingTarget = 0
+  let filesWithCfr = 0
+
+  for (const entry of indice) {
+    const htmlPath = path.join(OLD_WEBSITE_PATH, 'lemmi', entry.file)
+    if (!fs.existsSync(htmlPath)) continue
+    const html = fs.readFileSync(htmlPath, 'utf-8')
+    const refs = extractCrossReferences(html)
+    totalCfr += refs.length
+    if (refs.length > 0) filesWithCfr++
+    for (const ref of refs) {
+      if (!indiceFileSet.has(ref.target_filename)) {
+        cfrWithMissingTarget++
+        console.log(`  ⚠️  Target mancante da indice: ${entry.file} -> ${ref.target_filename}`)
+      }
+    }
+  }
+
+  console.log(`File con CFR: ${filesWithCfr}`)
+  console.log(`Riferimenti CFR totali: ${totalCfr}`)
+  console.log(`Target mancanti da indice.json: ${cfrWithMissingTarget}`)
+  console.log(`Coppie uniche attese: ~${Math.floor((totalCfr - cfrWithMissingTarget) / 2)}`)
+}
+
+console.log()
+
+// ===== Full scan: count all definitions and ricorrenze =====
+console.log('--- SCANSIONE COMPLETA: Statistiche globali ---')
 
 let totalDef = 0
 let totalRic = 0

@@ -30,8 +30,12 @@ export const createBidirezionalita: CollectionAfterChangeHook = async ({
   try {
     const { lemma_origine, lemma_destinazione, tipo_riferimento, note } = doc
 
+    // Estrai ID dai campi relationship (possono essere oggetti popolati o ID numerici)
+    const origineId = typeof lemma_origine === 'object' ? lemma_origine.id : lemma_origine
+    const destinazioneId = typeof lemma_destinazione === 'object' ? lemma_destinazione.id : lemma_destinazione
+
     // Verifica che i campi necessari esistano
-    if (!lemma_origine || !lemma_destinazione) {
+    if (!origineId || !destinazioneId) {
       console.warn('Riferimento incrociato senza lemma_origine o lemma_destinazione:', doc.id)
       return doc
     }
@@ -41,8 +45,8 @@ export const createBidirezionalita: CollectionAfterChangeHook = async ({
       collection: 'riferimenti-incrociati',
       where: {
         and: [
-          { lemma_origine: { equals: lemma_destinazione } },
-          { lemma_destinazione: { equals: lemma_origine } },
+          { lemma_origine: { equals: destinazioneId } },
+          { lemma_destinazione: { equals: origineId } },
         ],
       },
       limit: 1,
@@ -57,8 +61,8 @@ export const createBidirezionalita: CollectionAfterChangeHook = async ({
     await req.payload.create({
       collection: 'riferimenti-incrociati',
       data: {
-        lemma_origine: lemma_destinazione,
-        lemma_destinazione: lemma_origine,
+        lemma_origine: destinazioneId,
+        lemma_destinazione: origineId,
         tipo_riferimento: tipo_riferimento,
         note: note ? `[Auto] ${note}` : '[Auto] Riferimento bidirezionale',
         auto_creato: true, // Flag per evitare loop
@@ -87,7 +91,11 @@ export const deleteBidirezionalita: CollectionAfterDeleteHook = async ({ req, do
   try {
     const { lemma_origine, lemma_destinazione } = doc
 
-    if (!lemma_origine || !lemma_destinazione) {
+    // Estrai ID dai campi relationship (possono essere oggetti popolati o ID numerici)
+    const origineId = typeof lemma_origine === 'object' ? lemma_origine.id : lemma_origine
+    const destinazioneId = typeof lemma_destinazione === 'object' ? lemma_destinazione.id : lemma_destinazione
+
+    if (!origineId || !destinazioneId) {
       return
     }
 
@@ -96,8 +104,8 @@ export const deleteBidirezionalita: CollectionAfterDeleteHook = async ({ req, do
       collection: 'riferimenti-incrociati',
       where: {
         and: [
-          { lemma_origine: { equals: lemma_destinazione } },
-          { lemma_destinazione: { equals: lemma_origine } },
+          { lemma_origine: { equals: destinazioneId } },
+          { lemma_destinazione: { equals: origineId } },
           { auto_creato: { equals: true } },
         ],
       },

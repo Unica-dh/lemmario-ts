@@ -7,7 +7,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { parseBibliografia, parseIndice, convertBiblioToFonte } from './parsers/jsonParser'
 import { parseLemmaHTML, extractShorthandIds } from './parsers/htmlParser'
-import { MigrationStats, MigrationReport, LemmaImportDetail } from './types'
+import { MigrationStats, MigrationReport, LemmaImportDetail, ParsedCrossReference } from './types'
 
 const API_URL = process.env.API_URL || 'http://localhost:3000/api'
 const OLD_WEBSITE_PATH = path.join(__dirname, '../../old_website')
@@ -17,6 +17,15 @@ const LEMMARIO_ID = parseInt(process.env.LEMMARIO_ID || '1') // ID del lemmario 
 const fontiMap = new Map<string, number>()
 // Mappa per tracciare gli ID dei livelli di razionalità (numero -> id)
 const livelliMap = new Map<number, number>()
+// Mappa filename -> lemmaId per risolvere i cross-reference
+const fileToLemmaId = new Map<string, number>()
+
+interface PendingCrossRef {
+  sourceFile: string
+  sourceId: number
+  sourceName: string
+  refs: ParsedCrossReference[]
+}
 
 const stats: MigrationStats = {
   fonti: { total: 0, imported: 0, failed: 0, errors: [] },
@@ -25,6 +34,7 @@ const stats: MigrationStats = {
   ricorrenze: { total: 0, imported: 0 },
   varianti: { total: 0, imported: 0 },
   livelli: { total: 0, loaded: 0 },
+  riferimenti_incrociati: { total: 0, imported: 0, skipped_duplicate: 0, skipped_missing_target: 0, failed: 0, errors: [] },
 }
 
 // Tracking dettagliato per report
@@ -123,11 +133,12 @@ async function loadLivelliRazionalita() {
   }
 }
 
-async function importLemmi() {
+async function importLemmi(): Promise<PendingCrossRef[]> {
   console.log('\n=== FASE 2: Import Lemmi ===\n')
 
   const indicePath = path.join(OLD_WEBSITE_PATH, 'indice.json')
   const indice = parseIndice(indicePath)
+  const pendingCrossRefs: PendingCrossRef[] = []
 
   stats.lemmi.total = indice.length
 
@@ -139,6 +150,7 @@ async function importLemmi() {
       definizioni_importate: 0,
       ricorrenze_importate: 0,
       varianti_importate: 0,
+      riferimenti_importati: 0,
       contenuto_ignorato: [],
       errori: [],
     }
@@ -193,6 +205,19 @@ async function importLemmi() {
         lemmaId = (lemmaResult as any).doc.id
         console.log(`✓ Lemma importato: ${parsedLemma.termine} (ID: ${lemmaId})`)
         stats.lemmi.imported++
+      }
+
+      // Registra mapping file -> lemmaId per cross-reference (Fase 3)
+      fileToLemmaId.set(lemmaEntry.file, lemmaId)
+
+      // Raccoglie cross-reference pendenti per Fase 3
+      if (parsedLemma.riferimenti_incrociati.length > 0) {
+        pendingCrossRefs.push({
+          sourceFile: lemmaEntry.file,
+          sourceId: lemmaId,
+          sourceName: parsedLemma.termine,
+          refs: parsedLemma.riferimenti_incrociati,
+        })
       }
 
       // Importa varianti grafiche
@@ -309,6 +334,79 @@ async function importLemmi() {
   }
 
   console.log(`\nLemmi: ${stats.lemmi.imported}/${stats.lemmi.total} importati\n`)
+
+  return pendingCrossRefs
+}
+
+async function importRiferimentiIncrociati(pendingRefs: PendingCrossRef[]) {
+  console.log('\n=== FASE 3: Import Riferimenti Incrociati (CFR) ===\n')
+
+  const importedPairs = new Set<string>()
+  let totalRefs = 0
+
+  for (const pending of pendingRefs) {
+    totalRefs += pending.refs.length
+  }
+  stats.riferimenti_incrociati.total = totalRefs
+
+  for (const pending of pendingRefs) {
+    for (const ref of pending.refs) {
+      const targetId = fileToLemmaId.get(ref.target_filename)
+
+      if (!targetId) {
+        console.warn(`  ⚠ Target mancante: ${pending.sourceName} -> ${ref.target_filename}`)
+        stats.riferimenti_incrociati.skipped_missing_target++
+        stats.riferimenti_incrociati.errors.push(
+          `${pending.sourceName} (${pending.sourceFile}) -> ${ref.target_filename}: target non trovato in indice`
+        )
+        continue
+      }
+
+      // Salta self-reference
+      if (pending.sourceId === targetId) {
+        console.warn(`  ⚠ Self-reference saltato: ${pending.sourceName}`)
+        stats.riferimenti_incrociati.skipped_duplicate++
+        continue
+      }
+
+      // Deduplicazione: chiave canonica per coppia
+      const pairKey = `${Math.min(pending.sourceId, targetId)}:${Math.max(pending.sourceId, targetId)}`
+      if (importedPairs.has(pairKey)) {
+        stats.riferimenti_incrociati.skipped_duplicate++
+        continue
+      }
+
+      try {
+        await fetchPayload('/riferimenti-incrociati', {
+          method: 'POST',
+          body: JSON.stringify({
+            lemma_origine: pending.sourceId,
+            tipo_riferimento: 'CFR',
+            lemma_destinazione: targetId,
+          }),
+        })
+
+        importedPairs.add(pairKey)
+        stats.riferimenti_incrociati.imported++
+        console.log(`  ✓ CFR: ${pending.sourceName} -> ${ref.target_lemma_name} (${ref.language_prefix})`)
+
+        // Rate limiting (200ms - l'hook bidirezionale causa scrittura aggiuntiva)
+        await new Promise(resolve => setTimeout(resolve, 200))
+      } catch (error) {
+        console.error(`  ✗ Errore CFR ${pending.sourceName} -> ${ref.target_lemma_name}:`, error)
+        stats.riferimenti_incrociati.failed++
+        stats.riferimenti_incrociati.errors.push(
+          `${pending.sourceName} -> ${ref.target_lemma_name}: ${error}`
+        )
+      }
+    }
+  }
+
+  console.log(`\nRiferimenti incrociati: ${stats.riferimenti_incrociati.imported} importati`)
+  console.log(`  (+ ${stats.riferimenti_incrociati.imported} inversi auto-creati dall'hook)`)
+  console.log(`  Duplicati saltati: ${stats.riferimenti_incrociati.skipped_duplicate}`)
+  console.log(`  Target mancanti: ${stats.riferimenti_incrociati.skipped_missing_target}`)
+  console.log(`  Falliti: ${stats.riferimenti_incrociati.failed}\n`)
 }
 
 function generateMarkdownReport(): string {
@@ -356,6 +454,14 @@ function generateMarkdownReport(): string {
   md += `- **Totale**: ${stats.varianti.total}\n`
   md += `- **Importate**: ${stats.varianti.imported}\n\n`
 
+  md += '### Riferimenti Incrociati (CFR)\n'
+  md += `- **Totale trovati**: ${stats.riferimenti_incrociati.total}\n`
+  md += `- **Importati**: ${stats.riferimenti_incrociati.imported}\n`
+  md += `- **Inversi auto-creati**: ${stats.riferimenti_incrociati.imported}\n`
+  md += `- **Duplicati saltati**: ${stats.riferimenti_incrociati.skipped_duplicate}\n`
+  md += `- **Target mancanti**: ${stats.riferimenti_incrociati.skipped_missing_target}\n`
+  md += `- **Falliti**: ${stats.riferimenti_incrociati.failed}\n\n`
+
   md += '---\n\n'
 
   // Fonti mancanti
@@ -381,6 +487,15 @@ function generateMarkdownReport(): string {
   if (stats.lemmi.errors.length > 0) {
     md += '## ❌ Errori Import Lemmi\n\n'
     stats.lemmi.errors.forEach(err => {
+      md += `- ${err}\n`
+    })
+    md += '\n---\n\n'
+  }
+
+  // Errori Riferimenti Incrociati
+  if (stats.riferimenti_incrociati.errors.length > 0) {
+    md += '## ⚠️ Problemi Riferimenti Incrociati\n\n'
+    stats.riferimenti_incrociati.errors.forEach(err => {
       md += `- ${err}\n`
     })
     md += '\n---\n\n'
@@ -481,6 +596,7 @@ function printSummary() {
   console.log(`Definizioni: ${stats.definizioni.imported} importate`)
   console.log(`Ricorrenze:  ${stats.ricorrenze.imported} importate`)
   console.log(`Varianti:    ${stats.varianti.imported}/${stats.varianti.total} importate`)
+  console.log(`CFR:         ${stats.riferimenti_incrociati.imported} importati (+${stats.riferimenti_incrociati.imported} inversi auto)`)
 
   if (fontiMancanti.size > 0) {
     console.log(`\n⚠️  Fonti mancanti: ${fontiMancanti.size}`)
@@ -520,7 +636,8 @@ async function main() {
   try {
     await importFonti()
     await loadLivelliRazionalita()
-    await importLemmi()
+    const pendingCrossRefs = await importLemmi()
+    await importRiferimentiIncrociati(pendingCrossRefs)
     printSummary()
 
     // Genera e salva report Markdown
@@ -547,4 +664,4 @@ if (require.main === module) {
   main().catch(console.error)
 }
 
-export { importFonti, importLemmi, stats }
+export { importFonti, importLemmi, importRiferimentiIncrociati, stats }
