@@ -232,8 +232,14 @@ export default async function LemmaPage({ params, searchParams }: PageProps) {
       <header className="mb-8 pb-6 border-b border-gray-200">
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3">
-              {lemma.termine}
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-3 flex items-baseline flex-wrap gap-y-2">
+              <span>{lemma.termine}</span>
+              {lemma.riferimenti_in_uscita && lemma.riferimenti_in_uscita.length > 0 && (
+                <RiferimentiIncrociati
+                  riferimenti={lemma.riferimenti_in_uscita}
+                  lemmarioSlug={lemmario.slug}
+                />
+              )}
             </h1>
             <div className="flex items-center gap-3">
               <Badge variant={lemma.tipo === 'latino' ? 'primary' : 'success'} size="lg">
@@ -292,14 +298,6 @@ export default async function LemmaPage({ params, searchParams }: PageProps) {
               Nessuna definizione disponibile per questo lemma.
             </p>
           </section>
-        )}
-
-        {/* Riferimenti Incrociati */}
-        {lemma.riferimenti_in_uscita && lemma.riferimenti_in_uscita.length > 0 && (
-          <RiferimentiIncrociati 
-            riferimenti={lemma.riferimenti_in_uscita} 
-            lemmarioSlug={lemmario.slug}
-          />
         )}
 
         {/* Note Redazionali */}

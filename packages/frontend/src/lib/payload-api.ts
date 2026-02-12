@@ -436,6 +436,44 @@ export async function getRiferimentiByLemma(lemmaId: number): Promise<Riferiment
 }
 
 /**
+ * Get cross-reference map for all lemmi.
+ * Returns a Map where key=lemmaId, value=array of destination lemma info.
+ */
+export async function getCrossReferenceMap(): Promise<Map<number, Array<{ id: number; slug: string; termine: string; tipo: string }>>> {
+  try {
+    const response = await fetchFromPayload<PaginatedResponse<RiferimentoIncrociato>>('/riferimenti-incrociati', {
+      params: {
+        limit: 500,
+        depth: 2,
+      },
+    })
+
+    const map = new Map<number, Array<{ id: number; slug: string; termine: string; tipo: string }>>()
+
+    for (const rif of response.docs) {
+      const origineId = typeof rif.lemma_origine === 'number' ? rif.lemma_origine : rif.lemma_origine?.id
+      const dest = typeof rif.lemma_destinazione === 'object' ? rif.lemma_destinazione : null
+
+      if (!origineId || !dest) continue
+
+      const existing = map.get(origineId) || []
+      existing.push({
+        id: dest.id,
+        slug: dest.slug,
+        termine: dest.termine,
+        tipo: dest.tipo,
+      })
+      map.set(origineId, existing)
+    }
+
+    return map
+  } catch (error) {
+    console.error('getCrossReferenceMap error:', error)
+    return new Map()
+  }
+}
+
+/**
  * Fonti API
  */
 export async function getFonteById(id: number): Promise<Fonte | null> {

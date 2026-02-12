@@ -1,24 +1,9 @@
 import Link from 'next/link'
 import type { RiferimentoIncrociato, Lemma } from '@/types/payload'
-import { Badge } from '@/components/ui/Badge'
 
 interface RiferimentiIncrociatiProps {
   riferimenti: Array<RiferimentoIncrociato & { lemma_destinazione?: Lemma }>
   lemmarioSlug: string
-}
-
-const tipoLabels: Record<string, string> = {
-  sinonimo: 'Sinonimo',
-  contrario: 'Contrario',
-  correlato: 'Correlato',
-  vedi_anche: 'Vedi anche',
-}
-
-const tipoColors: Record<string, 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'info'> = {
-  sinonimo: 'success',
-  contrario: 'danger',
-  correlato: 'primary',
-  vedi_anche: 'info',
 }
 
 export function RiferimentiIncrociati({ riferimenti, lemmarioSlug }: RiferimentiIncrociatiProps) {
@@ -26,58 +11,32 @@ export function RiferimentiIncrociati({ riferimenti, lemmarioSlug }: Riferimenti
     return null
   }
 
-  // Raggruppa per tipo
-  const raggruppati = riferimenti.reduce((acc, rif) => {
-    const tipo = rif.tipo || 'vedi_anche'
-    if (!acc[tipo]) acc[tipo] = []
-    acc[tipo].push(rif)
-    return acc
-  }, {} as Record<string, typeof riferimenti>)
-
   return (
-    <div className="bg-purple-50 border border-purple-200 rounded-lg p-6 mb-6">
-      <h3 className="text-lg font-bold text-gray-900 mb-4">
-        Riferimenti Incrociati ({riferimenti.length})
-      </h3>
-      <div className="space-y-4">
-        {Object.entries(raggruppati).map(([tipo, refs]) => (
-          <div key={tipo}>
-            <h4 className="text-sm font-semibold text-gray-700 mb-2">
-              {tipoLabels[tipo] || tipo}
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              {refs.map((rif, idx) => {
-                const lemma = typeof rif.lemma_destinazione === 'object' 
-                  ? rif.lemma_destinazione 
-                  : null
+    <>
+      {riferimenti.map((rif) => {
+        const lemma = typeof rif.lemma_destinazione === 'object'
+          ? rif.lemma_destinazione
+          : null
 
-                if (!lemma) return null
+        if (!lemma) return null
 
-                return (
-                  <Link
-                    key={rif.id || idx}
-                    href={`/${lemmarioSlug}/lemmi/${lemma.slug}`}
-                    className="group"
-                  >
-                    <Badge
-                      variant={tipoColors[tipo] || 'default'}
-                      size="md"
-                      className="group-hover:shadow-md transition-shadow"
-                    >
-                      {lemma.termine}
-                      {rif.note && (
-                        <span className="ml-1 text-xs opacity-70">
-                          • {rif.note}
-                        </span>
-                      )}
-                    </Badge>
-                  </Link>
-                )
-              })}
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+        const tipoLabel = lemma.tipo === 'latino' ? 'lat.' : 'volg.'
+
+        return (
+          <Link
+            key={rif.id}
+            href={`/${lemmarioSlug}/lemmi/${lemma.slug}`}
+            className="inline-flex items-center gap-1.5 ml-4 px-3 py-1 text-base font-normal text-purple-700 bg-purple-50 border border-purple-200 rounded-full hover:bg-purple-100 hover:text-purple-900 transition-colors align-middle"
+          >
+            <span className="italic text-sm">cfr.</span>
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+            <span>{lemma.termine}</span>
+            <span className="text-sm text-purple-500">({tipoLabel})</span>
+          </Link>
+        )
+      })}
+    </>
   )
 }

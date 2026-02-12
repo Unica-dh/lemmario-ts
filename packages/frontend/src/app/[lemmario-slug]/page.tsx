@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { getLemmarioBySlug, getLemmi } from '@/lib/payload-api'
+import { getLemmarioBySlug, getLemmi, getCrossReferenceMap } from '@/lib/payload-api'
 import { SearchBar } from '@/components/search/SearchBar'
 import { FilterBar } from '@/components/search/FilterBar'
 import { Pagination } from '@/components/search/Pagination'
@@ -104,6 +104,14 @@ export default async function LemmarioPage({ params, searchParams }: PageProps) 
     nextPage: page < totalPages ? page + 1 : null,
   }
 
+  // Fetch cross-reference map for CFR links
+  const crossRefMapRaw = await getCrossReferenceMap()
+  // Convert Map to plain object for serialization (React Server Components)
+  const crossRefMap: Record<number, Array<{ id: number; slug: string; termine: string; tipo: string }>> = {}
+  crossRefMapRaw.forEach((value, key) => {
+    crossRefMap[key] = value
+  })
+
   // Calculate counts for filters
   const allCount = allLemmiData.totalDocs
   const latinoCount = allLemmiData.docs.filter((l) => l.tipo === 'latino').length
@@ -184,7 +192,7 @@ export default async function LemmarioPage({ params, searchParams }: PageProps) 
 
       {/* Lemmi List */}
       <div className="bg-white border border-gray-200 rounded-lg mb-6">
-        <LemmiList lemmi={lemmiData.docs} lemmarioSlug={lemmario.slug} />
+        <LemmiList lemmi={lemmiData.docs} lemmarioSlug={lemmario.slug} crossRefMap={crossRefMap} />
       </div>
 
       {/* Pagination */}

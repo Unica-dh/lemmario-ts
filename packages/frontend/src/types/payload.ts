@@ -127,8 +127,9 @@ export interface RiferimentoIncrociato {
   id: number
   lemma_origine: number | Lemma
   lemma_destinazione: number | Lemma
-  tipo: 'sinonimo' | 'contrario' | 'correlato' | 'vedi_anche'
+  tipo_riferimento: string
   note?: string
+  auto_creato?: boolean
   updatedAt: string
   createdAt: string
 }
