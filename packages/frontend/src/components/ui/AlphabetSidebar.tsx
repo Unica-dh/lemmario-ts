@@ -27,7 +27,7 @@ export function AlphabetSidebar({ lettereDisponibili, letteraAttiva }: AlphabetS
   }
 
   return (
-    <aside className="fixed left-8 top-40 hidden lg:block z-30" data-testid="alphabet-sidebar">
+    <aside className="fixed left-3 top-3 hidden lg:block z-30" data-testid="alphabet-sidebar">
       <nav className="flex flex-col space-y-0.5" aria-label="Filtro alfabetico">
         {ALPHABET.map((letter) => {
           const isDisabled = !lettereDisponibili.includes(letter)
