@@ -40,10 +40,16 @@ export default async function MainNav({ lemmarioSlug, lemmarioId, lemmarioTitolo
               </Link>
             ))}
 
-            {/* Lemmario-specific static content links */}
-            {contenutiLemmario.length > 0 && lemmarioSlug && (
+            {/* Lemmario-specific links */}
+            {lemmarioSlug && (
               <>
                 <span className="text-[var(--color-border)]">·</span>
+                <Link
+                  href={`/${lemmarioSlug}/bibliografia`}
+                  className="label-uppercase link-clean text-[var(--color-text)] hover:text-[var(--color-text-body)] font-medium"
+                >
+                  Bibliografia
+                </Link>
                 {contenutiLemmario.map((contenuto) => (
                   <Link
                     key={contenuto.id}
