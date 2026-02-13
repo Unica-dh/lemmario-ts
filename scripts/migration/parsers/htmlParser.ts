@@ -182,8 +182,19 @@ export function parseLemmaHTML(html: string, termine: string, tipo: 'volgare' | 
   const varianti: Set<string> = new Set()
   const contenuto_ignorato: string[] = []
 
-  // Il titolo potrebbe contenere varianti
-  const titolo = $('.titolo-lemma').text().trim()
+  // Il titolo potrebbe contenere varianti (es. "Libra, Livra")
+  // Rimuovi <span class="cfr"> prima di leggere il testo per evitare false varianti
+  const titolo = $('.titolo-lemma').clone().children('span.cfr').remove().end().text().trim()
+
+  // Estrai varianti: split su ", " ed escludi il termine principale
+  if (titolo.includes(', ')) {
+    const parti = titolo.split(', ').map(p => p.trim()).filter(Boolean)
+    // Il primo termine corrisponde a `termine` (da indice.json)
+    // I termini successivi sono varianti grafiche
+    for (let i = 1; i < parti.length; i++) {
+      varianti.add(parti[i])
+    }
+  }
 
   // Trova tutte le definizioni (separate da <hr>)
   const content = $('#lemma').html() || ''
