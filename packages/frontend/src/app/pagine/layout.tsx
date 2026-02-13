@@ -1,5 +1,4 @@
-import Header from '@/components/Header'
-import Footer from '@/components/Footer'
+import MainNav from '@/components/MainNav'
 
 export default function PagineLayout({
   children,
@@ -8,11 +7,10 @@ export default function PagineLayout({
 }) {
   return (
     <>
-      <Header />
+      <MainNav />
       <main className="flex-1">
         {children}
       </main>
-      <Footer />
     </>
   )
 }

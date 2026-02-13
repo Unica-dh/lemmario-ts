@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import { Inter, Cormorant_Garamond } from 'next/font/google'
 import Script from 'next/script'
 import { ThemeProvider } from '@/components/theme/ThemeProvider'
+import InstitutionalBar from '@/components/InstitutionalBar'
+import Footer from '@/components/Footer'
 import './globals.css'
 
 const inter = Inter({ 
@@ -174,7 +176,11 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} ${cormorant.variable} font-sans`}>
         <ThemeProvider>
-          <div className="flex min-h-screen flex-col">{children}</div>
+          <div className="flex min-h-screen flex-col">
+            <InstitutionalBar />
+            {children}
+            <Footer />
+          </div>
         </ThemeProvider>
       </body>
     </html>

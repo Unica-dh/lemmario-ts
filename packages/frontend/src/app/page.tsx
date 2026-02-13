@@ -1,7 +1,6 @@
 import { getAllLemmariWithStats } from '@/lib/payload-api'
 import { LemmariGrid } from '@/components/lemmari/LemmariGrid'
-import Header from '@/components/Header'
-import Footer from '@/components/Footer'
+import MainNav from '@/components/MainNav'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -22,7 +21,7 @@ export default async function Home() {
 
   return (
     <>
-      <Header />
+      <MainNav />
       <main className="flex-1">
         <div className="container mx-auto px-4 py-8">
           <div className="mb-8">
@@ -37,7 +36,6 @@ export default async function Home() {
           <LemmariGrid lemmari={lemmari} />
         </div>
       </main>
-      <Footer />
     </>
   )
 }
