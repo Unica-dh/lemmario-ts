@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { getLemmarioBySlug, getLemmi, getDefinizioniByLemma } from '@/lib/payload-api'
+import { getLemmarioBySlug, getLemmi, getDefinizioniByLemma, getRicorrenzeByDefinizioniIds } from '@/lib/payload-api'
 import { SearchBar } from '@/components/search/SearchBar'
 import { Pagination } from '@/components/search/Pagination'
 import { LemmaCard } from '@/components/lemmi/LemmaCard'
@@ -112,6 +112,7 @@ export default async function LemmarioPage({ params, searchParams }: PageProps) 
         lemmaId: lemma.id,
         preview: defs[0]?.testo || '',
         defCount: defs.length,
+        defIds: defs.map(d => d.id),
       }
     }
     const defs = await getDefinizioniByLemma(lemma.id)
@@ -119,10 +120,30 @@ export default async function LemmarioPage({ params, searchParams }: PageProps) 
       lemmaId: lemma.id,
       preview: defs[0]?.testo || '',
       defCount: defs.length,
+      defIds: defs.map(d => d.id),
     }
   })
   const previews = await Promise.all(previewPromises)
   const previewMap = new Map(previews.map((p) => [p.lemmaId, p]))
+
+  // Fetch ricorrenze to count distinct fonti per lemma
+  const allDefIds = previews.flatMap(p => p.defIds)
+  const ricorrenzeMap = allDefIds.length > 0
+    ? await getRicorrenzeByDefinizioniIds(allDefIds)
+    : new Map()
+
+  const fontiCountMap = new Map<number, number>()
+  for (const preview of previews) {
+    const fontiSet = new Set<number>()
+    for (const defId of preview.defIds) {
+      const ricorrenze = ricorrenzeMap.get(defId) || []
+      for (const r of ricorrenze) {
+        const fonteId = typeof r.fonte === 'number' ? r.fonte : r.fonte?.id
+        if (fonteId) fontiSet.add(fonteId)
+      }
+    }
+    fontiCountMap.set(preview.lemmaId, fontiSet.size)
+  }
 
   // Subtitle text
   const subtitleParts: string[] = []
@@ -146,8 +167,8 @@ export default async function LemmarioPage({ params, searchParams }: PageProps) 
         letteraAttiva={letteraAttiva}
       />
 
-      {/* Main content - offset for sidebar on desktop */}
-      <div className="lg:ml-16 container mx-auto px-4 py-12">
+      {/* Main content */}
+      <div className="container mx-auto px-4 py-12">
         {/* Hero */}
         <header className="mb-8 text-center">
           <h1 className="font-serif text-4xl md:text-5xl font-bold text-[var(--color-text)] mb-3">
@@ -198,6 +219,7 @@ export default async function LemmarioPage({ params, searchParams }: PageProps) 
                     lemmarioSlug={lemmario.slug}
                     definitionPreview={preview?.preview}
                     defCount={preview?.defCount || 0}
+                    fontiCount={fontiCountMap.get(lemma.id) || 0}
                   />
                 </div>
               )

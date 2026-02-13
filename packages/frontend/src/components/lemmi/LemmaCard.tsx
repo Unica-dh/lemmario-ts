@@ -8,7 +8,6 @@ interface LemmaCardProps {
   definitionPreview?: string
   defCount?: number
   fontiCount?: number
-  ricorrenzeCount?: number
 }
 
 export function LemmaCard({
@@ -19,8 +18,9 @@ export function LemmaCard({
   definitionPreview,
   defCount = 0,
   fontiCount = 0,
-  ricorrenzeCount = 0,
 }: LemmaCardProps) {
+  const isLatino = tipo === 'latino'
+
   return (
     <Link
       href={`/${lemmarioSlug}/lemmi/${slug}`}
@@ -30,11 +30,11 @@ export function LemmaCard({
       <article className="py-5 px-4">
         {/* Header: Termine + Badge Tipo */}
         <div className="flex items-start justify-between mb-2">
-          <h2 className="font-serif font-bold text-2xl text-[var(--color-text)]">
+          <h2 className={`font-serif font-bold text-2xl text-[var(--color-text)] ${isLatino ? 'italic' : ''}`}>
             {termine}
           </h2>
           <span className="label-uppercase text-[var(--color-text-muted)] ml-4 mt-1 shrink-0">
-            {tipo === 'latino' ? 'Latine' : 'Volgare'}
+            {isLatino ? 'Latino' : 'Volgare'}
           </span>
         </div>
 
@@ -42,7 +42,6 @@ export function LemmaCard({
         <div className="label-uppercase text-[var(--color-text-muted)] mb-3">
           {defCount} def.
           {fontiCount > 0 && <> &middot; {fontiCount} fonti</>}
-          {ricorrenzeCount > 0 && <> &middot; {ricorrenzeCount} ricorrenze</>}
         </div>
 
         {/* Definition preview */}

@@ -201,7 +201,7 @@ export default async function LemmaPage({ params, searchParams }: PageProps) {
               {lemma.termine}
             </h1>
             <span className="label-uppercase text-[var(--color-text-muted)] mt-2 ml-4 shrink-0">
-              {lemma.tipo === 'latino' ? 'Latine' : 'Volgare'}
+              {lemma.tipo === 'latino' ? 'Latino' : 'Volgare'}
             </span>
           </div>
         </header>

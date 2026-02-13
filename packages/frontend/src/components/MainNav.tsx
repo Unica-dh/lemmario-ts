@@ -24,7 +24,7 @@ export default async function MainNav({ lemmarioSlug, lemmarioId, lemmarioTitolo
           <div className="hidden md:flex items-center space-x-6">
             <Link
               href="/"
-              className="label-uppercase link-clean text-text-muted hover:text-text"
+              className="label-uppercase link-clean text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
             >
               Dizionari
             </Link>
@@ -34,7 +34,7 @@ export default async function MainNav({ lemmarioSlug, lemmarioId, lemmarioTitolo
               <Link
                 key={contenuto.id}
                 href={`/pagine/${contenuto.slug}`}
-                className="label-uppercase link-clean text-text-muted hover:text-text"
+                className="label-uppercase link-clean text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
               >
                 {contenuto.titolo}
               </Link>
@@ -43,12 +43,12 @@ export default async function MainNav({ lemmarioSlug, lemmarioId, lemmarioTitolo
             {/* Lemmario-specific static content links */}
             {contenutiLemmario.length > 0 && lemmarioSlug && (
               <>
-                <span className="text-border">·</span>
+                <span className="text-[var(--color-border)]">·</span>
                 {contenutiLemmario.map((contenuto) => (
                   <Link
                     key={contenuto.id}
                     href={`/${lemmarioSlug}/pagine/${contenuto.slug}`}
-                    className="label-uppercase link-clean text-text hover:text-text-body font-medium"
+                    className="label-uppercase link-clean text-[var(--color-text)] hover:text-[var(--color-text-body)] font-medium"
                     title={`Contenuto specifico per ${lemmarioTitolo || 'questo lemmario'}`}
                   >
                     {contenuto.titolo}
@@ -62,7 +62,7 @@ export default async function MainNav({ lemmarioSlug, lemmarioId, lemmarioTitolo
           <div className="flex items-center space-x-4 ml-auto">
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden text-text-muted hover:text-text"
+              className="md:hidden text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
               aria-label="Menu"
             >
               <svg
