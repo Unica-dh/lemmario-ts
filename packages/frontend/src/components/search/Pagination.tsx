@@ -5,16 +5,12 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 interface PaginationProps {
   currentPage: number
   totalPages: number
-  totalItems: number
-  itemsPerPage: number
   className?: string
 }
 
 export function Pagination({
   currentPage,
   totalPages,
-  totalItems,
-  itemsPerPage,
   className = '',
 }: PaginationProps) {
   const router = useRouter()
@@ -27,39 +23,22 @@ export function Pagination({
     router.push(`${pathname}?${params.toString()}`, { scroll: true })
   }
 
-  // Calculate range of items shown
-  const startItem = (currentPage - 1) * itemsPerPage + 1
-  const endItem = Math.min(currentPage * itemsPerPage, totalItems)
+  const getPageNumbers = (): (number | 'ellipsis')[] => {
+    const pages: (number | 'ellipsis')[] = []
 
-  // Generate page numbers to show
-  const getPageNumbers = (): (number | string)[] => {
-    const pages: (number | string)[] = []
-    const maxPagesToShow = 7
-
-    if (totalPages <= maxPagesToShow) {
-      // Show all pages
+    if (totalPages <= 7) {
       for (let i = 1; i <= totalPages; i++) {
         pages.push(i)
       }
     } else {
-      // Show first, last, current, and nearby pages with ellipsis
       pages.push(1)
+      if (currentPage > 3) pages.push('ellipsis')
 
-      if (currentPage > 3) {
-        pages.push('...')
-      }
-
-      const startPage = Math.max(2, currentPage - 1)
-      const endPage = Math.min(totalPages - 1, currentPage + 1)
-
-      for (let i = startPage; i <= endPage; i++) {
+      for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
         pages.push(i)
       }
 
-      if (currentPage < totalPages - 2) {
-        pages.push('...')
-      }
-
+      if (currentPage < totalPages - 2) pages.push('ellipsis')
       pages.push(totalPages)
     }
 
@@ -71,90 +50,68 @@ export function Pagination({
   }
 
   return (
-    <div className={`flex flex-col sm:flex-row items-center justify-between gap-4 ${className}`} data-testid="pagination">
-      {/* Results info */}
-      <div className="text-sm text-gray-700">
-        Risultati <span className="font-semibold">{startItem}</span> -{' '}
-        <span className="font-semibold">{endItem}</span> di{' '}
-        <span className="font-semibold">{totalItems}</span>
-      </div>
-
-      {/* Page buttons */}
-      <nav className="flex items-center gap-1" aria-label="Paginazione">
-        {/* Previous button */}
+    <nav
+      className={`flex items-center justify-center space-x-6 mt-12 pt-8 border-t border-[var(--color-border)] ${className}`}
+      aria-label="Paginazione"
+      data-testid="pagination"
+    >
+      {/* Previous */}
+      {currentPage > 1 ? (
         <button
           onClick={() => goToPage(currentPage - 1)}
-          disabled={currentPage === 1}
-          className={`
-            px-3 py-2 rounded-lg font-medium transition-colors
-            ${
-              currentPage === 1
-                ? 'text-gray-400 cursor-not-allowed'
-                : 'text-gray-700 hover:bg-gray-100'
-            }
-          `}
+          className="label-uppercase text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
           aria-label="Pagina precedente"
           data-testid="prev-page"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
+          Precedente
         </button>
+      ) : (
+        <span className="label-uppercase text-xs text-[var(--color-text-disabled)] cursor-not-allowed">
+          Precedente
+        </span>
+      )}
 
-        {/* Page numbers */}
-        {getPageNumbers().map((page, index) => {
-          if (page === '...') {
-            return (
-              <span key={`ellipsis-${index}`} className="px-3 py-2 text-gray-500">
-                ...
-              </span>
-            )
-          }
-
-          const pageNum = page as number
-          const isActive = pageNum === currentPage
-
-          return (
+      {/* Page numbers */}
+      <div className="flex items-center space-x-4">
+        {getPageNumbers().map((page, idx) =>
+          page === 'ellipsis' ? (
+            <span key={`ellipsis-${idx}`} className="text-[var(--color-text-muted)]">
+              &hellip;
+            </span>
+          ) : (
             <button
-              key={pageNum}
-              onClick={() => goToPage(pageNum)}
-              className={`
-                px-3 py-2 rounded-lg font-medium transition-colors min-w-[40px]
-                ${
-                  isActive
-                    ? 'bg-primary-600 text-white'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }
-              `}
-              aria-label={`Pagina ${pageNum}`}
-              aria-current={isActive ? 'page' : undefined}
-              data-testid={`page-${pageNum}`}
+              key={page}
+              onClick={() => goToPage(page)}
+              className={`label-uppercase text-xs transition-colors ${
+                page === currentPage
+                  ? 'text-[var(--color-text)] font-bold'
+                  : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
+              }`}
+              aria-label={`Pagina ${page}`}
+              aria-current={page === currentPage ? 'page' : undefined}
+              data-testid={`page-${page}`}
             >
-              {pageNum}
+              {page}
             </button>
           )
-        })}
+        )}
+      </div>
 
-        {/* Next button */}
+      {/* Next */}
+      {currentPage < totalPages ? (
         <button
           onClick={() => goToPage(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          className={`
-            px-3 py-2 rounded-lg font-medium transition-colors
-            ${
-              currentPage === totalPages
-                ? 'text-gray-400 cursor-not-allowed'
-                : 'text-gray-700 hover:bg-gray-100'
-            }
-          `}
+          className="label-uppercase text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
           aria-label="Pagina successiva"
           data-testid="next-page"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
+          Successiva
         </button>
-      </nav>
-    </div>
+      ) : (
+        <span className="label-uppercase text-xs text-[var(--color-text-disabled)] cursor-not-allowed">
+          Successiva
+        </span>
+      )}
+    </nav>
   )
 }

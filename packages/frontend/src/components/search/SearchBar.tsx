@@ -10,7 +10,7 @@ interface SearchBarProps {
 }
 
 export function SearchBar({
-  placeholder = 'Cerca un lemma...',
+  placeholder = 'Cerca un termine nel glossario...',
   debounceMs = 300,
   className = '',
 }: SearchBarProps) {
@@ -19,14 +19,14 @@ export function SearchBar({
   const searchParams = useSearchParams()
   const [searchValue, setSearchValue] = useState(searchParams.get('q') || '')
 
-  // Debounced search with useCallback
   const updateSearchParam = useCallback(
     (value: string) => {
       const params = new URLSearchParams(searchParams.toString())
-      
+
       if (value.trim()) {
         params.set('q', value.trim())
-        params.set('page', '1') // Reset to page 1 on new search
+        params.delete('lettera')
+        params.delete('page')
       } else {
         params.delete('q')
       }
@@ -36,7 +36,6 @@ export function SearchBar({
     [pathname, router, searchParams]
   )
 
-  // Debounce effect
   useEffect(() => {
     const timer = setTimeout(() => {
       if (searchValue !== (searchParams.get('q') || '')) {
@@ -55,11 +54,11 @@ export function SearchBar({
   }
 
   return (
-    <div className={`relative ${className}`} data-testid="search-bar">
+    <div className={`max-w-2xl mx-auto ${className}`} data-testid="search-bar">
       <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none">
           <svg
-            className="h-5 w-5 text-gray-400"
+            className="h-5 w-5 text-[var(--color-text-muted)]"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -73,13 +72,13 @@ export function SearchBar({
             />
           </svg>
         </div>
-        
+
         <input
           type="search"
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
           placeholder={placeholder}
-          className="block w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-white text-gray-900 placeholder-gray-500"
+          className="w-full pl-8 pr-10 py-3 bg-transparent border-0 border-b-2 border-[var(--color-border)] font-sans text-base text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-text)] transition-colors"
           data-testid="search-input"
           aria-label="Cerca lemmi"
         />
@@ -87,32 +86,16 @@ export function SearchBar({
         {searchValue && (
           <button
             onClick={handleClear}
-            className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+            className="absolute inset-y-0 right-0 flex items-center text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
             aria-label="Cancella ricerca"
             data-testid="clear-search"
           >
-            <svg
-              className="h-5 w-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         )}
       </div>
-
-      {searchValue && (
-        <div className="mt-2 text-sm text-gray-600" data-testid="search-info">
-          Ricerca: <span className="font-semibold">{searchValue}</span>
-        </div>
-      )}
     </div>
   )
 }
