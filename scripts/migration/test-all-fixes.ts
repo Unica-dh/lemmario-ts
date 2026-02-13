@@ -197,6 +197,63 @@ missingFonti.forEach(fonte => {
 
 console.log()
 
+// ===== FIX 9: Varianti grafiche =====
+console.log('--- FIX 9: Varianti grafiche dal titolo ---')
+
+// Test positivo: libra,_livra.html → variante "Livra"
+totalTests++
+{
+  const html = fs.readFileSync(path.join(OLD_WEBSITE_PATH, 'lemmi', 'libra,_livra.html'), 'utf-8')
+  const parsed = parseLemmaHTML(html, 'libra', 'volgare')
+  if (parsed.varianti.length === 1 && parsed.varianti[0] === 'Livra') {
+    passedTests++
+    console.log(`✅ libra,_livra.html -> 1 variante "Livra"`)
+  } else {
+    console.log(`❌ libra,_livra.html: attesa 1 variante "Livra", ottenute ${parsed.varianti.length}: ${JSON.stringify(parsed.varianti)}`)
+  }
+}
+
+// Test positivo: osservagione,_osservazione.html → variante "Osservazione"
+totalTests++
+{
+  const html = fs.readFileSync(path.join(OLD_WEBSITE_PATH, 'lemmi', 'osservagione,_osservazione.html'), 'utf-8')
+  const parsed = parseLemmaHTML(html, 'observagione', 'volgare')
+  if (parsed.varianti.length === 1 && parsed.varianti[0] === 'Osservazione') {
+    passedTests++
+    console.log(`✅ osservagione,_osservazione.html -> 1 variante "Osservazione"`)
+  } else {
+    console.log(`❌ osservagione,_osservazione.html: attesa 1 variante "Osservazione", ottenute ${parsed.varianti.length}: ${JSON.stringify(parsed.varianti)}`)
+  }
+}
+
+// Test negativo: forma.html (latino con CFR nel titolo) → 0 varianti
+totalTests++
+{
+  const html = fs.readFileSync(path.join(OLD_WEBSITE_PATH, 'lemmi', 'forma.html'), 'utf-8')
+  const parsed = parseLemmaHTML(html, 'forma', 'latino')
+  if (parsed.varianti.length === 0) {
+    passedTests++
+    console.log(`✅ forma.html -> 0 varianti (CFR nel titolo non conta)`)
+  } else {
+    console.log(`❌ forma.html: attese 0 varianti, ottenute ${parsed.varianti.length}: ${JSON.stringify(parsed.varianti)}`)
+  }
+}
+
+// Test negativo: algebra.html (titolo semplice) → 0 varianti
+totalTests++
+{
+  const html = fs.readFileSync(path.join(OLD_WEBSITE_PATH, 'lemmi', 'algebra.html'), 'utf-8')
+  const parsed = parseLemmaHTML(html, 'algebra', 'volgare')
+  if (parsed.varianti.length === 0) {
+    passedTests++
+    console.log(`✅ algebra.html -> 0 varianti (titolo semplice)`)
+  } else {
+    console.log(`❌ algebra.html: attese 0 varianti, ottenute ${parsed.varianti.length}: ${JSON.stringify(parsed.varianti)}`)
+  }
+}
+
+console.log()
+
 // Carica indice per scansioni globali (CFR + statistiche)
 const indicePath = path.join(OLD_WEBSITE_PATH, 'indice.json')
 const indice = JSON.parse(fs.readFileSync(indicePath, 'utf-8')).lemmi as Array<{nome: string, tipo: 'volgare' | 'latino', file: string}>
@@ -295,7 +352,9 @@ console.log('--- SCANSIONE COMPLETA: Statistiche globali ---')
 let totalDef = 0
 let totalRic = 0
 let totalIgnorato = 0
+let totalVarianti = 0
 let lemmiWithIgnorato = 0
+let lemmiWithVarianti = 0
 
 for (const entry of indice) {
   const htmlPath = path.join(OLD_WEBSITE_PATH, 'lemmi', entry.file)
@@ -307,12 +366,15 @@ for (const entry of indice) {
   totalDef += parsed.definizioni.length
   totalRic += parsed.definizioni.reduce((sum, d) => sum + d.ricorrenze.length, 0)
   totalIgnorato += parsed.contenuto_ignorato.length
+  totalVarianti += parsed.varianti.length
   if (parsed.contenuto_ignorato.length > 0) lemmiWithIgnorato++
+  if (parsed.varianti.length > 0) lemmiWithVarianti++
 }
 
 console.log(`Lemmi totali processati: ${indice.length}`)
 console.log(`Definizioni totali: ${totalDef} (prima: 430)`)
 console.log(`Ricorrenze totali: ${totalRic} (prima: 555)`)
+console.log(`Varianti grafiche totali: ${totalVarianti} (lemmi con varianti: ${lemmiWithVarianti})`)
 console.log(`Contenuti ignorati: ${totalIgnorato} (prima: 33)`)
 console.log(`Lemmi con contenuto ignorato: ${lemmiWithIgnorato}`)
 

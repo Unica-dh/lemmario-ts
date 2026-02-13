@@ -1,5 +1,5 @@
 import { CollectionConfig } from 'payload/types'
-import { hasLemmarioAccess, public_ } from '../access'
+import { canCreateInLemmario, hasLemmarioAccess } from '../access'
 import { createAuditTrail, createAuditTrailDelete } from '../hooks'
 import LemmaEditView from '../admin/views/LemmaEdit'
 
@@ -15,7 +15,7 @@ import LemmaEditView from '../admin/views/LemmaEdit'
  * - 1 Lemma → N RiferimentiIncrociati
  *
  * Access Control:
- * - Create: hasLemmarioAccess (admin/redattore del lemmario)
+ * - Create: canCreateInLemmario (admin/redattore del lemmario)
  * - Read: pubblico (solo se pubblicato=true)
  * - Update/Delete: hasLemmarioAccess
  */
@@ -38,8 +38,7 @@ export const Lemmi: CollectionConfig = {
     },
   },
   access: {
-    // Create: temporarily public for migration
-    create: public_,
+    create: canCreateInLemmario,
     // Read: pubblico (solo pubblicati) o hasLemmarioAccess (anche non pubblicati)
     read: ({ req: { user } }) => {
       // Se non autenticato, mostra solo pubblicati

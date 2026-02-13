@@ -12,6 +12,11 @@ import { MigrationStats, MigrationReport, LemmaImportDetail, ParsedCrossReferenc
 const API_URL = process.env.API_URL || 'http://localhost:3000/api'
 const OLD_WEBSITE_PATH = path.join(__dirname, '../../old_website')
 const LEMMARIO_ID = parseInt(process.env.LEMMARIO_ID || '1') // ID del lemmario predefinito
+const MIGRATION_EMAIL = process.env.MIGRATION_EMAIL || ''
+const MIGRATION_PASSWORD = process.env.MIGRATION_PASSWORD || ''
+
+// Token JWT ottenuto dal login
+let authToken: string | null = null
 
 // Mappa per tracciare gli ID delle fonti create
 const fontiMap = new Map<string, number>()
@@ -43,13 +48,47 @@ const fontiMancanti: Set<string> = new Set()
 const contenutiIgnoratiGlobali: string[] = []
 let startTime: number
 
+async function login(): Promise<void> {
+  if (!MIGRATION_EMAIL || !MIGRATION_PASSWORD) {
+    console.warn('⚠️  MIGRATION_EMAIL e MIGRATION_PASSWORD non configurate - le richieste saranno senza autenticazione')
+    return
+  }
+
+  console.log(`🔐 Login come ${MIGRATION_EMAIL}...`)
+  const response = await fetch(`${API_URL}/utenti/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: MIGRATION_EMAIL, password: MIGRATION_PASSWORD }),
+  })
+
+  if (!response.ok) {
+    const error = await response.text()
+    throw new Error(`Login fallito: ${response.status} - ${error}`)
+  }
+
+  const data = await response.json() as { token?: string }
+  authToken = data.token || null
+
+  if (!authToken) {
+    throw new Error('Login riuscito ma nessun token ricevuto')
+  }
+
+  console.log('✅ Login riuscito\n')
+}
+
 async function fetchPayload(endpoint: string, options?: RequestInit) {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options?.headers as Record<string, string>),
+  }
+
+  if (authToken) {
+    headers['Authorization'] = `JWT ${authToken}`
+  }
+
   const response = await fetch(`${API_URL}${endpoint}`, {
     ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options?.headers,
-    },
+    headers,
   })
 
   if (!response.ok) {
@@ -634,6 +673,7 @@ async function main() {
   startTime = Date.now()
 
   try {
+    await login()
     await importFonti()
     await loadLivelliRazionalita()
     const pendingCrossRefs = await importLemmi()

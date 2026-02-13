@@ -27,7 +27,7 @@ services:
     build:
       context: .
       dockerfile: packages/frontend/Dockerfile.dev
-    command: pnpm dev
+    command: pnpm next dev -p 3000
     working_dir: /workspace/packages/frontend
     volumes:
       - ./packages/frontend/src:/workspace/packages/frontend/src
