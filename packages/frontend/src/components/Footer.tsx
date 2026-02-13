@@ -4,7 +4,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="bg-bg border-t border-border mt-auto">
+    <footer className="bg-[var(--color-bg)] border-t border-[var(--color-border)] mt-auto">
       <div className="container mx-auto px-4 py-12">
         {/* Two Column Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16">
@@ -32,7 +32,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom Row: Copyright and Links */}
-        <div className="mt-12 pt-8 border-t border-border text-center">
+        <div className="mt-12 pt-8 border-t border-[var(--color-border)] text-center">
           <p className="label-uppercase text-text-muted">
             <span>&copy; {currentYear} UniCa</span>
             <span className="mx-2">·</span>

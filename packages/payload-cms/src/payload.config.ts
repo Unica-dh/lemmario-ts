@@ -18,6 +18,7 @@ import {
   RiferimentiIncrociati,
   ContenutiStatici,
   StoricoModifiche,
+  Media,
 } from './collections'
 
 // Import Italian translations
@@ -63,6 +64,7 @@ export default buildConfig({
     
     // System Collections
     StoricoModifiche,
+    Media,
   ],
   globals: [
     // Global settings will be added here

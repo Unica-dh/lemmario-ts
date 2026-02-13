@@ -3,6 +3,23 @@
  * These are simplified versions for frontend use
  */
 
+export interface PayloadMedia {
+  id: number
+  alt: string
+  filename: string
+  mimeType: string
+  filesize: number
+  width?: number
+  height?: number
+  url: string
+  sizes?: {
+    thumbnail?: { url: string; width: number; height: number }
+    card?: { url: string; width: number; height: number }
+  }
+  updatedAt: string
+  createdAt: string
+}
+
 export interface LemmarioSEO {
   consenti_ai_crawler?: boolean
   meta_description?: string
@@ -16,6 +33,7 @@ export interface Lemmario {
   periodo_storico?: string
   attivo?: boolean
   ordine?: number
+  foto?: number | PayloadMedia
   configurazione?: Record<string, unknown>
   seo?: LemmarioSEO
   data_pubblicazione?: string

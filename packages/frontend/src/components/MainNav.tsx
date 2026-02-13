@@ -17,7 +17,7 @@ export default async function MainNav({ lemmarioSlug, lemmarioId, lemmarioTitolo
     : []
 
   return (
-    <nav className="bg-bg border-b border-border sticky top-11 z-40">
+    <nav className="bg-[var(--color-bg)] border-b border-[var(--color-border)] sticky top-11 z-40">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           {/* Navigation Links */}

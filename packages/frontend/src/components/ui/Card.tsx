@@ -1,6 +1,6 @@
 /**
  * Card Component
- * Reusable card container with consistent styling
+ * Reusable card container with design system styling
  */
 
 import React from 'react'
@@ -13,19 +13,19 @@ interface CardProps {
   'data-testid'?: string
 }
 
-export function Card({ 
-  children, 
-  className = '', 
+export function Card({
+  children,
+  className = '',
   hover = false,
   'data-testid': testId
 }: CardProps) {
-  const hoverClasses = hover 
-    ? 'hover:shadow-lg hover:border-primary-300 transition-all duration-200' 
+  const hoverClasses = hover
+    ? 'hover:bg-[var(--color-bg-subtle)] transition-colors duration-200'
     : ''
 
   return (
-    <div 
-      className={`bg-white border border-gray-200 rounded-lg ${hoverClasses} ${className}`}
+    <div
+      className={`bg-[var(--color-bg)] border border-[var(--color-border)] rounded-lg ${hoverClasses} ${className}`}
       data-testid={testId}
     >
       {children}
@@ -40,16 +40,16 @@ interface CardLinkProps {
   'data-testid'?: string
 }
 
-export function CardLink({ 
-  href, 
-  children, 
+export function CardLink({
+  href,
+  children,
   className = '',
   'data-testid': testId
 }: CardLinkProps) {
   return (
-    <Link 
+    <Link
       href={href}
-      className={`block bg-white border border-gray-200 rounded-lg hover:shadow-lg hover:border-primary-300 transition-all duration-200 ${className}`}
+      className={`block bg-[var(--color-bg)] border border-[var(--color-border)] rounded-lg hover:bg-[var(--color-bg-subtle)] transition-colors duration-200 ${className}`}
       data-testid={testId}
     >
       {children}

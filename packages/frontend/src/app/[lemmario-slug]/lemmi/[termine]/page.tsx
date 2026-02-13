@@ -242,11 +242,11 @@ export default async function LemmaPage({ params, searchParams }: PageProps) {
               )}
             </h1>
             <div className="flex items-center gap-3">
-              <Badge variant={lemma.tipo === 'latino' ? 'primary' : 'success'} size="lg">
-                {lemma.tipo === 'latino' ? 'Latino' : 'Volgare'}
+              <Badge variant="default" size="lg">
+                {lemma.tipo === 'latino' ? 'Latine' : 'Volgare'}
               </Badge>
               {lemma.status === 'published' && (
-                <Badge variant="info" size="sm">
+                <Badge variant="muted" size="sm">
                   Pubblicato
                 </Badge>
               )}
