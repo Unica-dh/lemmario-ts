@@ -12,6 +12,18 @@ const nextConfig = {
         pathname: '/media/**',
       },
       {
+        protocol: 'http',
+        hostname: 'payload',
+        port: '3000',
+        pathname: '/media/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '90.147.144.147',
+        port: '3000',
+        pathname: '/media/**',
+      },
+      {
         protocol: 'https',
         hostname: 'glossari.dh.unica.it',
         pathname: '/media/**',

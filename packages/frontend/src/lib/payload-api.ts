@@ -72,10 +72,12 @@ export async function getLemmari(options?: {
   page?: number
   where?: Record<string, unknown>
   sort?: string
+  depth?: number
 }): Promise<PaginatedResponse<Lemmario>> {
   const params: Record<string, string | number> = {
     limit: options?.limit || 10,
     page: options?.page || 1,
+    depth: options?.depth ?? 1,
   }
 
   if (options?.where) {
