@@ -88,8 +88,8 @@ export function MobileMenu({ links }: MobileMenuProps) {
             {/* Navigation links */}
             <nav className="p-4">
               <ul className="space-y-1">
-                {links.map((link, index) => (
-                  <li key={index}>
+                {links.map((link) => (
+                  <li key={link.href}>
                     <Link
                       href={link.href}
                       className={`block px-3 py-2 rounded-md label-uppercase transition-colors ${

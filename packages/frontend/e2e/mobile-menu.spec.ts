@@ -52,9 +52,10 @@ test.describe('Mobile Menu', () => {
     const drawer = page.getByTestId('mobile-menu-drawer')
     await expect(drawer).toBeVisible()
 
-    // Clicca sull'overlay (fuori dal drawer)
+    // Clicca sull'overlay usando force per bypassare il drawer che potrebbe coprire parte dell'overlay
     const overlay = page.getByTestId('mobile-menu-overlay')
-    await overlay.click({ position: { x: 10, y: 10 } })
+    // Click near the left edge where the overlay is definitely not covered by the drawer
+    await page.mouse.click(10, 300)
 
     // Verifica che il drawer non sia più visibile
     await expect(drawer).not.toBeVisible()
