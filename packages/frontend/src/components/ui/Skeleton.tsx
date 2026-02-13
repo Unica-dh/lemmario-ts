@@ -12,14 +12,14 @@ interface SkeletonProps {
   height?: string | number
 }
 
-export function Skeleton({ 
-  className = '', 
+export function Skeleton({
+  className = '',
   variant = 'rectangular',
   width,
-  height 
+  height
 }: SkeletonProps) {
-  const baseClasses = 'animate-pulse bg-gray-200'
-  
+  const baseClasses = 'animate-pulse bg-[var(--color-bg-subtle)]'
+
   const variantClasses = {
     text: 'h-4 rounded',
     rectangular: 'rounded-lg',
@@ -32,7 +32,7 @@ export function Skeleton({
   }
 
   return (
-    <div 
+    <div
       className={`${baseClasses} ${variantClasses[variant]} ${className}`}
       style={style}
       data-testid="skeleton"
@@ -46,8 +46,8 @@ interface SkeletonCardProps {
 
 export function SkeletonCard({ className = '' }: SkeletonCardProps) {
   return (
-    <div 
-      className={`bg-white border border-gray-200 rounded-lg p-6 ${className}`}
+    <div
+      className={`bg-[var(--color-bg)] border border-[var(--color-border)] rounded-lg p-6 ${className}`}
       data-testid="skeleton-card"
     >
       <Skeleton className="h-6 w-3/4 mb-3" />

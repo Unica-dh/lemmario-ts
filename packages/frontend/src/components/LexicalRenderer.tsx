@@ -1,6 +1,6 @@
 /**
- * LexicalRenderer - Simple renderer for Payload Lexical richtext
- * Converts Lexical JSON format to React elements
+ * LexicalRenderer - Renderer for Payload Lexical richtext
+ * Converts Lexical JSON format to React elements with academic styling
  */
 
 export interface LexicalNode {
@@ -28,16 +28,34 @@ interface LexicalRendererProps {
   className?: string
 }
 
+function renderTextNode(node: LexicalNode, index: number): React.ReactNode {
+  let text: React.ReactNode = node.text || ''
+
+  // Handle Lexical text format bitmask
+  const format = typeof node.format === 'number' ? node.format : 0
+  if (format & 1) text = <strong key={`b-${index}`}>{text}</strong>
+  if (format & 2) text = <em key={`i-${index}`}>{text}</em>
+  if (format & 8) text = <s key={`s-${index}`}>{text}</s>
+  if (format & 16) text = <code key={`c-${index}`} className="px-1.5 py-0.5 bg-[var(--color-bg-subtle)] text-sm rounded">{text}</code>
+
+  return text
+}
+
 function renderNode(node: LexicalNode, index: number): React.ReactNode {
   // Text node
   if (node.type === 'text') {
-    return node.text || ''
+    return renderTextNode(node, index)
+  }
+
+  // Line break
+  if (node.type === 'linebreak') {
+    return <br key={index} />
   }
 
   // Paragraph
   if (node.type === 'paragraph') {
     return (
-      <p key={index} className="mb-4">
+      <p key={index} className="font-sans text-base text-[var(--color-text-body)] leading-relaxed mb-5">
         {node.children?.map((child, i) => renderNode(child, i))}
       </p>
     )
@@ -46,7 +64,9 @@ function renderNode(node: LexicalNode, index: number): React.ReactNode {
   // Headings
   if (node.type === 'heading') {
     const Tag = (node.tag || 'h2') as keyof JSX.IntrinsicElements
-    const className = Tag === 'h2' ? 'text-3xl font-bold mb-4 mt-8' : 'text-2xl font-bold mb-3 mt-6'
+    const className = Tag === 'h2'
+      ? 'font-serif text-2xl font-bold text-[var(--color-text)] mb-4 mt-10'
+      : 'font-serif text-xl font-bold text-[var(--color-text)] mb-3 mt-8'
     return (
       <Tag key={index} className={className}>
         {node.children?.map((child, i) => renderNode(child, i))}
@@ -54,11 +74,27 @@ function renderNode(node: LexicalNode, index: number): React.ReactNode {
     )
   }
 
+  // Blockquote
+  if (node.type === 'quote') {
+    return (
+      <blockquote
+        key={index}
+        className="pl-5 border-l-2 border-[var(--color-border)] my-6 font-serif italic text-[var(--color-text-body)]"
+      >
+        {node.children?.map((child, i) => renderNode(child, i))}
+      </blockquote>
+    )
+  }
+
   // List
   if (node.type === 'list') {
-    const ListTag = node.tag === 'ol' ? 'ol' : 'ul'
+    const isOrdered = node.tag === 'ol'
+    const ListTag = isOrdered ? 'ol' : 'ul'
     return (
-      <ListTag key={index} className="list-disc list-inside mb-4 space-y-2">
+      <ListTag
+        key={index}
+        className={`mb-5 space-y-1.5 pl-6 ${isOrdered ? 'list-decimal' : 'list-disc'} text-[var(--color-text-body)]`}
+      >
         {node.children?.map((child, i) => renderNode(child, i))}
       </ListTag>
     )
@@ -67,7 +103,7 @@ function renderNode(node: LexicalNode, index: number): React.ReactNode {
   // List item
   if (node.type === 'listitem') {
     return (
-      <li key={index} className="ml-4">
+      <li key={index} className="font-sans text-base leading-relaxed">
         {node.children?.map((child, i) => renderNode(child, i))}
       </li>
     )
@@ -75,11 +111,14 @@ function renderNode(node: LexicalNode, index: number): React.ReactNode {
 
   // Link
   if (node.type === 'link') {
+    const url = (node as unknown as { url?: string }).url || '#'
     return (
       <a
         key={index}
-        href={(node as unknown as { url?: string }).url || '#'}
-        className="text-primary-600 hover:underline"
+        href={url}
+        className="text-[var(--color-text)] underline underline-offset-2 decoration-[var(--color-border)] hover:decoration-[var(--color-text)] transition-colors"
+        target={url.startsWith('http') ? '_blank' : undefined}
+        rel={url.startsWith('http') ? 'noopener noreferrer' : undefined}
       >
         {node.children?.map((child, i) => renderNode(child, i))}
       </a>
@@ -100,7 +139,7 @@ export function LexicalRenderer({ content, className = '' }: LexicalRendererProp
   }
 
   return (
-    <div className={`prose prose-lg max-w-none ${className}`}>
+    <div className={`max-w-none ${className}`}>
       {content.root.children.map((node, index) => renderNode(node, index))}
     </div>
   )

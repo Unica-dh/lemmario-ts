@@ -60,11 +60,11 @@ export function LemmiList({ lemmi, lemmarioSlug, crossRefMap, className = '' }: 
                     {lemma.termine}
                   </h3>
                   <Badge
-                    variant={lemma.tipo === 'latino' ? 'primary' : 'success'}
+                    variant="default"
                     size="sm"
                     data-testid="lemma-type"
                   >
-                    {lemma.tipo === 'latino' ? 'Latino' : 'Volgare'}
+                    {lemma.tipo === 'latino' ? 'Latine' : 'Volgare'}
                   </Badge>
                   {crossRefs && crossRefs.map((ref) => (
                     <span
@@ -90,7 +90,7 @@ export function LemmiList({ lemmi, lemmarioSlug, crossRefMap, className = '' }: 
                 {lemma.status && (
                   <div className="flex items-center gap-2">
                     <Badge
-                      variant={lemma.status === 'published' ? 'success' : 'warning'}
+                      variant={lemma.status === 'published' ? 'muted' : 'warning'}
                       size="sm"
                     >
                       {lemma.status === 'published' ? 'Pubblicato' : 'Bozza'}

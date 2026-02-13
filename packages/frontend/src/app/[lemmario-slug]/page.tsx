@@ -1,14 +1,16 @@
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
-import { getLemmarioBySlug, getLemmi, getCrossReferenceMap } from '@/lib/payload-api'
+import { getLemmarioBySlug, getLemmi, getDefinizioniByLemma, getRicorrenzeByDefinizioniIds } from '@/lib/payload-api'
 import { SearchBar } from '@/components/search/SearchBar'
-import { FilterBar } from '@/components/search/FilterBar'
 import { Pagination } from '@/components/search/Pagination'
-import { LemmiList } from '@/components/lemmi/LemmiList'
+import { LemmaCard } from '@/components/lemmi/LemmaCard'
+import { AlphabetSidebar } from '@/components/ui/AlphabetSidebar'
+import { AlphabetDrawer } from '@/components/ui/AlphabetDrawer'
 import type { Metadata } from 'next'
+import type { Definizione } from '@/types/payload'
 
-// Force dynamic rendering
 export const dynamic = 'force-dynamic'
+
+const ITEMS_PER_PAGE = 16
 
 interface PageProps {
   params: {
@@ -16,7 +18,7 @@ interface PageProps {
   }
   searchParams: {
     page?: string
-    tipo?: 'latino' | 'volgare'
+    lettera?: string
     q?: string
   }
 }
@@ -25,13 +27,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const lemmario = await getLemmarioBySlug(params['lemmario-slug'])
 
   if (!lemmario) {
-    return {
-      title: 'Lemmario non trovato',
-    }
+    return { title: 'Lemmario non trovato' }
   }
 
   return {
-    title: `${lemmario.titolo} - Lemmi`,
+    title: `${lemmario.titolo} - Glossario`,
     description: lemmario.descrizione || `Esplora i lemmi del ${lemmario.titolo}`,
   }
 }
@@ -44,166 +44,227 @@ export default async function LemmarioPage({ params, searchParams }: PageProps) 
   }
 
   const page = parseInt(searchParams.page || '1', 10)
-  const tipo = searchParams.tipo
+  const letteraAttiva = searchParams.lettera
   const searchQuery = searchParams.q
 
-  // Build base query (only lemmario, no tipo filter due to Payload bug)
-  const where: Record<string, unknown> = {
-    lemmario: { equals: lemmario.id },
-  }
-
-  if (searchQuery) {
-    where.OR = [
-      { termine: { like: searchQuery } },
-    ]
-  }
-
-  const itemsPerPage = 24
-
-  // Fetch ALL lemmi for this lemmario (we'll filter client-side)
-  // Note: This is temporary workaround - Payload tipo filter doesn't work
+  // Fetch ALL lemmi for this lemmario (client-side filtering due to Payload API limitations)
   const allLemmiData = await getLemmi({
-    limit: 500, // Get all lemmi (temp workaround)
+    limit: 500,
     page: 1,
-    where,
+    where: { lemmario: { equals: lemmario.id } },
     depth: 0,
   })
 
-  // Client-side filtering by tipo and search
-  let filteredLemmi = [...allLemmiData.docs].reverse() // Reverse to get A-Z order
+  // Sort A-Z
+  const allLemmi = [...allLemmiData.docs].sort((a, b) =>
+    a.termine.localeCompare(b.termine, 'it')
+  )
 
-  if (tipo) {
-    filteredLemmi = filteredLemmi.filter((lemma) => lemma.tipo === tipo)
+  // Calculate available letters
+  const lettereDisponibili = [...new Set(
+    allLemmi.map((l) => l.termine[0].toUpperCase())
+  )].sort()
+
+  // For search in definitions, fetch definitions for all lemmi
+  // Only when user is actually searching (to avoid unnecessary API calls)
+  let definizioniMap: Map<number, Definizione[]> = new Map()
+  if (searchQuery) {
+    const defPromises = allLemmi.map(async (lemma) => {
+      const defs = await getDefinizioniByLemma(lemma.id)
+      return { lemmaId: lemma.id, defs }
+    })
+    const defResults = await Promise.all(defPromises)
+    definizioniMap = new Map(defResults.map((r) => [r.lemmaId, r.defs]))
   }
 
-  if (searchQuery) {
-    const lowerQuery = searchQuery.toLowerCase()
-    filteredLemmi = filteredLemmi.filter((lemma) =>
-      lemma.termine.toLowerCase().includes(lowerQuery)
+  // Apply filters
+  let filteredLemmi = allLemmi
+
+  // Letter filter
+  if (letteraAttiva && !searchQuery) {
+    filteredLemmi = filteredLemmi.filter(
+      (lemma) => lemma.termine[0].toUpperCase() === letteraAttiva
     )
   }
 
-  // Manual pagination
-  const totalFiltered = filteredLemmi.length
-  const totalPages = Math.ceil(totalFiltered / itemsPerPage)
-  const startIndex = (page - 1) * itemsPerPage
-  const endIndex = startIndex + itemsPerPage
-  const paginatedLemmi = filteredLemmi.slice(startIndex, endIndex)
-
-  // Create paginated response object
-  const lemmiData = {
-    docs: paginatedLemmi,
-    totalDocs: totalFiltered,
-    limit: itemsPerPage,
-    totalPages,
-    page,
-    pagingCounter: startIndex + 1,
-    hasPrevPage: page > 1,
-    hasNextPage: page < totalPages,
-    prevPage: page > 1 ? page - 1 : null,
-    nextPage: page < totalPages ? page + 1 : null,
+  // Search filter (searches in termine + definition text)
+  if (searchQuery) {
+    const lowerQuery = searchQuery.toLowerCase()
+    filteredLemmi = filteredLemmi.filter((lemma) => {
+      if (lemma.termine.toLowerCase().includes(lowerQuery)) return true
+      const defs = definizioniMap.get(lemma.id) || []
+      return defs.some((d) => d.testo?.toLowerCase().includes(lowerQuery))
+    })
   }
 
-  // Fetch cross-reference map for CFR links
-  const crossRefMapRaw = await getCrossReferenceMap()
-  // Convert Map to plain object for serialization (React Server Components)
-  const crossRefMap: Record<number, Array<{ id: number; slug: string; termine: string; tipo: string }>> = {}
-  crossRefMapRaw.forEach((value, key) => {
-    crossRefMap[key] = value
-  })
+  // Pagination
+  const totalFiltered = filteredLemmi.length
+  const totalPages = Math.ceil(totalFiltered / ITEMS_PER_PAGE)
+  const startIndex = (page - 1) * ITEMS_PER_PAGE
+  const paginatedLemmi = filteredLemmi.slice(startIndex, startIndex + ITEMS_PER_PAGE)
 
-  // Calculate counts for filters
-  const allCount = allLemmiData.totalDocs
-  const latinoCount = allLemmiData.docs.filter((l) => l.tipo === 'latino').length
-  const volgareCount = allLemmiData.docs.filter((l) => l.tipo === 'volgare').length
+  // Fetch definition previews for paginated lemmi (for card display)
+  const previewPromises = paginatedLemmi.map(async (lemma) => {
+    // Re-use definitions from search if available
+    if (definizioniMap.has(lemma.id)) {
+      const defs = definizioniMap.get(lemma.id) || []
+      return {
+        lemmaId: lemma.id,
+        preview: defs[0]?.testo || '',
+        defCount: defs.length,
+        defIds: defs.map(d => d.id),
+      }
+    }
+    const defs = await getDefinizioniByLemma(lemma.id)
+    return {
+      lemmaId: lemma.id,
+      preview: defs[0]?.testo || '',
+      defCount: defs.length,
+      defIds: defs.map(d => d.id),
+    }
+  })
+  const previews = await Promise.all(previewPromises)
+  const previewMap = new Map(previews.map((p) => [p.lemmaId, p]))
+
+  // Fetch ricorrenze to count distinct fonti per lemma
+  const allDefIds = previews.flatMap(p => p.defIds)
+  const ricorrenzeMap = allDefIds.length > 0
+    ? await getRicorrenzeByDefinizioniIds(allDefIds)
+    : new Map()
+
+  const fontiCountMap = new Map<number, number>()
+  for (const preview of previews) {
+    const fontiSet = new Set<number>()
+    for (const defId of preview.defIds) {
+      const ricorrenze = ricorrenzeMap.get(defId) || []
+      for (const r of ricorrenze) {
+        const fonteId = typeof r.fonte === 'number' ? r.fonte : r.fonte?.id
+        if (fonteId) fontiSet.add(fonteId)
+      }
+    }
+    fontiCountMap.set(preview.lemmaId, fontiSet.size)
+  }
+
+  // Subtitle text
+  const subtitleParts: string[] = []
+  if (letteraAttiva && !searchQuery) {
+    subtitleParts.push(`Sezione: ${letteraAttiva}`)
+  }
+  subtitleParts.push(`${totalFiltered} lemmi catalogati`)
+  const subtitle = subtitleParts.join(' \u2014 ')
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Breadcrumb */}
-      <nav className="mb-6 text-sm text-gray-600" aria-label="Breadcrumb">
-        <ol className="flex items-center gap-2">
-          <li>
-            <Link href="/" className="hover:text-primary-600">
-              Home
-            </Link>
-          </li>
-          <li aria-hidden="true">/</li>
-          <li aria-current="page" className="text-gray-900 font-medium">
+    <div className="relative">
+      {/* Alphabet sidebar (desktop) */}
+      <AlphabetSidebar
+        lettereDisponibili={lettereDisponibili}
+        letteraAttiva={letteraAttiva}
+      />
+
+      {/* Alphabet drawer (mobile) */}
+      <AlphabetDrawer
+        lettereDisponibili={lettereDisponibili}
+        letteraAttiva={letteraAttiva}
+      />
+
+      {/* Main content */}
+      <div className="container mx-auto px-4 py-12">
+        {/* Hero */}
+        <header className="mb-8 text-center">
+          <h1 className="font-serif text-4xl md:text-5xl font-bold text-[var(--color-text)] mb-3">
             {lemmario.titolo}
-          </li>
-        </ol>
-      </nav>
+          </h1>
+          <p className="label-uppercase text-[var(--color-text-muted)]">
+            {subtitle}
+          </p>
+          <div className="mt-6 border-t border-[var(--color-border)]" />
+        </header>
 
-      {/* Header */}
-      <header className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">{lemmario.titolo}</h1>
-        {lemmario.descrizione && (
-          <p className="text-xl text-gray-600 mb-4">{lemmario.descrizione}</p>
-        )}
-        <div className="flex flex-wrap gap-4 text-sm text-gray-600">
-          {lemmario.periodo_storico && (
-            <div>
-              <span className="font-semibold">Periodo storico:</span>{' '}
-              {lemmario.periodo_storico}
-            </div>
-          )}
-          {lemmario.data_pubblicazione && (
-            <div>
-              <span className="font-semibold">Pubblicato:</span>{' '}
-              {new Date(lemmario.data_pubblicazione).toLocaleDateString('it-IT')}
-            </div>
-          )}
-          <div>
-            <span className="font-semibold">Lemmi totali:</span> {allCount}
+        {/* Search */}
+        <div className="mb-12">
+          <SearchBar />
+        </div>
+
+        {/* Search results info */}
+        {searchQuery && (
+          <div className="text-center mb-8 text-sm text-[var(--color-text-muted)]">
+            {totalFiltered > 0 ? (
+              <>
+                Trovati <span className="font-semibold">{totalFiltered}</span> risultati
+                per &ldquo;<span className="font-semibold">{searchQuery}</span>&rdquo;
+              </>
+            ) : (
+              <>
+                Nessun risultato per &ldquo;
+                <span className="font-semibold">{searchQuery}</span>&rdquo;
+              </>
+            )}
           </div>
-        </div>
-      </header>
+        )}
 
-      {/* Search and Filters */}
-      <div className="mb-6 space-y-4">
-        <SearchBar placeholder="Cerca un lemma per termine..." />
-        
-        <FilterBar
-          showCount
-          counts={{
-            tutti: allCount,
-            latino: latinoCount,
-            volgare: volgareCount,
-          }}
-        />
+        {/* Lemma grid */}
+        {paginatedLemmi.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-0 divide-y divide-[var(--color-border)] md:divide-y-0">
+            {paginatedLemmi.map((lemma) => {
+              const preview = previewMap.get(lemma.id)
+              return (
+                <div
+                  key={lemma.id}
+                  className="border-b border-[var(--color-border)] md:border-b-0 md:border-b md:border-[var(--color-border)]"
+                >
+                  <LemmaCard
+                    termine={lemma.termine}
+                    slug={lemma.slug}
+                    tipo={lemma.tipo}
+                    lemmarioSlug={lemmario.slug}
+                    definitionPreview={preview?.preview}
+                    defCount={preview?.defCount || 0}
+                    fontiCount={fontiCountMap.get(lemma.id) || 0}
+                  />
+                </div>
+              )
+            })}
+          </div>
+        ) : (
+          <EmptyState searchQuery={searchQuery} letteraAttiva={letteraAttiva} />
+        )}
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+          />
+        )}
       </div>
+    </div>
+  )
+}
 
-      {/* Results info */}
-      {searchQuery && (
-        <div className="mb-4 text-sm text-gray-600">
-          {lemmiData.totalDocs > 0 ? (
-            <>
-              Trovati <span className="font-semibold">{lemmiData.totalDocs}</span> risultati
-              per &ldquo;<span className="font-semibold">{searchQuery}</span>&rdquo;
-            </>
-          ) : (
-            <>
-              Nessun risultato per &ldquo;
-              <span className="font-semibold">{searchQuery}</span>&rdquo;
-            </>
-          )}
-        </div>
-      )}
-
-      {/* Lemmi List */}
-      <div className="bg-white border border-gray-200 rounded-lg mb-6">
-        <LemmiList lemmi={lemmiData.docs} lemmarioSlug={lemmario.slug} crossRefMap={crossRefMap} />
-      </div>
-
-      {/* Pagination */}
-      {lemmiData.totalPages > 1 && (
-        <Pagination
-          currentPage={page}
-          totalPages={lemmiData.totalPages}
-          totalItems={lemmiData.totalDocs}
-          itemsPerPage={itemsPerPage}
+function EmptyState({ searchQuery, letteraAttiva }: { searchQuery?: string; letteraAttiva?: string }) {
+  return (
+    <div className="text-center py-16" data-testid="empty-state">
+      <svg
+        className="mx-auto h-12 w-12 text-[var(--color-text-disabled)]"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth={1.5}
+          d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
         />
-      )}
+      </svg>
+      <h3 className="mt-4 font-serif text-lg text-[var(--color-text)]">Nessun lemma trovato</h3>
+      <p className="mt-2 text-sm text-[var(--color-text-muted)]">
+        {searchQuery
+          ? 'Prova a modificare la ricerca.'
+          : letteraAttiva
+            ? `Nessun lemma inizia per "${letteraAttiva}".`
+            : 'Prova a modificare i filtri.'}
+      </p>
     </div>
   )
 }

@@ -102,6 +102,15 @@ export const Lemmari: CollectionConfig = {
       },
     },
     {
+      name: 'foto',
+      type: 'upload',
+      relationTo: 'media',
+      admin: {
+        description: 'Immagine rappresentativa del lemmario (visibile nella card homepage). Dimensioni consigliate: 800x600px (4:3)',
+        position: 'sidebar',
+      },
+    },
+    {
       name: 'configurazione',
       type: 'json',
       admin: {

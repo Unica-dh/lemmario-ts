@@ -499,6 +499,24 @@ export async function getFonteByShorthand(shorthandId: string): Promise<Fonte | 
 }
 
 /**
+ * Get all fonti (shared across lemmari)
+ */
+export async function getAllFonti(): Promise<Fonte[]> {
+  try {
+    const response = await fetchFromPayload<PaginatedResponse<Fonte>>('/fonti', {
+      params: {
+        limit: 500,
+        depth: 0,
+      },
+    })
+    return response.docs
+  } catch (error) {
+    console.error('getAllFonti error:', error)
+    return []
+  }
+}
+
+/**
  * Livelli Razionalità API
  */
 export async function getLivelliRazionalita(lemmarioId: number): Promise<LivelloRazionalita[]> {

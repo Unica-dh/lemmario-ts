@@ -1,54 +1,49 @@
 import Link from 'next/link'
-import { getGlobalContenutiStatici } from '@/lib/payload-api'
 
-export default async function Footer() {
+export default function Footer() {
   const currentYear = new Date().getFullYear()
-  const contenutiStatici = await getGlobalContenutiStatici()
 
   return (
-    <footer className="bg-gray-50 border-t border-gray-200 mt-auto">
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <footer className="bg-[var(--color-bg)] border-t border-[var(--color-border)] mt-auto">
+      <div className="container mx-auto px-4 py-12">
+        {/* Two Column Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-16">
+          {/* Column 1: Istituzione */}
           <div>
-            <h3 className="font-bold text-gray-900 mb-3">Lemmario</h3>
-            <p className="text-sm text-gray-600">
-              Dizionario specializzato della terminologia matematica ed economica
-              italiana storica da statuti e documenti medievali e rinascimentali.
+            <h3 className="label-uppercase text-text-muted mb-2">Istituzione</h3>
+            <p className="font-serif italic text-text-body text-lg leading-relaxed">
+              Università degli Studi di Cagliari<br />
+              Centro Interdipartimentale per l&rsquo;Umanistica Digitale
             </p>
           </div>
 
-          {contenutiStatici.length > 0 && (
-            <div>
-              <h3 className="font-bold text-gray-900 mb-3">Informazioni</h3>
-              <ul className="space-y-2 text-sm">
-                {contenutiStatici.map((contenuto) => (
-                  <li key={contenuto.id}>
-                    <Link
-                      href={`/pagine/${contenuto.slug}`}
-                      className="text-gray-600 hover:text-primary-600"
-                    >
-                      {contenuto.titolo}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
+          {/* Column 2: Corrispondenza */}
           <div>
-            <h3 className="font-bold text-gray-900 mb-3">Navigazione</h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <Link href="/" className="text-gray-600 hover:text-primary-600">
-                  Dizionari
-                </Link>
-              </li>
-            </ul>
+            <h3 className="label-uppercase text-text-muted mb-2">Corrispondenza</h3>
+            <p className="text-text-body">
+              <a 
+                href="mailto:dh@unica.it" 
+                className="underline hover:text-text transition-colors"
+              >
+                dh@unica.it
+              </a>
+            </p>
           </div>
         </div>
 
-        <div className="mt-8 pt-8 border-t border-gray-200 text-center text-sm text-gray-600">
-          <p>&copy; {currentYear} Lemmario. Tutti i diritti riservati.</p>
+        {/* Bottom Row: Copyright and Links */}
+        <div className="mt-12 pt-8 border-t border-[var(--color-border)] text-center">
+          <p className="label-uppercase text-text-muted">
+            <span>&copy; {currentYear} UniCa</span>
+            <span className="mx-2">·</span>
+            <Link href="/privacy" className="link-clean hover:text-text">
+              Privacy
+            </Link>
+            <span className="mx-2">·</span>
+            <Link href="/contatti" className="link-clean hover:text-text">
+              Contatti
+            </Link>
+          </p>
         </div>
       </div>
     </footer>

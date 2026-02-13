@@ -14,80 +14,49 @@ export function DefinizioneCard({ definizione, numero }: DefinizioneCardProps) {
     : null
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6 shadow-sm hover:shadow-md transition-shadow">
-      {/* Header con numero e testo definizione */}
-      <div className="flex items-start gap-3 mb-4">
-        <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-primary-100 text-primary-700 font-bold text-sm flex-shrink-0">
-          {numero}
-        </span>
-        <p className="text-gray-900 leading-relaxed text-lg">
-          {definizione.testo}
-        </p>
+    <div>
+      {/* Header: DEFINIZIONE N + Livello razionalità */}
+      <div className="flex items-baseline justify-between mb-4">
+        <h3 className="label-uppercase text-[var(--color-text-muted)]">
+          Definizione {numero}
+        </h3>
+        {livello && (
+          <span className="label-uppercase text-[var(--color-text-muted)]">
+            Livello: {livello.nome?.replace(/^Livello \d+ - /, '')} ({livello.numero ?? livello.livello})
+          </span>
+        )}
       </div>
+
+      {/* Testo definizione */}
+      <p className="font-serif text-lg text-[var(--color-text-body)] leading-relaxed mb-6">
+        {definizione.testo}
+      </p>
 
       {/* Ricorrenze */}
       {definizione.ricorrenze && definizione.ricorrenze.length > 0 && (
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <h4 className="text-sm font-semibold text-gray-700 mb-3">
-            {definizione.ricorrenze.length === 1 ? 'Ricorrenza:' : `Ricorrenze (${definizione.ricorrenze.length}):`}
-          </h4>
-          <div className="space-y-4">
-            {definizione.ricorrenze.map((ricorrenza, idx) => {
-              const fonte = typeof ricorrenza.fonte === 'object' ? ricorrenza.fonte : null
-              return (
-                <div key={ricorrenza.id || idx} className="bg-gray-50 rounded-lg p-4">
-                  {/* Fonte - mostrata prima della citazione */}
-                  {fonte && (
-                    <div className="mb-3">
-                      <p className="text-primary-700 font-semibold italic">
-                        {fonte.titolo}
-                        {fonte.anno && ` (${fonte.anno})`}:
-                      </p>
-                    </div>
-                  )}
+        <div className="space-y-5 mb-2">
+          {definizione.ricorrenze.map((ricorrenza, idx) => {
+            const fonte = typeof ricorrenza.fonte === 'object' ? ricorrenza.fonte : null
+            return (
+              <div
+                key={ricorrenza.id || idx}
+                className="pl-5 border-l-2 border-[var(--color-border)]"
+              >
+                {/* Testo originale tra guillemets */}
+                <p className="font-serif italic text-[var(--color-text-body)] leading-relaxed">
+                  &laquo;{ricorrenza.testo_originale}&raquo;
+                </p>
 
-                  {/* Testo originale della citazione */}
-                  <blockquote className="text-gray-700 mb-3 pl-4 border-l-3 border-primary-300">
-                    «{ricorrenza.testo_originale}»
-                    {ricorrenza.pagina_raw && (
-                      <span className="text-gray-500 text-sm ml-1">
-                        - {ricorrenza.pagina_raw}
-                      </span>
-                    )}
-                  </blockquote>
-
-                  {/* Riferimento bibliografico completo */}
-                  {fonte?.riferimento_completo && (
-                    <div className="mt-3 pt-3 border-t border-gray-200">
-                      <p className="text-xs text-gray-600">
-                        <span className="font-semibold">Riferimento bibliografico:</span>{' '}
-                        {fonte.riferimento_completo}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Note */}
-                  {ricorrenza.note && (
-                    <p className="text-xs text-gray-500 mt-2 italic">
-                      <span className="font-medium">Note:</span> {ricorrenza.note}
-                    </p>
-                  )}
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* Livello di razionalità - in fondo */}
-      {livello && (
-        <div className="mt-4 pt-4 border-t border-gray-200">
-          <p className="text-sm text-gray-600">
-            <span className="font-semibold">Livello di razionalità:</span>{' '}
-            <span className="text-primary-700">
-              {livello.numero ?? livello.livello}. {livello.nome?.replace(/^Livello \d+ - /, '')}
-            </span>
-          </p>
+                {/* Fonte: shorthand_id + pagina_raw */}
+                {fonte && (
+                  <p className="mt-2 text-sm text-[var(--color-text-muted)] text-right">
+                    &mdash; {fonte.shorthand_id}
+                    {ricorrenza.pagina_raw && <>, {ricorrenza.pagina_raw}</>}
+                  </p>
+                )}
+              </div>
+            )
+          })}
         </div>
       )}
     </div>

@@ -1,20 +1,18 @@
 import { getAllLemmariWithStats } from '@/lib/payload-api'
 import { LemmariGrid } from '@/components/lemmari/LemmariGrid'
-import Header from '@/components/Header'
-import Footer from '@/components/Footer'
+import MainNav from '@/components/MainNav'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Lemmari - Dizionario del Razionale',
+  title: 'Glossario',
   description:
-    'Esplora i dizionari storici del Razionale. Scopri lemmi latini e volgari con definizioni, fonti e riferimenti storici.',
+    'Dizionari storici della terminologia italiana. Glossari specializzati della terminologia matematica ed economica medievale.',
   openGraph: {
-    title: 'Lemmari - Dizionario del Razionale',
-    description: 'Esplora i dizionari storici del Razionale',
+    title: 'Glossario',
+    description: 'Dizionari storici della terminologia italiana',
   },
 }
 
-// Force dynamic rendering
 export const dynamic = 'force-dynamic'
 
 export default async function Home() {
@@ -22,22 +20,25 @@ export default async function Home() {
 
   return (
     <>
-      <Header />
-      <main className="flex-1">
-        <div className="container mx-auto px-4 py-8">
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Lemmari
+      <MainNav />
+      <main className="flex-1 bg-[var(--color-bg)]">
+        <div className="container mx-auto px-6 md:px-20 py-16">
+          {/* Hero section */}
+          <div className="text-center mb-12">
+            <h1 className="font-serif text-5xl md:text-6xl text-[var(--color-text)] mb-4">
+              Glossario
             </h1>
-            <p className="text-lg text-gray-600 max-w-3xl">
-              Esplora i dizionari storici. Seleziona un lemmario per visualizzare lemmi, definizioni e fonti.
+            <div className="flex items-center justify-center">
+              <div className="w-64 h-px bg-[var(--color-border)]" />
+            </div>
+            <p className="font-serif italic text-base text-[var(--color-text-muted)] mt-4">
+              {lemmari.length} {lemmari.length === 1 ? 'glossario disponibile' : 'glossari disponibili'}
             </p>
           </div>
 
           <LemmariGrid lemmari={lemmari} />
         </div>
       </main>
-      <Footer />
     </>
   )
 }

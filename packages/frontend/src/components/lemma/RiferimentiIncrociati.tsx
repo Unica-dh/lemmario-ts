@@ -6,37 +6,67 @@ interface RiferimentiIncrociatiProps {
   lemmarioSlug: string
 }
 
+const TIPO_LABELS: Record<string, string> = {
+  CFR: 'CFR',
+  VEDI: 'VEDI',
+  VEDI_ANCHE: 'VEDI ANCHE',
+}
+
 export function RiferimentiIncrociati({ riferimenti, lemmarioSlug }: RiferimentiIncrociatiProps) {
   if (!riferimenti || riferimenti.length === 0) {
     return null
   }
 
+  // Filtra auto_creato e raggruppa per tipo
+  const filtered = riferimenti.filter((rif) => !rif.auto_creato)
+
+  if (filtered.length === 0) {
+    return null
+  }
+
+  const grouped = new Map<string, Array<RiferimentoIncrociato & { lemma_destinazione?: Lemma }>>()
+  for (const rif of filtered) {
+    const tipo = rif.tipo_riferimento || 'CFR'
+    const existing = grouped.get(tipo) || []
+    existing.push(rif)
+    grouped.set(tipo, existing)
+  }
+
   return (
-    <>
-      {riferimenti.map((rif) => {
-        const lemma = typeof rif.lemma_destinazione === 'object'
-          ? rif.lemma_destinazione
-          : null
+    <section>
+      <h2 className="label-uppercase text-[var(--color-text-muted)] mb-4">
+        Riferimenti
+      </h2>
+      <div className="space-y-3">
+        {Array.from(grouped.entries()).map(([tipo, refs]) => (
+          <div key={tipo} className="flex flex-wrap items-baseline gap-x-1">
+            <span className="label-uppercase text-[var(--color-text-muted)] mr-2">
+              {TIPO_LABELS[tipo] || tipo}
+            </span>
+            {refs.map((rif, idx) => {
+              const lemma = typeof rif.lemma_destinazione === 'object'
+                ? rif.lemma_destinazione
+                : null
 
-        if (!lemma) return null
+              if (!lemma) return null
 
-        const tipoLabel = lemma.tipo === 'latino' ? 'lat.' : 'volg.'
-
-        return (
-          <Link
-            key={rif.id}
-            href={`/${lemmarioSlug}/lemmi/${lemma.slug}`}
-            className="inline-flex items-center gap-1.5 ml-4 px-3 py-1 text-base font-normal text-purple-700 bg-purple-50 border border-purple-200 rounded-full hover:bg-purple-100 hover:text-purple-900 transition-colors align-middle"
-          >
-            <span className="italic text-sm">cfr.</span>
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
-            <span>{lemma.termine}</span>
-            <span className="text-sm text-purple-500">({tipoLabel})</span>
-          </Link>
-        )
-      })}
-    </>
+              return (
+                <span key={rif.id}>
+                  <Link
+                    href={`/${lemmarioSlug}/lemmi/${lemma.slug}`}
+                    className="font-serif text-[var(--color-text)] hover:text-[var(--color-text-muted)] transition-colors"
+                  >
+                    &rarr; {lemma.termine}
+                  </Link>
+                  {idx < refs.length - 1 && (
+                    <span className="text-[var(--color-text-muted)]">, </span>
+                  )}
+                </span>
+              )
+            })}
+          </div>
+        ))}
+      </div>
+    </section>
   )
 }

@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation'
-import Header from '@/components/Header'
-import Footer from '@/components/Footer'
+import MainNav from '@/components/MainNav'
 import { getLemmarioBySlug } from '@/lib/payload-api'
 
 interface LayoutProps {
@@ -19,7 +18,7 @@ export default async function LemmarioLayout({ children, params }: LayoutProps) 
 
   return (
     <>
-      <Header
+      <MainNav
         lemmarioSlug={lemmario.slug}
         lemmarioId={lemmario.id}
         lemmarioTitolo={lemmario.titolo}
@@ -27,7 +26,6 @@ export default async function LemmarioLayout({ children, params }: LayoutProps) 
       <main className="flex-1">
         {children}
       </main>
-      <Footer />
     </>
   )
 }
