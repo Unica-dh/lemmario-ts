@@ -2,32 +2,88 @@
 @tailwind components;
 @tailwind utilities;
 
+/* CSS Custom Properties per design system */
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  /* Light mode (default) */
+  --color-text: #1a1a1a;
+  --color-text-muted: #6b6b6b;
+  --color-text-body: #3a3a3a;
+  --color-text-inverse: #ffffff;
+  --color-text-disabled: #9a9a9a;
+  
+  --color-bg: #ffffff;
+  --color-bg-subtle: #f5f5f5;
+  --color-bg-inverse: #1a1a1a;
+  
+  --color-border: #d4d4d4;
 }
 
+/* Dark mode */
+.dark {
+  --color-text: #e8e8e8;
+  --color-text-muted: #8a8a8a;
+  --color-text-body: #c8c8c8;
+  --color-text-inverse: #d0d0d0;
+  --color-text-disabled: #5a5a5a;
+  
+  --color-bg: #121212;
+  --color-bg-subtle: #1e1e1e;
+  --color-bg-inverse: #0a0a0a;
+  
+  --color-border: #333333;
+}
+
+/* Prefers-color-scheme fallback */
 @media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+  :root:not(.light) {
+    --color-text: #e8e8e8;
+    --color-text-muted: #8a8a8a;
+    --color-text-body: #c8c8c8;
+    --color-text-inverse: #d0d0d0;
+    --color-text-disabled: #5a5a5a;
+    
+    --color-bg: #121212;
+    --color-bg-subtle: #1e1e1e;
+    --color-bg-inverse: #0a0a0a;
+    
+    --color-border: #333333;
   }
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  background-color: var(--color-bg);
+  color: var(--color-text-body);
 }
 
+/* Utility classes per design system */
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  
+  /* Maiuscoletto con letter-spacing */
+  .label-uppercase {
+    font-size: 0.6875rem; /* 11px */
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-family: var(--font-sans);
+  }
+  
+  /* Stile link clean */
+  .link-clean {
+    text-decoration: none;
+    transition: color 200ms ease;
+  }
+  
+  .link-clean:hover {
+    color: var(--color-text);
+  }
+}
+
+/* Fix font loading */
+@layer base {
+  html {
+    font-family: var(--font-sans), Inter, system-ui, sans-serif;
   }
 }
