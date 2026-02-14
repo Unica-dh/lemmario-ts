@@ -1,13 +1,13 @@
 /**
  * Utility to construct full media URLs from Payload CMS relative paths.
  *
- * Problem: In Docker, the frontend container can't reach localhost:3000
- * (that's itself). Payload returns absolute URLs based on PAYLOAD_PUBLIC_SERVER_URL
- * which is often http://localhost:3000 in dev.
+ * Problem: In Docker, the frontend container can't reach external hostnames
+ * (localhost or production domain like glossari.dh.unica.it) from within the
+ * container. Payload returns absolute URLs based on PAYLOAD_PUBLIC_SERVER_URL.
  *
- * Solution: Server-side, rewrite only localhost URLs to the internal Docker
- * hostname (payload:3000). Production URLs (e.g. https://glossari.dh.unica.it)
- * pass through unchanged since they're already correct and in remotePatterns.
+ * Solution: Server-side, rewrite all /media/ URLs to the internal Docker
+ * hostname (payload:3000). This ensures the Next.js image optimizer can
+ * fetch the original images for optimization.
  */
 
 /**
@@ -18,11 +18,13 @@ export function getMediaUrl(path: string | undefined): string | null {
   if (!path) return null
 
   if (path.startsWith('http')) {
-    // Server-side only: rewrite localhost URLs to internal Docker hostname
+    // Server-side only: rewrite media URLs to internal Docker hostname.
+    // This handles both localhost (dev) and production domain URLs,
+    // since the Next.js image optimizer inside Docker can't reach external hostnames.
     if (typeof window === 'undefined') {
       try {
         const url = new URL(path)
-        if (url.hostname === 'localhost') {
+        if (url.pathname.startsWith('/media/')) {
           const internalBase = process.env.INTERNAL_API_URL?.replace('/api', '')
           if (internalBase) {
             return `${internalBase}${url.pathname}`
