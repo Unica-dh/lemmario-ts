@@ -182,22 +182,22 @@ export default async function LemmaPage({ params, searchParams }: PageProps) {
       />
       <BreadcrumbSchema items={breadcrumbItems} />
 
-      <div className="container mx-auto px-4 py-12 max-w-3xl">
+      <article className="container mx-auto px-4 md:px-20 py-8 md:py-12 max-w-3xl">
         {/* Link torna al glossario */}
         <Link
           href={backUrl}
-          className="inline-flex items-center gap-2 text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors mb-10"
+          className="inline-flex items-center gap-2 min-h-[44px] text-sm text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors mb-6 md:mb-10"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
           Torna al glossario
         </Link>
 
         {/* Header: Termine + Badge tipo */}
-        <header className="mb-8 pb-8 border-b border-[var(--color-border)]">
+        <header className="mb-6 md:mb-8 pb-6 md:pb-8 border-b border-[var(--color-border)]">
           <div className="flex items-start justify-between">
-            <h1 className="font-serif text-4xl md:text-5xl font-bold text-[var(--color-text)]">
+            <h1 className="font-serif text-3xl md:text-5xl font-bold text-[var(--color-text)]">
               {lemma.termine}
             </h1>
             <span className="label-uppercase text-[var(--color-text-muted)] mt-2 ml-4 shrink-0">
@@ -241,7 +241,7 @@ export default async function LemmaPage({ params, searchParams }: PageProps) {
             />
           </div>
         )}
-      </div>
+      </article>
     </>
   )
 }

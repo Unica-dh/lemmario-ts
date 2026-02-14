@@ -51,7 +51,7 @@ export function Pagination({
 
   return (
     <nav
-      className={`flex items-center justify-center space-x-6 mt-12 pt-8 border-t border-[var(--color-border)] ${className}`}
+      className={`flex items-center justify-center space-x-2 md:space-x-6 mt-8 md:mt-12 pt-8 border-t border-[var(--color-border)] ${className}`}
       aria-label="Paginazione"
       data-testid="pagination"
     >
@@ -59,30 +59,36 @@ export function Pagination({
       {currentPage > 1 ? (
         <button
           onClick={() => goToPage(currentPage - 1)}
-          className="label-uppercase text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
+          className="min-h-[44px] min-w-[44px] flex items-center justify-center label-uppercase text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors rounded-lg hover:bg-[var(--color-bg-subtle)]"
           aria-label="Pagina precedente"
           data-testid="prev-page"
         >
-          Precedente
+          <span className="hidden sm:inline">Precedente</span>
+          <svg className="w-4 h-4 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
         </button>
       ) : (
-        <span className="label-uppercase text-xs text-[var(--color-text-disabled)] cursor-not-allowed">
-          Precedente
+        <span className="min-h-[44px] min-w-[44px] flex items-center justify-center label-uppercase text-xs text-[var(--color-text-disabled)] cursor-not-allowed">
+          <span className="hidden sm:inline">Precedente</span>
+          <svg className="w-4 h-4 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
         </span>
       )}
 
       {/* Page numbers */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-1 md:space-x-2">
         {getPageNumbers().map((page, idx) =>
           page === 'ellipsis' ? (
-            <span key={`ellipsis-${idx}`} className="text-[var(--color-text-muted)]">
+            <span key={`ellipsis-${idx}`} className="min-w-[44px] flex items-center justify-center text-[var(--color-text-muted)]" aria-hidden="true">
               &hellip;
             </span>
           ) : (
             <button
               key={page}
               onClick={() => goToPage(page)}
-              className={`label-uppercase text-xs transition-colors ${
+              className={`min-h-[44px] min-w-[44px] flex items-center justify-center label-uppercase text-xs transition-colors rounded-lg hover:bg-[var(--color-bg-subtle)] ${
                 page === currentPage
                   ? 'text-[var(--color-text)] font-bold'
                   : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
@@ -101,15 +107,21 @@ export function Pagination({
       {currentPage < totalPages ? (
         <button
           onClick={() => goToPage(currentPage + 1)}
-          className="label-uppercase text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
+          className="min-h-[44px] min-w-[44px] flex items-center justify-center label-uppercase text-xs text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors rounded-lg hover:bg-[var(--color-bg-subtle)]"
           aria-label="Pagina successiva"
           data-testid="next-page"
         >
-          Successiva
+          <span className="hidden sm:inline">Successiva</span>
+          <svg className="w-4 h-4 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
         </button>
       ) : (
-        <span className="label-uppercase text-xs text-[var(--color-text-disabled)] cursor-not-allowed">
-          Successiva
+        <span className="min-h-[44px] min-w-[44px] flex items-center justify-center label-uppercase text-xs text-[var(--color-text-disabled)] cursor-not-allowed">
+          <span className="hidden sm:inline">Successiva</span>
+          <svg className="w-4 h-4 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+          </svg>
         </span>
       )}
     </nav>

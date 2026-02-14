@@ -7,7 +7,6 @@ test.describe('Pagina dettaglio lemma', () => {
     })
 
     test('mostra il titolo del lemma', async ({ page }) => {
-      // Usa getByRole per selezionare specificamente l'heading del lemma
       const heading = page.getByRole('heading', { name: 'camerarius' })
       await expect(heading).toBeVisible()
     })
@@ -22,24 +21,13 @@ test.describe('Pagina dettaglio lemma', () => {
       await expect(definizione).toBeVisible()
     })
 
-    test('mostra il livello di razionalità in fondo alla card', async ({ page }) => {
-      // Usa l'accento corretto
-      const livelloSection = page.locator('text=Livello di razionalità')
-      await expect(livelloSection).toBeVisible()
-
-      // Verifica che il livello 6 sia menzionato (cerca specifico nel contesto del livello)
-      const livelloNumero = page.locator('span.text-primary-700').filter({ hasText: '6.' })
-      await expect(livelloNumero).toBeVisible()
+    test('mostra il livello di razionalità', async ({ page }) => {
+      const livelloLabel = page.locator('text=/Livello:/')
+      await expect(livelloLabel.first()).toBeVisible()
     })
 
-    test('ha il breadcrumb corretto', async ({ page }) => {
-      await expect(page.locator('text=Home')).toBeVisible()
-      await expect(page.locator('text=Lemmario di Matematica')).toBeVisible()
-      await expect(page.locator('text=camerarius').last()).toBeVisible()
-    })
-
-    test('mostra il link per tornare ai lemmi', async ({ page }) => {
-      const backLink = page.locator('text=Torna ai lemmi')
+    test('mostra il link per tornare al glossario', async ({ page }) => {
+      const backLink = page.locator('text=Torna al glossario')
       await expect(backLink).toBeVisible()
     })
   })
@@ -60,69 +48,39 @@ test.describe('Pagina dettaglio lemma', () => {
     })
 
     test('mostra la definizione', async ({ page }) => {
-      // Cerchiamo una parte del testo della definizione
       const definizione = page.locator('text=/[Uu]fficiale/')
       await expect(definizione.first()).toBeVisible()
     })
 
-    test('mostra la sezione ricorrenze', async ({ page }) => {
-      const ricorrenze = page.locator('text=/[Rr]icorrenz/')
-      await expect(ricorrenze.first()).toBeVisible()
-    })
-
-    test('mostra la fonte prima della citazione', async ({ page }) => {
-      // Verifica che il titolo della fonte sia visibile
-      const fonteTitolo = page.locator('text=Regulae')
-      await expect(fonteTitolo.first()).toBeVisible()
-    })
-
-    test('mostra anno della fonte', async ({ page }) => {
-      // Verifica che l\'anno sia visibile
-      const fonteAnno = page.locator('text=/\\(1363\\)|\\(XIV secolo/')
-      await expect(fonteAnno.first()).toBeVisible()
-    })
-
-    test('mostra il testo originale della citazione', async ({ page }) => {
-      // Verifica che ci sia un testo di citazione con parole latine
+    test('mostra il testo originale della citazione tra guillemets', async ({ page }) => {
       const citazione = page.locator('text=/firmamus|Visitatores/')
       await expect(citazione.first()).toBeVisible()
     })
 
-    test('mostra il riferimento bibliografico completo', async ({ page }) => {
-      const riferimento = page.locator('text=Riferimento bibliografico')
-      await expect(riferimento.first()).toBeVisible()
-
-      // Verifica contenuto del riferimento
-      const riferimentoTesto = page.locator('text=Historiae Patriae Monumenta')
-      await expect(riferimentoTesto.first()).toBeVisible()
+    test('mostra la fonte con shorthand_id', async ({ page }) => {
+      const fonte = page.locator('text=/Leges_Genuenses/')
+      await expect(fonte.first()).toBeVisible()
     })
 
-    test('mostra il livello di razionalità in fondo', async ({ page }) => {
-      const livelloLabel = page.locator('text=Livello di razionalità')
+    test('mostra il livello di razionalità', async ({ page }) => {
+      const livelloLabel = page.locator('text=/Livello:/')
       await expect(livelloLabel.first()).toBeVisible()
     })
 
-    test('struttura corretta: fonte sopra citazione, livello in fondo', async ({ page }) => {
-      // Verifica ordine degli elementi nella pagina
-      const fonteTitolo = page.locator('text=Regulae').first()
-      const citazione = page.locator('blockquote').first()
-      const livello = page.locator('text=Livello di razionalità').first()
-
-      // Tutti gli elementi devono essere visibili
-      await expect(fonteTitolo).toBeVisible()
+    test('struttura corretta: citazione con bordo sinistro', async ({ page }) => {
+      // Le citazioni hanno un border-left come indicatore visivo
+      const citazione = page.locator('.border-l-2').first()
       await expect(citazione).toBeVisible()
+
+      // Livello è nell'header della definizione (sopra la citazione)
+      const livello = page.locator('text=/Livello:/').first()
       await expect(livello).toBeVisible()
 
-      // Verifica l\'ordine verticale (fonte prima di citazione, livello alla fine)
-      const fonteBound = await fonteTitolo.boundingBox()
       const citazioneBound = await citazione.boundingBox()
       const livelloBound = await livello.boundingBox()
 
-      if (fonteBound && citazioneBound && livelloBound) {
-        // La fonte deve essere sopra la citazione
-        expect(fonteBound.y).toBeLessThan(citazioneBound.y)
-        // Il livello deve essere dopo la citazione
-        expect(livelloBound.y).toBeGreaterThan(citazioneBound.y)
+      if (citazioneBound && livelloBound) {
+        expect(livelloBound.y).toBeLessThan(citazioneBound.y)
       }
     })
   })

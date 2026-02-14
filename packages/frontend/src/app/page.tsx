@@ -22,10 +22,10 @@ export default async function Home() {
     <>
       <MainNav />
       <main className="flex-1 bg-[var(--color-bg)]">
-        <div className="container mx-auto px-6 md:px-20 py-16">
+        <div className="container mx-auto px-4 md:px-20 py-10 md:py-16">
           {/* Hero section */}
-          <div className="text-center mb-12">
-            <h1 className="font-serif text-5xl md:text-6xl text-[var(--color-text)] mb-4">
+          <div className="text-center mb-8 md:mb-12">
+            <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl text-[var(--color-text)] mb-4">
               Glossario
             </h1>
             <div className="flex items-center justify-center">

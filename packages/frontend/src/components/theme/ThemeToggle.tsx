@@ -12,7 +12,7 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="flex items-center justify-center w-8 h-8 rounded-full transition-colors hover:bg-opacity-10 hover:bg-gray-500"
+      className="flex items-center justify-center w-11 h-11 rounded-lg transition-colors hover:bg-[var(--color-bg-subtle)]"
       aria-label={`Attiva modalità ${resolvedTheme === 'dark' ? 'chiara' : 'scura'}`}
       title={`Modalità ${resolvedTheme === 'dark' ? 'chiara' : 'scura'}`}
     >

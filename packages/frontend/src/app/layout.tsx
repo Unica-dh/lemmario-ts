@@ -176,9 +176,14 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} ${cormorant.variable} font-sans`}>
         <ThemeProvider>
+          <a href="#main-content" className="skip-to-content">
+            Vai al contenuto principale
+          </a>
           <div className="flex min-h-screen flex-col">
             <InstitutionalBar />
-            {children}
+            <div id="main-content">
+              {children}
+            </div>
             <Footer />
           </div>
         </ThemeProvider>

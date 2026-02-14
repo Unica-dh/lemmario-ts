@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { getGlobalContenutiStatici, getLemmarioContenutiStatici } from '@/lib/payload-api'
 import { ThemeToggle } from '@/components/theme/ThemeToggle'
-import { MobileMenu } from '@/components/ui/MobileMenu'
+import { MobileMenu } from '@/components/MobileMenu'
 
 interface MainNavProps {
   lemmarioSlug?: string
@@ -12,36 +12,39 @@ interface MainNavProps {
 export default async function MainNav({ lemmarioSlug, lemmarioId, lemmarioTitolo }: MainNavProps) {
   const contenutiGlobali = await getGlobalContenutiStatici()
 
-  // Fetch lemmario-specific content if we're in a lemmario context
   const contenutiLemmario = lemmarioId
     ? await getLemmarioContenutiStatici(lemmarioId)
     : []
 
-  // Build mobile menu links
-  const mobileMenuLinks = [
-    { href: '/', label: 'Dizionari', isLemmarioSpecific: false },
-    ...contenutiGlobali.map((contenuto) => ({
-      href: `/pagine/${contenuto.slug}`,
-      label: contenuto.titolo,
-      isLemmarioSpecific: false,
+  // Build links array for mobile menu
+  const mobileLinks: Array<{ href: string; label: string; isLemmarioSpecific?: boolean }> = [
+    { href: '/', label: 'Dizionari' },
+    ...contenutiGlobali.map((c) => ({
+      href: `/pagine/${c.slug}`,
+      label: c.titolo,
     })),
-    ...(lemmarioSlug
-      ? [
-          { href: `/${lemmarioSlug}/bibliografia`, label: 'Bibliografia', isLemmarioSpecific: true },
-          ...contenutiLemmario.map((contenuto) => ({
-            href: `/${lemmarioSlug}/pagine/${contenuto.slug}`,
-            label: contenuto.titolo,
-            isLemmarioSpecific: true,
-          })),
-        ]
-      : []),
   ]
 
+  if (lemmarioSlug) {
+    mobileLinks.push({
+      href: `/${lemmarioSlug}/bibliografia`,
+      label: 'Bibliografia',
+      isLemmarioSpecific: true,
+    })
+    for (const contenuto of contenutiLemmario) {
+      mobileLinks.push({
+        href: `/${lemmarioSlug}/pagine/${contenuto.slug}`,
+        label: contenuto.titolo,
+        isLemmarioSpecific: true,
+      })
+    }
+  }
+
   return (
-    <nav className="bg-[var(--color-bg)] sticky top-11 z-40">
+    <nav className="bg-[var(--color-bg)] sticky top-11 z-40" aria-label="Navigazione principale">
       <div className="container mx-auto px-4 py-3 border-b border-[var(--color-border)]">
         <div className="flex items-center justify-between">
-          {/* Navigation Links */}
+          {/* Desktop Navigation Links */}
           <div className="hidden md:flex items-center space-x-6">
             <Link
               href="/"
@@ -50,7 +53,6 @@ export default async function MainNav({ lemmarioSlug, lemmarioId, lemmarioTitolo
               Dizionari
             </Link>
 
-            {/* Global static content links */}
             {contenutiGlobali.map((contenuto) => (
               <Link
                 key={contenuto.id}
@@ -61,10 +63,9 @@ export default async function MainNav({ lemmarioSlug, lemmarioId, lemmarioTitolo
               </Link>
             ))}
 
-            {/* Lemmario-specific links */}
             {lemmarioSlug && (
               <>
-                <span className="text-[var(--color-border)]">·</span>
+                <span className="text-[var(--color-border)]" aria-hidden="true">·</span>
                 <Link
                   href={`/${lemmarioSlug}/bibliografia`}
                   className="label-uppercase link-clean text-[var(--color-text)] hover:text-[var(--color-text-body)] font-medium"
@@ -85,13 +86,15 @@ export default async function MainNav({ lemmarioSlug, lemmarioId, lemmarioTitolo
             )}
           </div>
 
-          {/* Right Side: Mobile Menu + Theme Toggle */}
-          <div className="flex items-center space-x-4 ml-auto">
-            {/* Mobile Menu */}
-            <MobileMenu links={mobileMenuLinks} />
+          {/* Right Side */}
+          <div className="flex items-center space-x-2 ml-auto">
+            {/* Mobile Menu (hamburger + drawer) */}
+            <MobileMenu links={mobileLinks} />
 
-            {/* Theme Toggle */}
-            <ThemeToggle />
+            {/* Theme Toggle (desktop only, mobile is in drawer) */}
+            <div className="hidden md:block">
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       </div>

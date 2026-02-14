@@ -41,7 +41,7 @@ export function LemmariGrid({ lemmari }: LemmariGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-12">
       {lemmari.map((lemmario) => (
         <LemmarioCard key={lemmario.id} lemmario={lemmario} />
       ))}

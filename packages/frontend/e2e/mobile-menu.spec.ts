@@ -1,100 +1,83 @@
 import { test, expect } from '@playwright/test'
 
 test.describe('Mobile Menu', () => {
+  test.use({ viewport: { width: 390, height: 844 } })
+
   test.beforeEach(async ({ page }) => {
-    // Set viewport to mobile size
-    await page.setViewportSize({ width: 375, height: 667 })
     await page.goto('/matematica')
   })
 
-  test('mostra il pulsante hamburger menu su mobile', async ({ page }) => {
+  test('mostra il bottone hamburger su mobile', async ({ page }) => {
     const menuButton = page.getByTestId('mobile-menu-button')
     await expect(menuButton).toBeVisible()
   })
 
-  test('apre il drawer quando si clicca sul pulsante hamburger', async ({ page }) => {
+  test('apre il drawer al click del bottone hamburger', async ({ page }) => {
     const menuButton = page.getByTestId('mobile-menu-button')
     await menuButton.click()
 
-    // Verifica che il drawer sia visibile
-    const drawer = page.getByTestId('mobile-menu-drawer')
+    const drawer = page.getByRole('dialog', { name: 'Menu di navigazione' })
     await expect(drawer).toBeVisible()
   })
 
   test('mostra i link di navigazione nel drawer', async ({ page }) => {
-    const menuButton = page.getByTestId('mobile-menu-button')
-    await menuButton.click()
+    await page.getByTestId('mobile-menu-button').click()
 
-    // Verifica che i link siano presenti
-    const drawer = page.getByTestId('mobile-menu-drawer')
-    await expect(drawer.getByText('Dizionari')).toBeVisible()
-    await expect(drawer.getByText('Bibliografia')).toBeVisible()
+    await expect(page.getByRole('dialog').getByText('Dizionari')).toBeVisible()
+    await expect(page.getByRole('dialog').getByText('Bibliografia')).toBeVisible()
   })
 
-  test('chiude il drawer quando si clicca sul pulsante di chiusura', async ({ page }) => {
-    const menuButton = page.getByTestId('mobile-menu-button')
-    await menuButton.click()
-
-    const drawer = page.getByTestId('mobile-menu-drawer')
+  test('chiude il drawer al click della X', async ({ page }) => {
+    await page.getByTestId('mobile-menu-button').click()
+    const drawer = page.getByRole('dialog', { name: 'Menu di navigazione' })
     await expect(drawer).toBeVisible()
 
     const closeButton = page.getByTestId('mobile-menu-close')
+    await expect(closeButton).toBeVisible()
     await closeButton.click()
-
-    // Verifica che il drawer non sia più visibile
     await expect(drawer).not.toBeVisible()
   })
 
-  test('chiude il drawer quando si clicca sull\'overlay', async ({ page }) => {
-    const menuButton = page.getByTestId('mobile-menu-button')
-    await menuButton.click()
-
-    const drawer = page.getByTestId('mobile-menu-drawer')
+  test('chiude il drawer con Escape', async ({ page }) => {
+    await page.getByTestId('mobile-menu-button').click()
+    const drawer = page.getByRole('dialog', { name: 'Menu di navigazione' })
     await expect(drawer).toBeVisible()
 
-    // Clicca sull'overlay usando force per bypassare il drawer che potrebbe coprire parte dell'overlay
-    const overlay = page.getByTestId('mobile-menu-overlay')
-    // Click near the left edge where the overlay is definitely not covered by the drawer
-    await page.mouse.click(10, 300)
-
-    // Verifica che il drawer non sia più visibile
-    await expect(drawer).not.toBeVisible()
-  })
-
-  test('chiude il drawer quando si preme Escape', async ({ page }) => {
-    const menuButton = page.getByTestId('mobile-menu-button')
-    await menuButton.click()
-
-    const drawer = page.getByTestId('mobile-menu-drawer')
-    await expect(drawer).toBeVisible()
-
-    // Premi Escape
     await page.keyboard.press('Escape')
-
-    // Verifica che il drawer non sia più visibile
     await expect(drawer).not.toBeVisible()
   })
 
-  test('chiude il drawer quando si clicca su un link', async ({ page }) => {
-    const menuButton = page.getByTestId('mobile-menu-button')
-    await menuButton.click()
-
-    const drawer = page.getByTestId('mobile-menu-drawer')
+  test('chiude il drawer al click sull overlay', async ({ page }) => {
+    await page.getByTestId('mobile-menu-button').click()
+    const drawer = page.getByRole('dialog', { name: 'Menu di navigazione' })
     await expect(drawer).toBeVisible()
 
-    // Clicca su un link
-    await drawer.getByText('Dizionari').click()
-
-    // Verifica che il drawer non sia più visibile
+    // Click overlay (left side, away from the drawer which slides from right)
+    await page.mouse.click(50, 400)
     await expect(drawer).not.toBeVisible()
   })
 
-  test('non mostra il pulsante hamburger su desktop', async ({ page }) => {
-    // Set viewport to desktop size
-    await page.setViewportSize({ width: 1024, height: 768 })
-    await page.goto('/matematica')
+  test('mostra ThemeToggle nel drawer', async ({ page }) => {
+    await page.getByTestId('mobile-menu-button').click()
 
-    const menuButton = page.getByTestId('mobile-menu-button')
-    await expect(menuButton).not.toBeVisible()
+    const drawer = page.getByRole('dialog', { name: 'Menu di navigazione' })
+    await expect(drawer.getByText('Tema')).toBeVisible()
+  })
+
+  test('naviga al click di un link e chiude il drawer', async ({ page }) => {
+    await page.getByTestId('mobile-menu-button').click()
+
+    const dizionariLink = page.getByRole('dialog').getByText('Dizionari')
+    await dizionariLink.click()
+
+    // Drawer should be closed
+    const drawer = page.getByRole('dialog', { name: 'Menu di navigazione' })
+    await expect(drawer).not.toBeVisible()
+  })
+
+  test('il menu desktop e nascosto su mobile', async ({ page }) => {
+    // Desktop nav links should be hidden
+    const desktopNav = page.locator('.hidden.md\\:flex')
+    await expect(desktopNav).not.toBeVisible()
   })
 })
