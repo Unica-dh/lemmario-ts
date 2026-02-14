@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter, Cormorant_Garamond } from 'next/font/google'
 import Script from 'next/script'
 import { ThemeProvider } from '@/components/theme/ThemeProvider'
+import { ScrollDetector } from '@/components/ScrollDetector'
 import InstitutionalBar from '@/components/InstitutionalBar'
 import Footer from '@/components/Footer'
 import './globals.css'
@@ -176,6 +177,7 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} ${cormorant.variable} font-sans`}>
         <ThemeProvider>
+          <ScrollDetector />
           <a href="#main-content" className="skip-to-content">
             Vai al contenuto principale
           </a>

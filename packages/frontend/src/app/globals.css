@@ -117,6 +117,36 @@ body {
   animation: slide-in-right 250ms ease-out;
 }
 
+/* ===== Sticky Header Scroll Behavior ===== */
+
+/* Institutional bar: normal state */
+.institutional-bar {
+  height: 2.75rem; /* 44px = h-11 */
+}
+
+/* Main nav: positioned below institutional bar */
+.main-nav {
+  top: 2.75rem; /* 44px */
+}
+
+/* Scrolled state: collapse institutional bar, shift nav up */
+html[data-scrolled] .institutional-bar {
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+html[data-scrolled] .main-nav {
+  top: 0;
+}
+
+/* Show compact logos in nav when scrolled (desktop only) */
+@media (min-width: 768px) {
+  html[data-scrolled] .compact-logos {
+    display: flex;
+  }
+}
+
 /* Focus visible styles for accessibility */
 @layer base {
   html {

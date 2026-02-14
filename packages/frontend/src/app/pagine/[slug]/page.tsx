@@ -32,14 +32,14 @@ export default async function ContenutoStaticoPage({ params }: PageProps) {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <article className="max-w-4xl mx-auto">
-        <header className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+    <div className="container mx-auto px-4 py-12 max-w-[700px]">
+      <article>
+        <header className="mb-10 pb-8 border-b border-[var(--color-border)]">
+          <h1 className="font-serif text-4xl md:text-5xl font-bold text-[var(--color-text)] mb-4">
             {contenuto.titolo}
           </h1>
           {contenuto.updatedAt && (
-            <p className="text-sm text-gray-500">
+            <p className="label-uppercase text-[var(--color-text-muted)]">
               Ultimo aggiornamento:{' '}
               {new Date(contenuto.updatedAt).toLocaleDateString('it-IT', {
                 year: 'numeric',
@@ -52,7 +52,6 @@ export default async function ContenutoStaticoPage({ params }: PageProps) {
 
         <LexicalRenderer
           content={contenuto.contenuto as unknown as LexicalContent}
-          className="prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-primary-600"
         />
       </article>
     </div>
