@@ -1,8 +1,8 @@
 # Glossari - Piattaforma Multi-Tenancy per Glossari Storici
 
-[![CI Status](https://github.com/Unica-dh/lemmario_ts/actions/workflows/ci.yml/badge.svg)](https://github.com/Unica-dh/lemmario_ts/actions/workflows/ci.yml)
-[![CD Status](https://github.com/Unica-dh/lemmario_ts/actions/workflows/deploy.yml/badge.svg)](https://github.com/Unica-dh/lemmario_ts/actions/workflows/deploy.yml)
-[![Version](https://img.shields.io/badge/version-v.0.2-blue.svg)](https://github.com/Unica-dh/lemmario_ts/releases/tag/v.0.2)
+[![CI Status](https://github.com/Unica-dh/lemmario-ts/actions/workflows/ci.yml/badge.svg)](https://github.com/Unica-dh/lemmario-ts/actions/workflows/ci.yml)
+[![CD Status](https://github.com/Unica-dh/lemmario-ts/actions/workflows/deploy.yml/badge.svg)](https://github.com/Unica-dh/lemmario-ts/actions/workflows/deploy.yml)
+[![Version](https://img.shields.io/badge/version-v.0.2-blue.svg)](https://github.com/Unica-dh/lemmario-ts/releases/tag/v.0.2)
 
 **Glossari** è una piattaforma multi-tenancy di umanistica digitale per la gestione di glossari storici della terminologia italiana medievale e rinascimentale. Basata su **Payload CMS** e **Next.js 14**, permette a ricercatori e studiosi di creare, gestire e pubblicare dizionari specialistici con controllo granulare degli accessi e funzionalità avanzate di ricerca.
 
@@ -12,7 +12,44 @@ Il primo glossario ospitato è il **"Glossario dei termini su Ordine, Calcolo e 
 
 ![alt text](docs/design/desktop-header-check.png)
 
+## Design e Interfaccia Utente
 
+**Glossari** implementa un design **accademico-tipografico minimalista** ispirato alle pubblicazioni editoriali umanistiche, abbandonando l'estetica tradizionale "web app SaaS" a favore di un'esperienza visiva sobria e incentrata sul contenuto.
+
+### Caratteristiche Grafiche Principali
+
+- **Palette monocromatica**: Nero, grigio e bianco con contrasti WCAG AA compliant
+- **Tipografia serif di classe**: Cormorant Garamond per titoli, font sans-serif sistema per corpo testo
+- **Dark mode nativo**: Supporto completo con toggle persistente per preferenza utente
+- **Navigazione intuitiva**:
+  - *Desktop*: Barra istituzionale sticky in alto + navigazione principale + sidebar alfabetica verticale fissa per interi A-Z
+  - *Mobile*: Drawer A-Z accessibile da FAB (floating action button) in basso a destra
+- **Componenti minimalisti**: Card senza bordi/ombre, hover con cambio background subtile, ricerca in stile underline
+- **Layout responsivo**: Griglia lemmi (2 colonne desktop, 1 colonna mobile), 16 lemmi per pagina, paginazione con maiuscoletto
+- **Homepage**: Griglia glossari con foto (4:3 aspect ratio), descrizioni aggiornate, CTA chiari
+
+Il design mira a elevare la lessicografia digitale a pratica culturale accademica, mantenendo massima leggibilità e accessibilità su tutti i device. Per dettagli implementativi, vedi [docs/design/PIANO_IMPLEMENTAZIONE_UI.md](docs/design/PIANO_IMPLEMENTAZIONE_UI.md).
+
+## Esperienza Utente
+
+### Flusso di Ricerca Lemmi
+
+1. **Da homepage**: Seleziona glossario → Layout con sidebar A-Z + griglia lemmi
+2. **Filtro alfabetico**: Click lettera sidebar → Mostra solo lemmi inizianti con quella lettera
+3. **Ricerca globale**: Underline searchbar → Filtra per termine, risultati in tempo reale
+4. **Lettura lemma**: Click card → Pagina dettaglio con definizioni numerate, ricorrenze, riferimenti incrociati
+
+### Dark/Light Mode
+
+- Toggle in alto a destra (tema icon)
+- Scelta persistente in localStorage
+- Rispetta sistema operativo se "Sistema" selezionato
+
+### Mobile Optimization
+
+- Drawer menu: Hamburger icon (da implementare)
+- Sidebar A-Z: FAB + modal slide-up (implementato)
+- Touch-friendly: Tap target minimo 44×44px
 
 ## Architettura
 
@@ -230,29 +267,6 @@ docker exec -i lemmario_db psql -U lemmario_user -d lemmario_db < backup_2026021
 - ✅ **Health checks** con rollback automatico
 - ✅ **Script migrazione** da sito legacy (234 lemmi, 83 fonti)
 
-## Stato Implementazione
-
-**Versione corrente**: `v.0.1` (Gennaio 2026)
-
-| Fase | Completamento | Stato |
-|------|--------------|-------|
-| **FASE 1**: Setup Infrastruttura | 100% | ✅ Completata |
-| **FASE 2**: Payload CMS Collections | 100% | ✅ Completata |
-| **FASE 3**: Hooks & Business Logic | 100% | ✅ Completata |
-| **FASE 4**: Frontend Next.js | 70% | ⚠️ Avanzato |
-| **FASE 5**: Migrazione Dati Legacy | 100% | ✅ Completata |
-| **FASE 6**: Docker & Deploy | 90% | ✅ Quasi completa |
-| **FASE EXTRA**: Form Lemma Integrato | 100% | ✅ Completata |
-| **TOTALE PROGETTO** | **~82%** | 🚧 Produzione Beta |
-
-### Prossimi Sviluppi
-
-- [ ] Indice alfabetico A-Z per navigazione
-- [ ] Link ipertestuali tra lemmi correlati (latino ↔ volgare)
-- [ ] Visualizzazione livelli di razionalità nel frontend
-- [ ] Completamento pagine istituzionali e documentazione
-- [ ] Integrazione loghi università (Cagliari, Firenze, PRIN)
-
 ## Migrazione Dati Legacy
 
 Il progetto include script completi per importare i dati dal vecchio sito statico:
@@ -415,10 +429,6 @@ La piattaforma **Glossari** utilizza un sistema completo di **Continuous Integra
 
 ### Deployment Manuale
 
-```bash
-# SSH sul server produzione
-ssh dhruby@90.147.144.147
-
 # Deploy versione specifica
 cd /home/dhruby/lemmario-ts
 ./scripts/deploy/deploy-lemmario.sh <commit-sha>
@@ -462,14 +472,12 @@ Per setup server, troubleshooting e operazioni avanzate:
 
 ### Team di Sviluppo
 
-Piattaforma realizzata con il supporto dell'Università di Cagliari - Digital Humanities Lab.
+Piattaforma realizzata con il supporto dell'Università di Cagliari - Digital Humanities.
 
 ### Glossario Pilota
 
 Il primo glossario ospitato, **"Glossario dei termini su Ordine, Calcolo e Ragione nell'Italia"**, è frutto della ricerca sui testi medievali italiani (XIII-XVI secolo) riguardanti terminologia matematica, economica e della razionalità nelle fonti tardo-medievali.
 
 ## Licenza
-
-Copyright 2026 - Progetto Glossari
 
 Per informazioni su licenze e riuso dei contenuti, contattare le università partner.
