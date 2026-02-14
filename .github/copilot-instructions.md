@@ -1,30 +1,46 @@
-# Copilot Instructions
+# Copilot Instructions for Lemmario
 
-## Project Overview
+**Lemmario** is a multi-tenancy digital humanities platform for managing historical Italian mathematical and economic terminology dictionaries. Built with Payload CMS 2.x (headless CMS) + Next.js 14, it enables multiple independent research dictionaries (lemmari) to coexist with role-based access control. Migrated from static site (https://lemmario.netlify.app/) to dynamic platform using TypeScript monorepo.
 
-**Lemmario** is a multi-tenancy digital humanities platform for managing historical Italian mathematical and economic terminology dictionaries. This is a specialized lexicographic application hosting independent research dictionaries (multiple lemmari) with role-based access control, enabling scholars to edit, organize, and publish historical terminology alongside medieval source citations.
+## Architecture & Key Paths
 
-**Key domain context:**
-- Historical Italian (medieval/Renaissance) economic and mathematical terminology
-- Latin legal and commercial texts from sources like *Liber Abaci*, *Statuti di Genova*
-- Multi-dictionary support: each "lemmario" is an independent scholarly dictionary (e.g., "Lemmario di Matematica")
-- Legacy system migrated from static website (https://lemmario.netlify.app/)
+**Monorepo structure (pnpm workspace):**
+- [packages/payload-cms](packages/payload-cms) - Backend: Payload CMS 2.x + Express + PostgreSQL
+- [packages/frontend](packages/frontend) - Frontend: Next.js 14 App Router
+- [scripts/migration](scripts/migration) - Data import from legacy [old_website](old_website) HTML/JSON
+- [scripts/deploy](scripts/deploy) - Deployment to `/home/dhruby/lemmario-ts` (NOT `/home/dhruby/docker/`)
 
-## Project Architecture
+## Essential Commands & Setup
 
-**Multi-tenancy lexicon platform** for historical Italian terminology dictionaries. Monorepo with Payload CMS backend + Next.js 14 frontend.
+**Development (all ports: backend 3000, frontend 3001, postgres 5432):**
+```bash
+pnpm install                          # Monorepo deps
+pnpm dev                              # Both backend + frontend
+pnpm dev:payload / pnpm dev:frontend  # Selective dev
+pnpm typecheck && pnpm lint           # Pre-commit checks
+pnpm build                            # Production build
+```
 
-### Structure
-- **Backend**: [packages/payload-cms](packages/payload-cms) - Payload CMS 2.x with Express, PostgreSQL via `@payloadcms/db-postgres`
-- **Frontend**: [packages/frontend](packages/frontend) - Next.js 14 App Router with route groups: `(global)` for site-wide pages, `[lemmario-slug]` for per-dictionary routes
-- **Migration**: [scripts/migration](scripts/migration) - Import scripts from legacy HTML/JSON in [old_website](old_website)
-- **Deploy**: [scripts/deploy](scripts/deploy) - Production deployment scripts for VPN server at `/home/dhruby/lemmario-ts` (NOT `/home/dhruby/docker/`)
+**Docker mode (recommended for consistency):**
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+docker compose down -v && docker compose up postgres -d  # DB reset
+```
 
-### Key Documentation
-- Commands & setup: [README.md](README.md) and [CLAUDE.md](CLAUDE.md)
-- Data model (13 collections): [docs/Lemmario - Requisiti struttura dati - AGGIORNATO.md](docs/Lemmario%20-%20Requisiti%20struttura%20dati%20-%20AGGIORNATO.md)
-- Implementation plan: [docs/PIANO_IMPLEMENTAZIONE.md](docs/PIANO_IMPLEMENTAZIONE.md)
-- Migration flow: [docs/MIGRATION.md](docs/MIGRATION.md)
+**Data operations:**
+```bash
+cd scripts
+API_URL=http://localhost:3000/api LEMMARIO_ID=2 pnpm migrate  # Import legacy data
+pnpm seed:livelli  # Create 6 rationality levels (run before first migration)
+pnpm migrate:full  # Full reset + seed + import pipeline
+```
+
+**Payload CMS specifics:**
+```bash
+cd packages/payload-cms
+pnpm payload build-types  # Regenerate types after schema changes
+pnpm db:migrate / db:seed # Database operations
+```
 
 ## Development Workflow
 
@@ -54,48 +70,44 @@ pnpm clean       # Remove dist/, .next/, node_modules/.cache
 
 ## Multi-Tenancy & Access Control
 
-**Core principle**: All data scoped by `lemmario_id`. Users assigned to specific lemmari via `UtenteRuoloLemmari` junction (admin/redattore/lettore roles).
+**Core principle**: All data scoped by `lemmario_id`. Users assigned to specific lemmari via `UtentiRuoliLemmari` junction (super_admin/lemmario_admin/redattore/lettore roles).
 
 ### Access Control Helpers ([packages/payload-cms/src/access/index.ts](packages/payload-cms/src/access/index.ts))
-- `superAdminOnly` - Global admin check (user.ruolo === 'super_admin')
-- `hasLemmarioAccess` - Filter results by user's assigned lemmari
-- `canCreateInLemmario` - Verify user can create in target lemmario via `data.lemmario`
-- `getUserLemmari(userId, payload)` - Returns lemmario IDs user can access
+- `superAdminOnly` - Super admin check only
+- `hasLemmarioAccess` - Filter results by user's assigned lemmari; **CRITICAL:** assumes direct `lemmario` relationship field exists
+- `canCreateInLemmario` - Verify `data.lemmario` set before create (denies if missing, unless super_admin)
+- `getUserLemmari(userId)` - Returns array of lemmario IDs user can access
 
-**Pattern**: Collections use `hasLemmarioAccess` for read, `canCreateInLemmario` for create/update to enforce multi-tenancy boundaries.
-
-### Migration Access Override
-During data import, collections temporarily use `create: public_` in access control. **Must revert to `canCreateInLemmario` after migration** to prevent unauthorized creation.
+**Important gotchas:**
+- `hasLemmarioAccess` assumes collection has direct `lemmario` field; won't work on indirect relationships (e.g., via Lemma)
+- `canCreateInLemmario` requires `lemmario` in create payload; will deny 403 if missing
+- During migration, collections temporarily use `create: public_`; **MUST revert to `canCreateInLemmario` afterward**
 
 ## Backend Collections & Hooks
 
 ### Collections Overview ([packages/payload-cms/src/collections/](packages/payload-cms/src/collections/))
 13 collections modeling complete lexicographic domain with multi-tenancy:
 
-**Multi-tenancy/Auth collections:**
+**Multi-tenancy/Auth:**
 - `Lemmari` - Dictionary instances (e.g., "Lemmario di Matematica")
 - `Utenti` - Users with global roles (super_admin, lemmario_admin, redattore, lettore)
 - `UtentiRuoliLemmari` - Junction assigning per-dictionary roles
 
-**Core lexicon collections:**
-- `Lemmi` - Dictionary entries/terms; auto-generates slug from `termine` field
-- `VariantiGrafiche` - Alternate spellings (e.g., "camara" for "camera"); ordered via `ordine`
-- `Definizioni` - Multiple numbered definitions per lemma; link to rationality levels; ordered via `ordine`
+**Core lexicon:**
+- `Lemmi` - Dictionary entries; has `tipo` ("latino"/"volgare"), auto-generates `slug` from `termine`, `pubblicato` flag
+- `VariantiGrafiche` - Alternate spellings; ordered via `ordine` (e.g., "camara" for "camera")
+- `Definizioni` - Multiple numbered definitions per lemma; ordered via `ordine`; link to `LivelliRazionalita`
 - `Livelli di Razionalità` - Fixed 6-level taxonomy (codes 1-6) for mathematical concepts
-- `Ricorrenze` - Source citations with original medieval text excerpts
-- `Fonti` - Bibliographic sources; **crucial field:** `shorthand_id` (e.g., "Stat.fornai.1339") for legacy URL compatibility
-- `RiferimentiIncrociati` - Bidirectional cross-references between lemmi (types: CFR, VEDI, VEDI_ANCHE)
+- `Ricorrenze` - Source citations with `testo_originale` (medieval text excerpt)
+- `Fonti` - Bibliographic sources; **critical field:** `shorthand_id` (e.g., "Stat.fornai.1339") for legacy URL compatibility
+- `RiferimentiIncrociati` - Bidirectional cross-references (CFR, VEDI, VEDI_ANCHE); auto-creates inverse with `auto_creato` flag
 
-**System collections:**
-- `ContenutiStatici` - Static pages (about, methodology descriptions)
-- `StoricoModifiche` - Audit trail logging all changes with before/after snapshots
-- Plus legacy `CampiCustomLemmario` (deprecated)
+**System:**
+- `ContenutiStatici` - Static pages (about, methodology)
+- `StoricoModifiche` - Audit trail: tracks create/update/delete with before/after snapshots, user, IP, timestamp
 
-**Relationships**:
-- `Lemma` → N `Definizioni` → N `Ricorrenze` → 1 `Fonte`
-- `Lemma` → N `VariantiGrafiche`
-- `Lemma` ↔ `Lemma` via `RiferimentiIncrociati` (bidirectional self-reference)
-- `Definizione` → 1 `LivelliRazionalita` (6 fixed levels: codes 1-6)
+### Database Schema Pattern
+In PostgreSQL, multi-tenancy relationships (e.g., `lemmario` on `LivelliRazionalita`) are stored in `*_rels` junction tables, NOT in the base table. Direct SQL seeding must update both base row AND `_rels` row to set relationships correctly.
 
 ### Hooks ([packages/payload-cms/src/hooks/](packages/payload-cms/src/hooks/))
 
@@ -214,6 +226,40 @@ Payload's default UI requires navigating between separate collections (update Le
 **Why it exists:** UX efficiency for lexicographers editing complex entries with multiple variants, definitions, and cross-references in a single workflow.
 
 
+
+## Operational Guardrails
+
+Critical rules derived from development patterns to prevent common errors:
+
+### Database & Schema
+- **ALWAYS** use Payload CMS migration system for schema changes — **NEVER** add columns manually or extract SQL directly
+- **NEVER** use `push: true` on schema operations — always use the migration workflow
+- Before importing data, verify ALL required columns exist: `storico_modifiche`, `livelli_razionalita_id`, `ricorrenze`, Draft status fields
+- For Drizzle interactive prompts: use non-interactive flags or pre-generate migrations
+
+### Remote Server Access
+- **ALWAYS** confirm VPN is active before SSH attempts
+- Pay careful attention to LOCAL vs REMOTE paths — underscore vs dash:
+  - **Local**: `/home/ale/docker/lemmario_ts` (underscore)
+  - **Remote**: `/home/dhruby/lemmario-ts` (dash)
+  - `/home/dhruby/docker/` **does NOT exist** on remote server
+
+### TypeScript & Code Quality
+- **ALWAYS** run `pnpm typecheck` after code changes, before committing
+- Run `pnpm lint` before pushing (fails on unescaped HTML entities in JSX)
+- If TypeScript errors in frontend: regenerate Payload types with `pnpm payload build-types`
+
+### Payload CMS Quirks
+- Complex filter queries (`exists`, `equals`, `where by slug`) are unreliable — prefer fetching broader and filtering client-side
+- When translating labels or modifying Payload config: do a COMPLETE sweep of ALL collections, globals, and fields — partial coverage causes iteration loops
+- Before implementing ANY Payload modification: explain the approach, which APIs/filters will be used, and the fallback if it fails
+
+### CI/CD & Docker
+- GHCR image tags **MUST** use lowercase repository owner — never uppercase
+- Always verify self-hosted runner labels match workflow file before pushing
+- After fixing deploy issues: run a complete end-to-end deploy cycle before considering it resolved
+- Test Docker build locally (`docker compose build`) before pushing to CI
+- Deploy debug approach: (1) fix TypeScript errors, (2) verify CI config, (3) test Docker build, (4) verify runner
 
 ## CI/CD Pipeline
 

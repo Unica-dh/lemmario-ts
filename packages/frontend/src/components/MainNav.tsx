@@ -50,14 +50,14 @@ export default async function MainNav({ lemmarioSlug, lemmarioId, lemmarioTitolo
             <img
               src="/logos/unica-logo.svg"
               alt=""
-              className="h-2.5 w-auto dark:invert"
+              className="h-3.5 w-auto dark:invert"
               aria-hidden="true"
             />
             <span className="text-[var(--color-border)] text-xs" aria-hidden="true">&middot;</span>
             <img
               src="/logos/dh-logo.svg"
               alt=""
-              className="h-3 w-auto dark:invert"
+              className="h-4 w-auto dark:invert"
               aria-hidden="true"
             />
           </div>
