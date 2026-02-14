@@ -46,6 +46,7 @@ COPY --from=base /app/pnpm-workspace.yaml ./
 COPY --from=base /app/packages/frontend/.next ./packages/frontend/.next
 COPY --from=base /app/packages/frontend/public ./packages/frontend/public
 COPY --from=base /app/packages/frontend/package.json ./packages/frontend/
+COPY --from=base /app/packages/frontend/next.config.js ./packages/frontend/
 COPY --from=base /app/node_modules ./node_modules
 COPY --from=base /app/packages/frontend/node_modules ./packages/frontend/node_modules
 
