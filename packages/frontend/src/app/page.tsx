@@ -4,12 +4,11 @@ import MainNav from '@/components/MainNav'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Glossario',
-  description:
-    'Dizionari storici della terminologia italiana. Glossari specializzati della terminologia matematica ed economica medievale.',
+  title: 'Glossari - Centro Interdipartimentale per l\'Umanistica Digitale - Universita degli Studi di Cagliari',
+  description: 'Dizionari storici della terminologia matematica ed economica italiana. Centro Interdipartimentale per l\'Umanistica Digitale dell\'Universita degli Studi di Cagliari.',
   openGraph: {
-    title: 'Glossario',
-    description: 'Dizionari storici della terminologia italiana',
+    title: 'Glossari - Dizionari Storici della Terminologia Italiana',
+    description: 'Dizionari storici della terminologia matematica ed economica italiana. Centro Interdipartimentale per l\'Umanistica Digitale',
   },
 }
 

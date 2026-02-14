@@ -1,0 +1,23 @@
+{
+  "name": "Glossari - Centro Interdipartimentale per l'Umanistica Digitale - Universita degli Studi di Cagliari",
+  "short_name": "Glossari UniCa",
+  "description": "Dizionari storici della terminologia matematica ed economica italiana. Centro Interdipartimentale per l'Umanistica Digitale.",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#1a1a1a",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/",
+  "orientation": "portrait-primary"
+}
