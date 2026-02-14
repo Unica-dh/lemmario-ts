@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import Link from 'next/link'
 import { getGlobalContenutiStatici, getLemmarioContenutiStatici } from '@/lib/payload-api'
 import { ThemeToggle } from '@/components/theme/ThemeToggle'
@@ -18,7 +19,7 @@ export default async function MainNav({ lemmarioSlug, lemmarioId, lemmarioTitolo
 
   // Build links array for mobile menu
   const mobileLinks: Array<{ href: string; label: string; isLemmarioSpecific?: boolean }> = [
-    { href: '/', label: 'Dizionari' },
+    { href: '/', label: 'Home' },
     ...contenutiGlobali.map((c) => ({
       href: `/pagine/${c.slug}`,
       label: c.titolo,
@@ -41,16 +42,33 @@ export default async function MainNav({ lemmarioSlug, lemmarioId, lemmarioTitolo
   }
 
   return (
-    <nav className="bg-[var(--color-bg)] sticky top-11 z-40" aria-label="Navigazione principale">
+    <nav className="main-nav bg-[var(--color-bg)] sticky z-40 transition-[top] duration-300 ease-in-out" aria-label="Navigazione principale">
       <div className="container mx-auto px-4 py-3 border-b border-[var(--color-border)]">
-        <div className="flex items-center justify-between">
-          {/* Desktop Navigation Links */}
+        <div className="flex items-center justify-center relative">
+          {/* Compact logos - visible only when scrolled (CSS controlled) */}
+          <div className="compact-logos absolute left-0 items-center gap-2 hidden">
+            <img
+              src="/logos/unica-logo.svg"
+              alt=""
+              className="h-2.5 w-auto dark:invert"
+              aria-hidden="true"
+            />
+            <span className="text-[var(--color-border)] text-xs" aria-hidden="true">&middot;</span>
+            <img
+              src="/logos/dh-logo.svg"
+              alt=""
+              className="h-3 w-auto dark:invert"
+              aria-hidden="true"
+            />
+          </div>
+
+          {/* Desktop Navigation Links - centered */}
           <div className="hidden md:flex items-center space-x-6">
             <Link
               href="/"
               className="label-uppercase link-clean text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
             >
-              Dizionari
+              Home
             </Link>
 
             {contenutiGlobali.map((contenuto) => (
@@ -65,7 +83,7 @@ export default async function MainNav({ lemmarioSlug, lemmarioId, lemmarioTitolo
 
             {lemmarioSlug && (
               <>
-                <span className="text-[var(--color-border)]" aria-hidden="true">·</span>
+                <span className="text-[var(--color-border)]" aria-hidden="true">&middot;</span>
                 <Link
                   href={`/${lemmarioSlug}/bibliografia`}
                   className="label-uppercase link-clean text-[var(--color-text)] hover:text-[var(--color-text-body)] font-medium"
@@ -84,17 +102,15 @@ export default async function MainNav({ lemmarioSlug, lemmarioId, lemmarioTitolo
                 ))}
               </>
             )}
+
+            {/* Theme Toggle (desktop) */}
+            <ThemeToggle />
           </div>
 
-          {/* Right Side */}
-          <div className="flex items-center space-x-2 ml-auto">
-            {/* Mobile Menu (hamburger + drawer) */}
+          {/* Mobile: hamburger + theme toggle */}
+          <div className="flex md:hidden items-center space-x-2">
             <MobileMenu links={mobileLinks} />
-
-            {/* Theme Toggle (desktop only, mobile is in drawer) */}
-            <div className="hidden md:block">
-              <ThemeToggle />
-            </div>
+            <ThemeToggle />
           </div>
         </div>
       </div>
