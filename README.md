@@ -2,13 +2,17 @@
 
 [![CI Status](https://github.com/Unica-dh/lemmario_ts/actions/workflows/ci.yml/badge.svg)](https://github.com/Unica-dh/lemmario_ts/actions/workflows/ci.yml)
 [![CD Status](https://github.com/Unica-dh/lemmario_ts/actions/workflows/deploy.yml/badge.svg)](https://github.com/Unica-dh/lemmario_ts/actions/workflows/deploy.yml)
-[![Version](https://img.shields.io/badge/version-v.0.1-blue.svg)](https://github.com/Unica-dh/lemmario_ts/releases/tag/v.0.1)
+[![Version](https://img.shields.io/badge/version-v.0.2-blue.svg)](https://github.com/Unica-dh/lemmario_ts/releases/tag/v.0.2)
 
 **Glossari** è una piattaforma multi-tenancy di umanistica digitale per la gestione di glossari storici della terminologia italiana medievale e rinascimentale. Basata su **Payload CMS** e **Next.js 14**, permette a ricercatori e studiosi di creare, gestire e pubblicare dizionari specialistici con controllo granulare degli accessi e funzionalità avanzate di ricerca.
 
 Il primo glossario ospitato è il **"Glossario dei termini su Ordine, Calcolo e Ragione nell'Italia"**, sviluppato nell'ambito del progetto PRIN in collaborazione con l'Università di Cagliari e l'Università di Firenze.
 
 > **Nota storica**: La cartella `/old_website` contiene il codice sorgente del sito web legacy https://lemmario.netlify.app/ che rappresenta l'applicazione in versione "statica" che è stata migrata ed evoluta in questa piattaforma dinamica.
+
+![alt text](docs/design/desktop-header-check.png)
+
+
 
 ## Architettura
 
