@@ -175,7 +175,6 @@ export default async function LemmarioPage({ params, searchParams }: PageProps) 
             {letteraAttiva && !searchQuery && <>Sezione: {letteraAttiva} &mdash; </>}
             <AnimatedCount value={totalFiltered} suffix="lemmi catalogati" />
           </p>
-          <div className="mt-6 border-t border-[var(--color-border)]" />
         </header>
 
         {/* Search + Results with loading overlay */}

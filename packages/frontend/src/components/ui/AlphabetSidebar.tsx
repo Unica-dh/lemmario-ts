@@ -10,8 +10,8 @@ interface AlphabetSidebarProps {
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
 
-// 26 letters, 3s total → ~115ms stagger between each
-const STAGGER_DELAY = 3 / ALPHABET.length
+// 26 letters, 6s total → ~230ms stagger between each
+const STAGGER_DELAY = 6 / ALPHABET.length
 
 export function AlphabetSidebar({ lettereDisponibili, letteraAttiva }: AlphabetSidebarProps) {
   const router = useRouter()
@@ -60,8 +60,8 @@ export function AlphabetSidebar({ lettereDisponibili, letteraAttiva }: AlphabetS
               aria-label={`Filtra per lettera ${letter}`}
               aria-current={isActive ? 'true' : undefined}
               {...(!shouldReduceMotion && {
-                initial: { opacity: 0, x: -12 },
-                animate: { opacity: 1, x: 0 },
+                initial: { opacity: 0 },
+                animate: { opacity: 1 },
                 transition: {
                   duration: 0.3,
                   delay: index * STAGGER_DELAY,
