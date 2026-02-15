@@ -14,7 +14,8 @@
     "db:migrate": "payload migrate",
     "db:seed": "ts-node src/seed/index.ts",
     "db:seed:static": "ts-node src/seed-contenuti-statici.ts",
-    "create-admin": "node dist/seed/create-admin.js"
+    "create-admin": "node dist/seed/create-admin.js",
+    "create-api-user": "node dist/seed/create-api-user.js"
   },
   "dependencies": {
     "@payloadcms/bundler-webpack": "^1.0.7",

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ─── Configurazione ──────────────────────────────────────────────────────────
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
 cd "$SCRIPT_DIR"
 
 COMPOSE_DEV="-f docker-compose.yml -f docker-compose.dev.yml"
@@ -98,7 +98,22 @@ cmd_up() {
       exit 1
       ;;
   esac
-  ok "Servizi avviati"
+  ok "Container avviati"
+
+  # Attendi che Payload sia pronto (webpack + DB connect ~10s)
+  if [ "$service" != "db" ] && [ "$service" != "postgres" ]; then
+    info "Attesa Payload CMS..."
+    local retries=0
+    while ! curl -sf http://localhost:3000/api/lemmari > /dev/null 2>&1; do
+      retries=$((retries + 1))
+      if [ $retries -ge 30 ]; then
+        warn "Payload non risponde dopo 30 tentativi"
+        break
+      fi
+      sleep 2
+    done
+  fi
+
   echo ""
   cmd_status
 }
