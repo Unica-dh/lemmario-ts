@@ -24,10 +24,23 @@ Authorization: utenti API-Key <LA_TUA_API_KEY>
 ### Come ottenere una API key
 
 1. Richiedere al **super_admin** l'abilitazione della API key sul proprio account utente
-2. Il super_admin spunta "Enable API Key" nel profilo utente dall'admin panel
-3. Payload genera automaticamente una chiave unica
-4. L'utente puo' visualizzare la propria API key dal proprio profilo admin (`/admin/collections/utenti/<id>`)
-5. Copiare la chiave e usarla nell'header `Authorization` delle richieste
+2. Il super_admin apre il profilo utente dall'admin panel (`/admin/collections/utenti/<id>`)
+3. Nella sidebar, spunta la checkbox **"Enable API Key"**
+4. Payload genera automaticamente una chiave unica (UUID v4)
+5. Salvare il profilo utente
+6. Copiare la chiave dal campo "API Key" e usarla nell'header `Authorization`
+
+#### Screenshot: API Key disabilitata
+
+![API Key disabilitata](images/admin-utente-apikey-disabilitata.png)
+
+*Profilo utente con API Key non abilitata. La checkbox "Enable API Key" e' visibile nella sidebar solo per il super_admin.*
+
+#### Screenshot: API Key abilitata
+
+![API Key abilitata](images/admin-utente-apikey-abilitata.png)
+
+*Dopo aver spuntato "Enable API Key" e salvato, Payload genera la chiave. Il campo "API Key" mostra il valore da copiare.*
 
 ### Permessi
 
@@ -46,11 +59,13 @@ Il super_admin puo' revocare l'accesso:
 
 ## Esempi di Query GraphQL
 
+**Nota sui nomi GraphQL:** Payload CMS genera nomi GraphQL automaticamente dallo slug della collection. Per le query lista usare il nome al plurale generato (es. `Lemmis`, `Fontis`). Per le query per singolo ID usare il nome al singolare (es. `Lemmi`, `Fonti`).
+
 ### Elenco lemmi
 
 ```graphql
 query {
-  Lemmi(where: { pubblicato: { equals: true } }) {
+  Lemmis(where: { pubblicato: { equals: true } }) {
     docs {
       id
       termine
@@ -62,11 +77,11 @@ query {
 }
 ```
 
-### Lemma con definizioni e ricorrenze
+### Lemma per slug
 
 ```graphql
 query LemmaDettaglio($slug: String!) {
-  Lemmi(where: { slug: { equals: $slug } }) {
+  Lemmis(where: { slug: { equals: $slug } }) {
     docs {
       id
       termine
@@ -96,6 +111,25 @@ query {
 }
 ```
 
+### Definizioni di un lemma
+
+```graphql
+query DefinizioniLemma($lemmaId: JSON!) {
+  Definizioni(where: { lemma: { equals: $lemmaId } }) {
+    docs {
+      id
+      testo
+      ordine
+      livello_razionalita {
+        codice
+        nome
+      }
+    }
+    totalDocs
+  }
+}
+```
+
 ### Esempio con curl
 
 ```bash
@@ -103,12 +137,12 @@ query {
 curl -g -X POST https://glossari.dh.unica.it/api/graphql \
   -H "Content-Type: application/json" \
   -H "Authorization: utenti API-Key <LA_TUA_API_KEY>" \
-  -d '{"query": "{ Lemmi(where: { pubblicato: { equals: true } }) { docs { id termine tipo slug } totalDocs } }"}'
+  -d '{"query": "{ Lemmis(where: { pubblicato: { equals: true } }) { docs { id termine tipo slug } totalDocs } }"}'
 
-# Query pubblica (solo dati pubblicati)
+# Query pubblica (solo dati pubblicati, nessuna autenticazione)
 curl -g -X POST https://glossari.dh.unica.it/api/graphql \
   -H "Content-Type: application/json" \
-  -d '{"query": "{ Lemmi(where: { pubblicato: { equals: true } }) { docs { id termine } } }"}'
+  -d '{"query": "{ Lemmis(where: { pubblicato: { equals: true } }) { docs { id termine } } }"}'
 ```
 
 ### Esempio con JavaScript (fetch)
@@ -119,7 +153,7 @@ const API_KEY = 'la-tua-api-key'
 
 const query = `
   query LemmiPubblicati($lemmarioId: JSON!) {
-    Lemmi(where: {
+    Lemmis(where: {
       pubblicato: { equals: true }
       lemmario: { equals: $lemmarioId }
     }) {
@@ -142,7 +176,7 @@ const response = await fetch(GRAPHQL_URL, {
 })
 
 const { data } = await response.json()
-console.log(data.Lemmi.docs)
+console.log(data.Lemmis.docs)
 ```
 
 ## Limiti e Sicurezza
@@ -177,20 +211,20 @@ Le richieste server-to-server (Node.js, Python, script) non sono soggette a rest
 
 Le seguenti collections sono accessibili via GraphQL (nomi GraphQL tra parentesi):
 
-| Collection | Query GraphQL | Accesso pubblico |
-| --- | --- | --- |
-| Lemmi | `Lemmi` | Si (pubblicato=true) |
-| Definizioni | `Definizioni` | Si |
-| Ricorrenze | `Ricorrenze` | Si |
-| Fonti | `Fontis` | Si |
-| VariantiGrafiche | `VariantiGrafiche` | Si |
-| RiferimentiIncrociati | `RiferimentiIncrociati` | Si |
-| LivelliRazionalita | `LivelliRazionalitas` | Si |
-| Lemmari | `Lemmaris` | Si |
-| ContenutiStatici | `ContenutiStaticis` | Si (pubblicato=true) |
-| Utenti | `Utentis` | No (auth richiesta) |
-| UtentiRuoliLemmari | `UtentiRuoliLemmaris` | No (auth richiesta) |
-| StoricoModifiche | `StoricoModifiches` | No (auth richiesta) |
+| Collection | Query lista | Query singola | Accesso pubblico |
+| --- | --- | --- | --- |
+| Lemmi | `Lemmis` | `Lemmi(id)` | Si (pubblicato=true) |
+| Definizioni | `Definizioni` | `Definizione(id)` | Si |
+| Ricorrenze | `Ricorrenze` | `Ricorrenza(id)` | Si |
+| Fonti | `Fontis` | `Fonti(id)` | Si |
+| VariantiGrafiche | `VariantiGrafiche` | `VarianteGrafica(id)` | Si |
+| RiferimentiIncrociati | `RiferimentiIncrociatis` | `RiferimentiIncrociati(id)` | Si |
+| LivelliRazionalita | `LivelliRazionalitas` | `LivelliRazionalita(id)` | Si |
+| Lemmari | `Lemmaris` | `Lemmari(id)` | Si |
+| ContenutiStatici | `ContenutiStaticis` | `ContenutiStatici(id)` | Si (pubblicato=true) |
+| Utenti | `Utentis` | `Utenti(id)` | No (auth richiesta) |
+| UtentiRuoliLemmari | `UtentiRuoliLemmaris` | `UtentiRuoliLemmari(id)` | No (auth richiesta) |
+| StoricoModifiche | `StoricoModifiches` | `StoricoModifiche(id)` | No (auth richiesta) |
 
 ## Creazione Service Account
 
@@ -204,3 +238,19 @@ pnpm create-api-user
 ```
 
 Lo script stampa la API key generata. Assegnare poi i lemmari necessari tramite l'admin UI (UtentiRuoliLemmari).
+
+## Testing
+
+I test E2E per l'API GraphQL sono in `packages/frontend/e2e/graphql-api.spec.ts`. Verificano:
+
+1. **Accesso pubblico**: query senza autenticazione ritornano dati pubblici
+2. **Chiave sbagliata**: con API key invalida, il sistema si comporta come non autenticato (accesso solo ai dati pubblici)
+3. **Chiave valida**: con API key corretta, l'utente accede anche ai dati privati (es. collection Utenti)
+4. **Dati privati senza auth**: query verso collections protette ritornano errore 403
+
+Per eseguire i test:
+
+```bash
+cd packages/frontend
+pnpm test:e2e -- graphql-api
+```

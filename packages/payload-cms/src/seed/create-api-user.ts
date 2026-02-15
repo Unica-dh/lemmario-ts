@@ -9,6 +9,7 @@
  * UtentiRuoliLemmari tramite admin UI o API.
  */
 import payload from 'payload'
+import crypto from 'crypto'
 import config from '../payload.config'
 
 const createApiUser = async () => {
@@ -46,6 +47,10 @@ const createApiUser = async () => {
 
   console.log('Creating API service account...')
 
+  // Genera API key (UUID v4) - Payload non la genera server-side,
+  // solo il componente React admin la genera client-side
+  const apiKey = crypto.randomUUID()
+
   try {
     const user = await payload.create({
       collection: 'utenti',
@@ -57,6 +62,7 @@ const createApiUser = async () => {
         ruolo: 'lettore',
         attivo: true,
         enableAPIKey: true,
+        apiKey,
       },
     })
 

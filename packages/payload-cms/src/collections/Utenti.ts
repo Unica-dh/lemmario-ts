@@ -165,34 +165,6 @@ export const Utenti: CollectionConfig = {
         update: ({ req: { user } }) => user?.ruolo === 'super_admin',
       },
     },
-    // Override campi API key auto-generati da Payload (useAPIKey: true)
-    // Solo super_admin puo' abilitare/disabilitare le API key
-    {
-      name: 'enableAPIKey',
-      type: 'checkbox',
-      admin: {
-        description: 'Abilita API key per questo utente',
-        position: 'sidebar',
-        condition: (_data, { user }) => user?.ruolo === 'super_admin',
-      },
-      access: {
-        read: ({ req: { user } }) => user?.ruolo === 'super_admin',
-        update: ({ req: { user } }) => user?.ruolo === 'super_admin',
-      },
-    },
-    // Super_admin vede tutte le key, l'utente vede solo la propria
-    {
-      name: 'apiKey',
-      type: 'text',
-      access: {
-        read: ({ req: { user }, id }) => {
-          if (user?.ruolo === 'super_admin') return true
-          // L'utente puo' vedere la propria API key dal profilo
-          return String(id) === String(user?.id)
-        },
-        update: ({ req: { user } }) => user?.ruolo === 'super_admin',
-      },
-    },
   ],
   timestamps: true,
   hooks: {
