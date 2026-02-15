@@ -79,21 +79,11 @@ test.describe('Accessibilità', () => {
   })
 
   test.describe('ARIA labels', () => {
-    test('il filtro alfabetico ha aria-label (desktop)', async ({ page, browserName }) => {
+    test('la navigazione alfabetica ha aria-label (desktop)', async ({ page, browserName }) => {
       test.skip(page.viewportSize()!.width < 1024, 'AlphabetSidebar è nascosta su mobile')
       await page.goto('/matematica')
-      const alphabetNav = page.getByRole('navigation', { name: 'Filtro alfabetico' })
+      const alphabetNav = page.getByRole('navigation', { name: 'Navigazione alfabetica' })
       await expect(alphabetNav).toHaveCount(1)
-    })
-
-    test('la paginazione ha aria-label', async ({ page }) => {
-      await page.goto('/matematica')
-      const pagination = page.getByRole('navigation', { name: 'Paginazione' })
-      // May or may not be visible depending on number of lemmi, just check it exists if present
-      const count = await pagination.count()
-      if (count > 0) {
-        await expect(pagination).toBeVisible()
-      }
     })
 
     test('i separatori decorativi sono nascosti dallo screen reader', async ({ page }) => {
