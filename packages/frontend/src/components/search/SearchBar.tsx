@@ -10,6 +10,7 @@ interface SearchBarProps {
   className?: string
   sampleTerms?: string[]
   onLoadingChange?: (isLoading: boolean) => void
+  onSearchChange?: (query: string) => void
 }
 
 export function SearchBar({
@@ -18,6 +19,7 @@ export function SearchBar({
   className = '',
   sampleTerms = [],
   onLoadingChange,
+  onSearchChange,
 }: SearchBarProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -32,10 +34,15 @@ export function SearchBar({
 
   const updateSearchParam = useCallback(
     (value: string) => {
+      const trimmed = value.trim()
+
+      // Notify parent if callback provided
+      onSearchChange?.(trimmed)
+
       const params = new URLSearchParams(searchParams.toString())
 
-      if (value.trim()) {
-        params.set('q', value.trim())
+      if (trimmed) {
+        params.set('q', trimmed)
         params.delete('lettera')
         params.delete('page')
       } else {
@@ -46,7 +53,7 @@ export function SearchBar({
         router.push(`${pathname}?${params.toString()}`, { scroll: false })
       })
     },
-    [pathname, router, searchParams]
+    [pathname, router, searchParams, onSearchChange]
   )
 
   useEffect(() => {
@@ -61,6 +68,7 @@ export function SearchBar({
 
   const handleClear = () => {
     setSearchValue('')
+    onSearchChange?.('')
     const params = new URLSearchParams(searchParams.toString())
     params.delete('q')
     startTransition(() => {

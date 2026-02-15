@@ -1,11 +1,11 @@
 'use client'
 
-import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { motion, useReducedMotion } from 'framer-motion'
 
 interface AlphabetSidebarProps {
   lettereDisponibili: string[]
-  letteraAttiva?: string
+  activeLetter: string
+  onLetterClick: (letter: string) => void
 }
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
@@ -13,39 +13,25 @@ const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
 // 26 letters, 6s total → ~230ms stagger between each
 const STAGGER_DELAY = 6 / ALPHABET.length
 
-export function AlphabetSidebar({ lettereDisponibili, letteraAttiva }: AlphabetSidebarProps) {
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
+export function AlphabetSidebar({ lettereDisponibili, activeLetter, onLetterClick }: AlphabetSidebarProps) {
   const shouldReduceMotion = useReducedMotion()
-
-  const handleLetterClick = (letter: string) => {
-    const params = new URLSearchParams(searchParams.toString())
-    if (letteraAttiva === letter) {
-      params.delete('lettera')
-    } else {
-      params.set('lettera', letter)
-    }
-    params.delete('page')
-    router.push(`${pathname}?${params.toString()}`, { scroll: false })
-  }
 
   return (
     <aside
       className="fixed left-3 top-3 hidden lg:block z-[60]"
       data-testid="alphabet-sidebar"
     >
-      <nav className="flex flex-col space-y-0.5" aria-label="Filtro alfabetico">
+      <nav className="flex flex-col space-y-0.5" aria-label="Navigazione alfabetica">
         {ALPHABET.map((letter, index) => {
           const isDisabled = !lettereDisponibili.includes(letter)
-          const isActive = letteraAttiva === letter
+          const isActive = activeLetter === letter
 
           const MotionOrButton = shouldReduceMotion ? 'button' : motion.button
 
           return (
             <MotionOrButton
               key={letter}
-              onClick={() => handleLetterClick(letter)}
+              onClick={() => !isDisabled && onLetterClick(letter)}
               disabled={isDisabled}
               className={`
                 w-8 h-7 flex items-center justify-center
@@ -57,7 +43,7 @@ export function AlphabetSidebar({ lettereDisponibili, letteraAttiva }: AlphabetS
                     : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-bg-subtle)] cursor-pointer'
                 }
               `}
-              aria-label={`Filtra per lettera ${letter}`}
+              aria-label={`Vai alla sezione ${letter}`}
               aria-current={isActive ? 'true' : undefined}
               {...(!shouldReduceMotion && {
                 initial: { opacity: 0 },

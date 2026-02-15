@@ -335,6 +335,42 @@ export async function getDefinizioniByLemma(lemmaId: number): Promise<Definizion
 }
 
 /**
+ * Bulk fetch all definitions grouped by lemma ID.
+ * Single API call instead of N calls to getDefinizioniByLemma.
+ */
+export async function getAllDefinizioniGrouped(): Promise<Map<number, Definizione[]>> {
+  try {
+    const response = await fetchFromPayload<PaginatedResponse<Definizione>>('/definizioni', {
+      params: {
+        limit: 1000,
+        depth: 0,
+      },
+    })
+
+    const grouped = new Map<number, Definizione[]>()
+
+    for (const def of response.docs) {
+      const lemmaId = typeof def.lemma === 'number' ? def.lemma : def.lemma?.id
+      if (!lemmaId) continue
+
+      const existing = grouped.get(lemmaId) || []
+      existing.push(def)
+      grouped.set(lemmaId, existing)
+    }
+
+    // Sort each group by numero
+    for (const [, defs] of grouped) {
+      defs.sort((a, b) => (a.numero || 0) - (b.numero || 0))
+    }
+
+    return grouped
+  } catch (error) {
+    console.error('getAllDefinizioniGrouped error:', error)
+    return new Map()
+  }
+}
+
+/**
  * Ricorrenze API
  */
 export async function getRicorrenzeByDefinizione(definizioneId: number): Promise<Ricorrenza[]> {
