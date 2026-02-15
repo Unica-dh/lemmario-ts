@@ -15,7 +15,7 @@ export function LoadingOverlay({ isLoading }: LoadingOverlayProps) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="absolute inset-0 z-10 flex items-center justify-center bg-[rgba(0,0,0,0.15)] dark:bg-[rgba(255,255,255,0.1)]"
+          className="absolute inset-0 z-10 flex items-start justify-center pt-16 bg-[rgba(0,0,0,0.15)] dark:bg-[rgba(255,255,255,0.1)]"
           style={{ pointerEvents: 'all' }}
           aria-label="Caricamento risultati"
           role="status"

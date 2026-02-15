@@ -8,7 +8,7 @@ interface AnimatedCountProps {
 }
 
 export function AnimatedCount({ value, suffix }: AnimatedCountProps) {
-  const { count, ref } = useCountUp(value, { duration: 6000 })
+  const { count, ref } = useCountUp(value, { duration: 3000 })
 
   return (
     <span ref={ref}>
