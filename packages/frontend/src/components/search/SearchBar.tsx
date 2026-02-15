@@ -1,23 +1,34 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useTransition } from 'react'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
+import { TypewriterPlaceholder } from './TypewriterPlaceholder'
 
 interface SearchBarProps {
   placeholder?: string
   debounceMs?: number
   className?: string
+  sampleTerms?: string[]
+  onLoadingChange?: (isLoading: boolean) => void
 }
 
 export function SearchBar({
   placeholder = 'Cerca un termine nel glossario...',
   debounceMs = 300,
   className = '',
+  sampleTerms = [],
+  onLoadingChange,
 }: SearchBarProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [searchValue, setSearchValue] = useState(searchParams.get('q') || '')
+  const [isFocused, setIsFocused] = useState(false)
+  const [isPending, startTransition] = useTransition()
+
+  useEffect(() => {
+    onLoadingChange?.(isPending)
+  }, [isPending, onLoadingChange])
 
   const updateSearchParam = useCallback(
     (value: string) => {
@@ -31,7 +42,9 @@ export function SearchBar({
         params.delete('q')
       }
 
-      router.push(`${pathname}?${params.toString()}`, { scroll: false })
+      startTransition(() => {
+        router.push(`${pathname}?${params.toString()}`, { scroll: false })
+      })
     },
     [pathname, router, searchParams]
   )
@@ -50,8 +63,12 @@ export function SearchBar({
     setSearchValue('')
     const params = new URLSearchParams(searchParams.toString())
     params.delete('q')
-    router.push(`${pathname}?${params.toString()}`, { scroll: false })
+    startTransition(() => {
+      router.push(`${pathname}?${params.toString()}`, { scroll: false })
+    })
   }
+
+  const hasTypewriter = sampleTerms.length > 0
 
   return (
     <div className={`max-w-2xl mx-auto ${className}`} data-testid="search-bar">
@@ -73,11 +90,21 @@ export function SearchBar({
           </svg>
         </div>
 
+        {hasTypewriter && (
+          <TypewriterPlaceholder
+            words={sampleTerms}
+            isFocused={isFocused}
+            hasValue={searchValue.length > 0}
+          />
+        )}
+
         <input
           type="search"
           value={searchValue}
           onChange={(e) => setSearchValue(e.target.value)}
-          placeholder={placeholder}
+          onFocus={() => setIsFocused(true)}
+          onBlur={() => setIsFocused(false)}
+          placeholder={hasTypewriter ? '' : placeholder}
           className="w-full pl-8 pr-10 py-3 bg-transparent border-0 border-b-2 border-[var(--color-border)] font-sans text-base text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-text)] transition-colors"
           data-testid="search-input"
           aria-label="Cerca lemmi"

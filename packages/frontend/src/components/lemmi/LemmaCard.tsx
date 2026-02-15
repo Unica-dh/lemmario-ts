@@ -24,7 +24,7 @@ export function LemmaCard({
   return (
     <Link
       href={`/${lemmarioSlug}/lemmi/${slug}`}
-      className="block group transition-colors duration-200 hover:bg-[var(--color-bg-subtle)]"
+      className="block group transition-all duration-200 hover:bg-[var(--color-bg-subtle)] hover:-translate-y-1 hover:shadow-md"
       data-testid="lemma-card"
     >
       <article className="py-5 px-4">

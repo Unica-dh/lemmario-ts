@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, usePathname, useSearchParams } from 'next/navigation'
+import { motion, useReducedMotion } from 'framer-motion'
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
 
@@ -15,8 +16,8 @@ export function AlphabetDrawer({ lettereDisponibili, letteraAttiva }: AlphabetDr
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const shouldReduceMotion = useReducedMotion()
 
-  // Close drawer on Escape
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setIsOpen(false)
@@ -43,17 +44,24 @@ export function AlphabetDrawer({ lettereDisponibili, letteraAttiva }: AlphabetDr
     setIsOpen(false)
   }
 
+  const MotionButton = shouldReduceMotion ? 'button' : motion.button
+
   return (
     <>
       {/* FAB trigger */}
-      <button
+      <MotionButton
         onClick={() => setIsOpen(true)}
         className="fixed bottom-6 right-6 lg:hidden z-40 w-14 h-14 rounded-full bg-[var(--color-bg-inverse)] text-[var(--color-text-inverse)] shadow-lg flex items-center justify-center label-uppercase text-xs"
         aria-label="Apri filtro alfabetico"
         data-testid="alphabet-fab"
+        {...(!shouldReduceMotion && {
+          initial: { opacity: 0, scale: 0.8 },
+          animate: { opacity: 1, scale: 1 },
+          transition: { duration: 0.4, delay: 0.5, ease: 'easeOut' },
+        })}
       >
         {letteraAttiva || 'A-Z'}
-      </button>
+      </MotionButton>
 
       {/* Drawer overlay */}
       {isOpen && (
@@ -81,7 +89,6 @@ export function AlphabetDrawer({ lettereDisponibili, letteraAttiva }: AlphabetDr
               </button>
             </div>
 
-            {/* 6-column letter grid */}
             <div className="grid grid-cols-6 gap-3" data-testid="alphabet-drawer-grid">
               {ALPHABET.map((letter) => {
                 const isDisabled = !lettereDisponibili.includes(letter)

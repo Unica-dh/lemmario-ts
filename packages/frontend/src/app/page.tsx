@@ -1,6 +1,7 @@
 import { getAllLemmariWithStats } from '@/lib/payload-api'
 import { LemmariGrid } from '@/components/lemmari/LemmariGrid'
 import MainNav from '@/components/MainNav'
+import { FadeIn } from '@/components/animations/FadeIn'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -23,19 +24,23 @@ export default async function Home() {
       <main className="flex-1 bg-[var(--color-bg)]">
         <div className="container mx-auto px-4 md:px-20 py-10 md:py-16">
           {/* Hero section */}
-          <div className="text-center mb-8 md:mb-12">
-            <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl text-[var(--color-text)] mb-4">
-              Glossario
-            </h1>
-            <div className="flex items-center justify-center">
-              <div className="w-64 h-px bg-[var(--color-border)]" />
+          <FadeIn direction="up" delay={0}>
+            <div className="text-center mb-8 md:mb-12">
+              <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl text-[var(--color-text)] mb-4">
+                Glossario
+              </h1>
+              <div className="flex items-center justify-center">
+                <div className="w-64 h-px bg-[var(--color-border)]" />
+              </div>
+              <p className="font-serif italic text-base text-[var(--color-text-muted)] mt-4">
+                {lemmari.length} {lemmari.length === 1 ? 'glossario disponibile' : 'glossari disponibili'}
+              </p>
             </div>
-            <p className="font-serif italic text-base text-[var(--color-text-muted)] mt-4">
-              {lemmari.length} {lemmari.length === 1 ? 'glossario disponibile' : 'glossari disponibili'}
-            </p>
-          </div>
+          </FadeIn>
 
-          <LemmariGrid lemmari={lemmari} />
+          <FadeIn direction="up" delay={200}>
+            <LemmariGrid lemmari={lemmari} />
+          </FadeIn>
         </div>
       </main>
     </>
