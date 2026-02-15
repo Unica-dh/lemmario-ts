@@ -19,8 +19,16 @@ export default function Footer() {
 
           {/* Column 2: Corrispondenza */}
           <div>
-            <h3 className="label-uppercase text-[var(--color-text-muted)] mb-2">Corrispondenza</h3>
+            <h3 className="label-uppercase text-[var(--color-text-muted)] mb-2">Centro Interdipartimentale per l’Umanistica Digitale</h3>
             <p className="text-[var(--color-text-body)]">
+              <a
+                href="https://dh.unica.it"
+                className="underline hover:text-[var(--color-text)] transition-colors"
+              >
+                https://dh.unica.it
+              </a>
+            </p>
+                        <p className="text-[var(--color-text-body)]">
               <a
                 href="mailto:dh@unica.it"
                 className="underline hover:text-[var(--color-text)] transition-colors"
@@ -37,11 +45,11 @@ export default function Footer() {
             <p className="label-uppercase text-[var(--color-text-muted)]">
               <span>&copy; {currentYear} UniCa</span>
               <span className="mx-2" aria-hidden="true">·</span>
-              <Link href="/privacy" className="link-clean hover:text-[var(--color-text)] inline-flex items-center min-h-[44px]">
+              <Link href="https://web.unica.it/unica/it/utility_privacy.page" className="link-clean hover:text-[var(--color-text)] inline-flex items-center min-h-[44px]">
                 Privacy
               </Link>
               <span className="mx-2" aria-hidden="true">·</span>
-              <Link href="/contatti" className="link-clean hover:text-[var(--color-text)] inline-flex items-center min-h-[44px]">
+              <Link href="https://dh.unica.it/contatti/" className="link-clean hover:text-[var(--color-text)] inline-flex items-center min-h-[44px]">
                 Contatti
               </Link>
             </p>
