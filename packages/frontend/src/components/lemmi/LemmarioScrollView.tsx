@@ -6,6 +6,8 @@ import { ParallaxLetter } from '@/components/ui/ParallaxLetter'
 import { AlphabetSidebar } from '@/components/ui/AlphabetSidebar'
 import { AlphabetDrawer } from '@/components/ui/AlphabetDrawer'
 import { SearchBar } from '@/components/search/SearchBar'
+import { TypeFilterPills } from '@/components/search/TypeFilterPills'
+import type { TipoFilter } from '@/components/search/TypeFilterPills'
 import { LetterSection } from './LetterSection'
 import type { LetterGroup } from './LetterSection'
 
@@ -25,6 +27,7 @@ export function LemmarioScrollView({
   totalCount,
 }: LemmarioScrollViewProps) {
   const [searchQuery, setSearchQuery] = useState('')
+  const [typeFilters, setTypeFilters] = useState<TipoFilter[]>([])
   const [isStuck, setIsStuck] = useState(false)
   const sentinelRef = useRef<HTMLDivElement>(null)
   const { activeLetter, registerSection } = useActiveLetterOnScroll(lettereDisponibili)
@@ -40,21 +43,40 @@ export function LemmarioScrollView({
     return () => observer.disconnect()
   }, [])
 
+  const typeCounts = useMemo(() => {
+    const allLemmi = letterGroups.flatMap((g) => g.lemmi)
+    return {
+      volgare: allLemmi.filter((l) => l.tipo === 'volgare').length,
+      latino: allLemmi.filter((l) => l.tipo === 'latino').length,
+    }
+  }, [letterGroups])
+
+  const handleTypeToggle = useCallback((tipo: TipoFilter) => {
+    setTypeFilters((prev) =>
+      prev.includes(tipo) ? prev.filter((t) => t !== tipo) : [...prev, tipo]
+    )
+  }, [])
+
   const filteredGroups = useMemo(() => {
-    if (!searchQuery) return letterGroups
+    const hasSearch = searchQuery.length > 0
+    const hasTypeFilter = typeFilters.length > 0
+    if (!hasSearch && !hasTypeFilter) return letterGroups
 
     const lowerQuery = searchQuery.toLowerCase()
     return letterGroups
       .map((group) => ({
         ...group,
-        lemmi: group.lemmi.filter(
-          (lemma) =>
+        lemmi: group.lemmi.filter((lemma) => {
+          const matchesType = !hasTypeFilter || typeFilters.includes(lemma.tipo)
+          const matchesSearch =
+            !hasSearch ||
             lemma.termine.toLowerCase().includes(lowerQuery) ||
             lemma.preview.toLowerCase().includes(lowerQuery)
-        ),
+          return matchesType && matchesSearch
+        }),
       }))
       .filter((group) => group.lemmi.length > 0)
-  }, [letterGroups, searchQuery])
+  }, [letterGroups, searchQuery, typeFilters])
 
   const filteredCount = useMemo(
     () => filteredGroups.reduce((sum, g) => sum + g.lemmi.length, 0),
@@ -100,29 +122,57 @@ export function LemmarioScrollView({
       <div className="container mx-auto px-4 md:px-20 py-8 md:py-12 relative z-10">
         {/* Sentinel to detect sticky state */}
         <div ref={sentinelRef} className="h-0" aria-hidden="true" />
-        {/* Search bar - sticky below nav */}
+        {/* Search bar + type filter - sticky below nav */}
         <div
           className="sticky top-[calc(2.75rem+15px)] z-20 pb-4 pt-2 -mx-4 px-4 md:-mx-20 md:px-20 mb-4"
           style={isStuck ? { background: 'linear-gradient(to bottom, var(--color-bg) 50%, transparent)' } : undefined}
         >
-          <SearchBar
-            sampleTerms={sampleTerms}
-            onSearchChange={handleSearchChange}
-          />
+          <div className="flex items-end gap-4 max-w-4xl mx-auto">
+            <SearchBar
+              sampleTerms={sampleTerms}
+              onSearchChange={handleSearchChange}
+              className="flex-1 !mx-0"
+            />
+            <div className="hidden md:flex pb-1">
+              <TypeFilterPills
+                activeFilters={typeFilters}
+                onToggle={handleTypeToggle}
+                counts={typeCounts}
+              />
+            </div>
+          </div>
+          {/* Mobile: pills sotto la search bar */}
+          <div className="flex md:hidden justify-center mt-3">
+            <TypeFilterPills
+              activeFilters={typeFilters}
+              onToggle={handleTypeToggle}
+              counts={typeCounts}
+            />
+          </div>
         </div>
 
-        {/* Search results info */}
-        {searchQuery && (
+        {/* Search/filter results info */}
+        {(searchQuery || typeFilters.length > 0) && (
           <div className="text-center mb-8 text-sm text-[var(--color-text-muted)]">
             {filteredCount > 0 ? (
               <>
                 Trovati <span className="font-semibold">{filteredCount}</span> risultati
-                per &ldquo;<span className="font-semibold">{searchQuery}</span>&rdquo;
+                {searchQuery && (
+                  <> per &ldquo;<span className="font-semibold">{searchQuery}</span>&rdquo;</>
+                )}
+                {typeFilters.length === 1 && (
+                  <> in <span className="font-semibold">{typeFilters[0]}</span></>
+                )}
               </>
             ) : (
               <>
-                Nessun risultato per &ldquo;
-                <span className="font-semibold">{searchQuery}</span>&rdquo;
+                Nessun risultato
+                {searchQuery && (
+                  <> per &ldquo;<span className="font-semibold">{searchQuery}</span>&rdquo;</>
+                )}
+                {typeFilters.length === 1 && (
+                  <> in <span className="font-semibold">{typeFilters[0]}</span></>
+                )}
               </>
             )}
           </div>
