@@ -31,7 +31,7 @@ export function LetterSection({ letter, lemmi, lemmarioSlug, registerRef }: Lett
         ref={registerRef}
         id={`section-${letter}`}
         data-letter={letter}
-        className="scroll-mt-20"
+        className="scroll-mt-28"
       />
 
       {/* Letter heading */}

@@ -1,0 +1,71 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - link "Vai al contenuto principale" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - link "Logo Università degli Studi di Cagliari Università degli Studi di CagliariDigital Humanities Logo Digital Humanities" [ref=e5] [cursor=pointer]:
+        - /url: /
+        - img "Logo Università degli Studi di Cagliari" [ref=e6]
+        - generic [ref=e7]: Università degli Studi di Cagliari·Digital Humanities
+        - img "Logo Digital Humanities" [ref=e8]
+    - generic [ref=e9]:
+      - navigation "Navigazione principale" [ref=e10]:
+        - generic [ref=e13]:
+          - link "Home" [ref=e14] [cursor=pointer]:
+            - /url: /
+          - link "Università" [ref=e15] [cursor=pointer]:
+            - /url: /pagine/universita
+          - generic [ref=e16]: ·
+          - link "Bibliografia" [ref=e17] [cursor=pointer]:
+            - /url: /matematica/bibliografia
+          - link "Progetto" [ref=e18] [cursor=pointer]:
+            - /url: /matematica/pagine/progetto
+          - button "Attiva modalità scura" [ref=e19] [cursor=pointer]:
+            - img [ref=e20]
+      - main [ref=e23]:
+        - article [ref=e24]:
+          - link "Torna al glossario" [ref=e25] [cursor=pointer]:
+            - /url: /matematica
+            - img [ref=e26]
+            - text: Torna al glossario
+          - generic [ref=e29]:
+            - heading "visitatores" [level=1] [ref=e30]
+            - generic [ref=e31]: Latino
+          - generic [ref=e35]:
+            - generic [ref=e36]:
+              - heading "Definizione 1" [level=3] [ref=e37]
+              - generic [ref=e38]: "Livello: Istituzioni (6)"
+            - paragraph [ref=e39]: Ufficiale con funzioni di verifica.
+            - generic [ref=e40]:
+              - generic [ref=e41]:
+                - paragraph [ref=e42]: «Regulamus et firmamus quod de cetero non possit constitui vel ordinari aut teneri in aliquo officio comperarum comunis seu Capituli aliquis nuncius, qui sit minor annis sexdecim, et nisi primo fuerit approbatus pro bono, legali et sufficiente per officium visitatoum Capituli.»
+                - paragraph [ref=e43]: — Leges_Genuenses_1363, colonna 379, rubrica 161 "quod nuncii comperarum Capituli approbentur per visitatores".
+              - generic [ref=e44]:
+                - paragraph [ref=e45]: «Qui Visitatores et notarii teneatur in principio sue electionis iurare...»
+                - paragraph [ref=e46]: — Reg.Comper.G14, colonna 38, rubrica 3 "Quod Visitatores non possint compelli ad aliud officium exercendum"
+    - contentinfo [ref=e47]:
+      - generic [ref=e48]:
+        - generic [ref=e49]:
+          - generic [ref=e50]:
+            - heading "Istituzione" [level=3] [ref=e51]
+            - paragraph [ref=e52]:
+              - text: Università degli Studi di Cagliari
+              - text: Centro Interdipartimentale per l’Umanistica Digitale
+          - generic [ref=e53]:
+            - heading "Corrispondenza" [level=3] [ref=e54]
+            - paragraph [ref=e55]:
+              - link "dh@unica.it" [ref=e56] [cursor=pointer]:
+                - /url: mailto:dh@unica.it
+        - navigation "Link legali" [ref=e58]:
+          - paragraph [ref=e59]:
+            - generic [ref=e60]: © 2026 UniCa
+            - text: ·
+            - link "Privacy" [ref=e61] [cursor=pointer]:
+              - /url: /privacy
+            - text: ·
+            - link "Contatti" [ref=e62] [cursor=pointer]:
+              - /url: /contatti
+```
