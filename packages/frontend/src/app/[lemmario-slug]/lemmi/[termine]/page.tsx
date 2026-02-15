@@ -204,17 +204,17 @@ export default async function LemmaPage({ params, searchParams }: PageProps) {
               {lemma.tipo === 'latino' ? 'Latino' : 'Volgare'}
             </span>
           </div>
+          {/* Riferimenti Incrociati */}
+          {lemma.riferimenti_in_uscita && lemma.riferimenti_in_uscita.length > 0 && (
+            <div className="mt-4">
+              <RiferimentiIncrociati
+                riferimenti={lemma.riferimenti_in_uscita}
+                lemmarioSlug={lemmario.slug}
+                showLabel={false}
+              />
+            </div>
+          )}
         </header>
-
-        {/* Riferimenti Incrociati */}
-        {lemma.riferimenti_in_uscita && lemma.riferimenti_in_uscita.length > 0 && (
-          <div className="mb-6">
-            <RiferimentiIncrociati
-              riferimenti={lemma.riferimenti_in_uscita}
-              lemmarioSlug={lemmario.slug}
-            />
-          </div>
-        )}
 
         {/* Varianti Grafiche */}
         {lemma.varianti && lemma.varianti.length > 0 && (
