@@ -200,20 +200,22 @@ export default async function LemmaPage({ params, searchParams }: PageProps) {
             <h1 className="font-serif text-3xl md:text-5xl font-bold text-[var(--color-text)]">
               {lemma.termine}
             </h1>
-            <span className="label-uppercase text-[var(--color-text-muted)] mt-2 ml-4 shrink-0">
-              {lemma.tipo === 'latino' ? 'Latino' : 'Volgare'}
-            </span>
-          </div>
-          {/* Riferimenti Incrociati */}
-          {lemma.riferimenti_in_uscita && lemma.riferimenti_in_uscita.length > 0 && (
-            <div className="mt-4">
-              <RiferimentiIncrociati
-                riferimenti={lemma.riferimenti_in_uscita}
-                lemmarioSlug={lemmario.slug}
-                showLabel={false}
-              />
+            <div className="ml-4 shrink-0 text-right">
+              <span className="label-uppercase text-[var(--color-text-muted)] mt-2">
+                {lemma.tipo === 'latino' ? 'Latino' : 'Volgare'}
+              </span>
+              {/* Riferimenti Incrociati */}
+              {lemma.riferimenti_in_uscita && lemma.riferimenti_in_uscita.length > 0 && (
+                <div className="mt-2">
+                  <RiferimentiIncrociati
+                    riferimenti={lemma.riferimenti_in_uscita}
+                    lemmarioSlug={lemmario.slug}
+                    showLabel={false}
+                  />
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </header>
 
         {/* Varianti Grafiche */}
