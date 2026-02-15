@@ -15,6 +15,15 @@ ALTER TABLE lemmari ADD COLUMN IF NOT EXISTS seo_meta_description VARCHAR;
 ALTER TABLE contenuti_statici ADD COLUMN IF NOT EXISTS ordine NUMERIC DEFAULT 0;
 
 -- ===========================================
+-- Utenti - API Key authentication (PR #43)
+-- Colonne richieste da Payload CMS con useAPIKey: true
+-- ===========================================
+ALTER TABLE utenti ADD COLUMN IF NOT EXISTS enable_a_p_i_key BOOLEAN;
+ALTER TABLE utenti ADD COLUMN IF NOT EXISTS api_key VARCHAR;
+ALTER TABLE utenti ADD COLUMN IF NOT EXISTS api_key_index VARCHAR;
+CREATE INDEX IF NOT EXISTS utenti_api_key_idx ON utenti USING btree (api_key_index);
+
+-- ===========================================
 -- Aggiornamenti futuri vanno aggiunti qui
 -- ===========================================
 
