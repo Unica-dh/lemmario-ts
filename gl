@@ -1,0 +1,286 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ─── Configurazione ──────────────────────────────────────────────────────────
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
+
+COMPOSE_DEV="-f docker-compose.yml -f docker-compose.dev.yml"
+BACKUP_DIR="$SCRIPT_DIR/scripts/backups"
+
+# ─── Colori ──────────────────────────────────────────────────────────────────
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+# ─── Rileva docker compose ───────────────────────────────────────────────────
+if docker compose version &>/dev/null; then
+  DC="docker compose"
+else
+  DC="docker-compose"
+fi
+
+# ─── Funzioni di output ─────────────────────────────────────────────────────
+info()  { echo -e "${CYAN}▸${NC} $*"; }
+ok()    { echo -e "${GREEN}✔${NC} $*"; }
+warn()  { echo -e "${YELLOW}⚠${NC} $*"; }
+err()   { echo -e "${RED}✖${NC} $*" >&2; }
+
+# ─── Help ────────────────────────────────────────────────────────────────────
+show_help() {
+  echo -e "${BOLD}gl${NC} — CLI per il progetto Lemmario"
+  echo ""
+  echo -e "${BOLD}USO${NC}"
+  echo "  gl <comando> [opzioni]"
+  echo ""
+  echo -e "${BOLD}DOCKER${NC}"
+  echo "  up [servizio]       Avvia in dev mode (postgres+payload+frontend)"
+  echo "                      Servizi: db, payload, frontend"
+  echo "  stop [servizio]     Ferma container (senza rimuoverli)"
+  echo "  down                Ferma e rimuove container e network"
+  echo "  restart [servizio]  Riavvia tutto o un singolo servizio"
+  echo "  build               Build immagini Docker"
+  echo "  build up            Build e avvia"
+  echo ""
+  echo -e "${BOLD}SVILUPPO${NC}"
+  echo "  dev                 Backend Docker + frontend locale (hot reload)"
+  echo "  check               Esegue typecheck + lint"
+  echo "  test                Esegue Playwright E2E tests"
+  echo ""
+  echo -e "${BOLD}MONITORAGGIO${NC}"
+  echo "  logs [servizio]     Logs in tempo reale (follow)"
+  echo "  status              Stato container e health check API"
+  echo ""
+  echo -e "${BOLD}DATABASE${NC}"
+  echo "  db backup           Backup PostgreSQL in scripts/backups/"
+  echo "  db reset            Reset database (richiede conferma)"
+  echo "  db migrate          Esegue Payload migrations"
+  echo "  db seed             Seed dati iniziali"
+  echo ""
+  echo -e "${BOLD}ALTRO${NC}"
+  echo "  help                Mostra questo messaggio"
+  echo ""
+  echo -e "${BOLD}ESEMPI${NC}"
+  echo "  gl up                    Avvia tutto in dev"
+  echo "  gl up payload            Solo backend (per frontend locale)"
+  echo "  gl dev                   Backend Docker + frontend locale"
+  echo "  gl db backup             Backup del database"
+  echo "  gl logs payload          Logs del backend"
+}
+
+# ─── Comandi ─────────────────────────────────────────────────────────────────
+
+cmd_up() {
+  local service="${1:-}"
+  case "$service" in
+    db|postgres)
+      info "Avvio PostgreSQL..."
+      $DC $COMPOSE_DEV up postgres -d
+      ;;
+    payload|backend)
+      info "Avvio PostgreSQL + Payload CMS..."
+      $DC $COMPOSE_DEV up postgres payload -d
+      ;;
+    frontend)
+      info "Avvio tutti i servizi..."
+      $DC $COMPOSE_DEV up -d
+      ;;
+    "")
+      info "Avvio tutti i servizi in dev mode..."
+      $DC $COMPOSE_DEV up -d
+      ;;
+    *)
+      err "Servizio sconosciuto: $service"
+      echo "  Servizi disponibili: db, payload, frontend"
+      exit 1
+      ;;
+  esac
+  ok "Servizi avviati"
+  echo ""
+  cmd_status
+}
+
+cmd_stop() {
+  local service="${1:-}"
+  if [ -n "$service" ]; then
+    info "Stop $service..."
+    $DC $COMPOSE_DEV stop "$service"
+  else
+    info "Stop tutti i container..."
+    $DC $COMPOSE_DEV stop
+  fi
+  ok "Container fermati (usa 'up' per riavviare)"
+}
+
+cmd_down() {
+  info "Arresto e rimozione container..."
+  $DC $COMPOSE_DEV down
+  ok "Container rimossi"
+}
+
+cmd_restart() {
+  local service="${1:-}"
+  if [ -n "$service" ]; then
+    info "Riavvio $service..."
+    $DC $COMPOSE_DEV restart "$service"
+  else
+    info "Riavvio tutti i servizi..."
+    $DC $COMPOSE_DEV restart
+  fi
+  ok "Riavvio completato"
+}
+
+cmd_build() {
+  local after="${1:-}"
+  info "Build immagini Docker..."
+  $DC $COMPOSE_DEV build
+  ok "Build completata"
+  if [ "$after" = "up" ]; then
+    echo ""
+    cmd_up
+  fi
+}
+
+cmd_dev() {
+  info "Avvio backend Docker (postgres + payload)..."
+  $DC $COMPOSE_DEV up postgres payload -d
+
+  # Attendi che Payload sia pronto
+  info "Attesa Payload CMS..."
+  local retries=0
+  while ! curl -sf http://localhost:3000/api/lemmari > /dev/null 2>&1; do
+    retries=$((retries + 1))
+    if [ $retries -ge 30 ]; then
+      err "Payload non risponde dopo 30 tentativi"
+      exit 1
+    fi
+    sleep 2
+  done
+  ok "Payload CMS pronto su http://localhost:3000"
+
+  echo ""
+  info "Avvio frontend locale (porta 3001)..."
+  pnpm dev:frontend
+}
+
+cmd_logs() {
+  local service="${1:-}"
+  if [ -n "$service" ]; then
+    $DC $COMPOSE_DEV logs -f "$service"
+  else
+    $DC $COMPOSE_DEV logs -f
+  fi
+}
+
+cmd_status() {
+  echo -e "${BOLD}Container:${NC}"
+  $DC $COMPOSE_DEV ps --format "table {{.Name}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null \
+    || $DC $COMPOSE_DEV ps
+  echo ""
+
+  echo -e "${BOLD}Health check:${NC}"
+  if curl -sf http://localhost:3000/api/lemmari > /dev/null 2>&1; then
+    ok "Payload API   http://localhost:3000/api"
+  else
+    warn "Payload API   non raggiungibile"
+  fi
+  if curl -sf http://localhost:3001 > /dev/null 2>&1; then
+    ok "Frontend      http://localhost:3001"
+  else
+    warn "Frontend      non raggiungibile"
+  fi
+}
+
+cmd_db() {
+  local action="${1:-}"
+  case "$action" in
+    backup)
+      mkdir -p "$BACKUP_DIR"
+      local timestamp
+      timestamp=$(date +%Y%m%d_%H%M%S)
+      local file="$BACKUP_DIR/lemmario_${timestamp}.sql"
+      info "Backup database in $file..."
+      docker exec lemmario_db pg_dump -U "${DB_USER:-lemmario_user}" "${DB_NAME:-lemmario_db}" > "$file"
+      ok "Backup salvato: $file ($(du -h "$file" | cut -f1))"
+      ;;
+    reset)
+      warn "Questa operazione cancellera TUTTI i dati del database."
+      echo -n "Scrivi YES_DELETE_DATABASE per confermare: "
+      read -r confirm
+      if [ "$confirm" != "YES_DELETE_DATABASE" ]; then
+        info "Operazione annullata"
+        exit 0
+      fi
+      info "Reset database..."
+      $DC $COMPOSE_DEV down -v
+      $DC $COMPOSE_DEV up postgres -d
+      info "Attesa PostgreSQL..."
+      sleep 5
+      ok "Database resettato"
+      ;;
+    migrate)
+      info "Esecuzione migrations..."
+      pnpm db:migrate
+      ok "Migrations completate"
+      ;;
+    seed)
+      info "Seed dati iniziali..."
+      pnpm db:seed
+      ok "Seed completato"
+      ;;
+    *)
+      err "Azione database sconosciuta: $action"
+      echo "  Azioni disponibili: backup, reset, migrate, seed"
+      exit 1
+      ;;
+  esac
+}
+
+cmd_check() {
+  info "TypeScript check..."
+  pnpm typecheck
+  echo ""
+  info "ESLint..."
+  pnpm lint
+  echo ""
+  ok "Check completato"
+}
+
+cmd_test() {
+  info "Avvio Playwright E2E tests..."
+  cd packages/frontend
+  pnpm test:e2e
+  cd "$SCRIPT_DIR"
+}
+
+# ─── Router ──────────────────────────────────────────────────────────────────
+main() {
+  local cmd="${1:-help}"
+  shift 2>/dev/null || true
+
+  case "$cmd" in
+    up)       cmd_up "$@" ;;
+    stop)     cmd_stop "$@" ;;
+    down)     cmd_down ;;
+    restart)  cmd_restart "$@" ;;
+    build)    cmd_build "$@" ;;
+    dev)      cmd_dev ;;
+    logs)     cmd_logs "$@" ;;
+    status)   cmd_status ;;
+    db)       cmd_db "$@" ;;
+    check)    cmd_check ;;
+    test)     cmd_test ;;
+    help|-h|--help) show_help ;;
+    *)
+      err "Comando sconosciuto: $cmd"
+      echo ""
+      show_help
+      exit 1
+      ;;
+  esac
+}
+
+main "$@"

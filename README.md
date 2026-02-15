@@ -125,32 +125,28 @@ cp .env.example .env.production
 - `PAYLOAD_PUBLIC_SERVER_URL`: URL pubblico del backend
 - `NEXT_PUBLIC_SITE_URL`: URL pubblico del frontend
 
-### 4. Avviare con Docker Compose (Development)
+### 4. Avviare il progetto
+
+Il progetto include lo script CLI `gl` che semplifica tutte le operazioni Docker:
 
 ```bash
-# Avvia tutti i servizi in modalità development
-docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+# Avvia tutti i servizi in dev mode
+gl up
 
-# Oppure singolarmente
-docker compose up postgres -d        # Solo database
-docker compose up payload -d         # Backend
-docker compose up frontend -d        # Frontend
+# Solo backend (per frontend locale con hot reload)
+gl up payload
+
+# Backend Docker + frontend locale (consigliato per sviluppo)
+gl dev
 ```
- 
-### 5. Avviare in locale (senza Docker)
 
-```bash
-# Avvia solo PostgreSQL con Docker
-docker compose up postgres -d
+Per l'elenco completo dei comandi vedi la sezione [CLI `gl`](#cli-gl) sotto.
 
-# In un terminale - Backend
-cd packages/payload-cms
-pnpm dev
-
-# In un altro terminale - Frontend
-cd packages/frontend
-pnpm dev
-```
+> **Alternativa manuale** (senza script):
+>
+> ```bash
+> docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d
+> ```
 
 ## URLs di Sviluppo
 
@@ -202,6 +198,57 @@ pnpm migrate          # Import dati da old_website/
 pnpm migrate:full     # Reset DB + seed + import completo
 pnpm reset:db         # ATTENZIONE: Cancella tutti i dati!
 ```
+
+## CLI `gl`
+
+Lo script `./gl` nella root del progetto fornisce un'interfaccia semplice per tutte le operazioni quotidiane di sviluppo, evitando di ricordare i comandi Docker Compose con file multipli.
+
+```bash
+gl help    # Mostra tutti i comandi disponibili
+```
+
+Per usare `gl` da qualsiasi directory, crea un symlink:
+
+```bash
+ln -sf "$(pwd)/gl" ~/.local/bin/gl
+```
+
+### Docker
+
+| Comando                  | Descrizione                                                      |
+| ------------------------ | ---------------------------------------------------------------- |
+| `gl up`                  | Avvia tutti i servizi in dev mode (postgres+payload+frontend)    |
+| `gl up payload`          | Solo postgres + payload (per frontend locale)                    |
+| `gl up db`               | Solo PostgreSQL                                                  |
+| `gl stop [servizio]`     | Ferma container (senza rimuoverli)                               |
+| `gl down`                | Ferma e rimuove container e network                              |
+| `gl restart [servizio]`  | Riavvia tutto o un singolo servizio                              |
+| `gl build`               | Build immagini Docker                                            |
+| `gl build up`            | Build e avvia                                                    |
+
+### Dev e Quality
+
+| Comando    | Descrizione                                                   |
+| ---------- | ------------------------------------------------------------- |
+| `gl dev`   | Backend Docker + frontend locale con hot reload (consigliato) |
+| `gl check` | Esegue `pnpm typecheck` + `pnpm lint`                         |
+| `gl test`  | Esegue Playwright E2E tests                                   |
+
+### Logs e Stato
+
+| Comando                | Descrizione                        |
+| ---------------------- | ---------------------------------- |
+| `gl logs [servizio]`   | Logs in tempo reale (follow)       |
+| `gl status`            | Stato container + health check API |
+
+### Operazioni Database
+
+| Comando          | Descrizione                                     |
+| ---------------- | ----------------------------------------------- |
+| `gl db backup`   | Backup PostgreSQL in `scripts/backups/`         |
+| `gl db reset`    | Reset database (richiede conferma interattiva)  |
+| `gl db migrate`  | Esegue Payload migrations                       |
+| `gl db seed`     | Seed dati iniziali                              |
 
 ## Gestione Database
 

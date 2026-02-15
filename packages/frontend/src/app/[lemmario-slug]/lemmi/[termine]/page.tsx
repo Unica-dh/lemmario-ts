@@ -206,6 +206,16 @@ export default async function LemmaPage({ params, searchParams }: PageProps) {
           </div>
         </header>
 
+        {/* Riferimenti Incrociati */}
+        {lemma.riferimenti_in_uscita && lemma.riferimenti_in_uscita.length > 0 && (
+          <div className="mb-6">
+            <RiferimentiIncrociati
+              riferimenti={lemma.riferimenti_in_uscita}
+              lemmarioSlug={lemmario.slug}
+            />
+          </div>
+        )}
+
         {/* Varianti Grafiche */}
         {lemma.varianti && lemma.varianti.length > 0 && (
           <VariantiGrafiche varianti={lemma.varianti} />
@@ -232,15 +242,6 @@ export default async function LemmaPage({ params, searchParams }: PageProps) {
           </section>
         )}
 
-        {/* Riferimenti Incrociati */}
-        {lemma.riferimenti_in_uscita && lemma.riferimenti_in_uscita.length > 0 && (
-          <div className="pt-8 border-t border-[var(--color-border)]">
-            <RiferimentiIncrociati
-              riferimenti={lemma.riferimenti_in_uscita}
-              lemmarioSlug={lemmario.slug}
-            />
-          </div>
-        )}
       </article>
     </>
   )
