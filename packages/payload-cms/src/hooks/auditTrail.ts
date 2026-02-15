@@ -28,29 +28,45 @@ export const createAuditTrail: CollectionAfterChangeHook = async ({
     return doc
   }
 
-  try {
-    // Estrai informazioni dal request
-    const ipAddress = req.headers?.['x-forwarded-for'] || req.ip || 'unknown'
-    const userAgent = req.headers?.['user-agent'] || 'unknown'
+  const ipAddress = req.headers?.['x-forwarded-for'] || req.ip || 'unknown'
+  const userAgent = req.headers?.['user-agent'] || 'unknown'
+  const collectionSlug = req.collection.config.slug
 
-    // Crea record di audit trail
-    await req.payload.create({
-      collection: 'storico-modifiche',
-      data: {
-        tabella: req.collection.config.slug,
-        record_id: doc.id,
-        operazione: operation,
-        dati_precedenti: operation === 'create' ? null : previousDoc,
-        dati_successivi: doc,
-        utente: req.user?.id || null,
-        timestamp: new Date().toISOString(),
-        ip_address: Array.isArray(ipAddress) ? ipAddress[0] : ipAddress,
-        user_agent: Array.isArray(userAgent) ? userAgent[0] : userAgent,
-      },
+  const auditData = {
+    tabella: collectionSlug,
+    record_id: doc.id,
+    operazione: operation,
+    dati_precedenti: operation === 'create' ? null : previousDoc,
+    dati_successivi: doc,
+    utente: req.user?.id || null,
+    timestamp: new Date().toISOString(),
+    ip_address: Array.isArray(ipAddress) ? ipAddress[0] : ipAddress,
+    user_agent: Array.isArray(userAgent) ? userAgent[0] : userAgent,
+  }
+
+  // Per la collection utenti, la tabella storico_modifiche_rels ha un FK
+  // verso utenti. Se attendiamo l'inserimento sincrono, il FK check blocca
+  // perche' la riga utenti e' ancora lockata dalla transazione padre (usa
+  // una connessione DB separata). Soluzione: fire-and-forget con setImmediate
+  // per permettere alla transazione padre di completare prima.
+  if (collectionSlug === 'utenti') {
+    setImmediate(() => {
+      req.payload.create({
+        collection: 'storico-modifiche',
+        data: auditData,
+      }).catch((error: unknown) => {
+        console.error('Errore creazione audit trail (utenti, async):', error)
+      })
     })
-  } catch (error) {
-    // Log error ma non bloccare l'operazione principale
-    console.error('Errore creazione audit trail:', error)
+  } else {
+    try {
+      await req.payload.create({
+        collection: 'storico-modifiche',
+        data: auditData,
+      })
+    } catch (error) {
+      console.error('Errore creazione audit trail:', error)
+    }
   }
 
   return doc
@@ -67,25 +83,40 @@ export const createAuditTrailDelete = async ({ req, doc }: any) => {
     return
   }
 
-  try {
-    const ipAddress = req.headers?.['x-forwarded-for'] || req.ip || 'unknown'
-    const userAgent = req.headers?.['user-agent'] || 'unknown'
+  const ipAddress = req.headers?.['x-forwarded-for'] || req.ip || 'unknown'
+  const userAgent = req.headers?.['user-agent'] || 'unknown'
+  const collectionSlug = req.collection.config.slug
 
-    await req.payload.create({
-      collection: 'storico-modifiche',
-      data: {
-        tabella: req.collection.config.slug,
-        record_id: doc.id,
-        operazione: 'delete',
-        dati_precedenti: doc,
-        dati_successivi: null,
-        utente: req.user?.id || null,
-        timestamp: new Date().toISOString(),
-        ip_address: Array.isArray(ipAddress) ? ipAddress[0] : ipAddress,
-        user_agent: Array.isArray(userAgent) ? userAgent[0] : userAgent,
-      },
+  const auditData = {
+    tabella: collectionSlug,
+    record_id: doc.id,
+    operazione: 'delete',
+    dati_precedenti: doc,
+    dati_successivi: null,
+    utente: req.user?.id || null,
+    timestamp: new Date().toISOString(),
+    ip_address: Array.isArray(ipAddress) ? ipAddress[0] : ipAddress,
+    user_agent: Array.isArray(userAgent) ? userAgent[0] : userAgent,
+  }
+
+  // Stessa logica di createAuditTrail: fire-and-forget per utenti
+  if (collectionSlug === 'utenti') {
+    setImmediate(() => {
+      req.payload.create({
+        collection: 'storico-modifiche',
+        data: auditData,
+      }).catch((error: unknown) => {
+        console.error('Errore creazione audit trail delete (utenti, async):', error)
+      })
     })
-  } catch (error) {
-    console.error('Errore creazione audit trail delete:', error)
+  } else {
+    try {
+      await req.payload.create({
+        collection: 'storico-modifiche',
+        data: auditData,
+      })
+    } catch (error) {
+      console.error('Errore creazione audit trail delete:', error)
+    }
   }
 }

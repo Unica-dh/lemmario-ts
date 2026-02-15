@@ -1,4 +1,5 @@
 import { CollectionConfig } from 'payload/types'
+import { createAuditTrail, createAuditTrailDelete } from '../hooks'
 
 /**
  * Collection: Utenti
@@ -30,6 +31,7 @@ export const Utenti: CollectionConfig = {
     verify: false, // No email verification per ora
     maxLoginAttempts: 5,
     lockTime: 600 * 1000, // 10 minuti
+    useAPIKey: true, // Abilita autenticazione via API key
   },
   admin: {
     useAsTitle: 'email',
@@ -165,12 +167,12 @@ export const Utenti: CollectionConfig = {
     },
   ],
   timestamps: true,
-  // Hooks
   hooks: {
     afterChange: [
-      ({ doc, operation }) => {
-        console.log(`Utente ${operation}: ${doc.email} (${doc.ruolo})`)
-      },
+      createAuditTrail,
+    ],
+    afterDelete: [
+      createAuditTrailDelete,
     ],
   },
 }

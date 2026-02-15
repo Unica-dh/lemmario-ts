@@ -285,6 +285,29 @@ docker exec lemmario_db pg_dump -U lemmario_user lemmario_db > backup_$(date +%Y
 docker exec -i lemmario_db psql -U lemmario_user -d lemmario_db < backup_20260212.sql
 ```
 
+## API GraphQL e REST
+
+La piattaforma espone API complete per consumatori esterni:
+
+| Tipo | Sviluppo | Produzione |
+| --- | --- | --- |
+| **REST** | `http://localhost:3000/api` | `https://glossari.dh.unica.it/api` |
+| **GraphQL** | `http://localhost:3000/api/graphql` | `https://glossari.dh.unica.it/api/graphql` |
+
+**Dati pubblici** (lemmi pubblicati, fonti, definizioni) sono accessibili senza autenticazione. Per accedere a dati protetti, usare una API key:
+
+```http
+Authorization: utenti API-Key <LA_TUA_API_KEY>
+```
+
+Le API key vengono abilitate dal super_admin nel profilo utente dall'admin panel. La chiave eredita i permessi (ruolo e lemmari assegnati) dell'utente associato.
+
+![Attivazione API Key nell'admin panel](docs/images/admin-utente-apikey-abilitata.png)
+
+*Il super_admin abilita "Enable API Key" nel profilo utente. Payload genera automaticamente la chiave da copiare e usare nell'header `Authorization`.*
+
+Per documentazione completa con esempi, limiti e CORS: **[docs/GRAPHQL-API-KEYS.md](docs/GRAPHQL-API-KEYS.md)**
+
 ## Funzionalità Principali
 
 ### ✨ Caratteristiche Implementate
@@ -351,6 +374,8 @@ Per dettagli completi, vedi:
 - [CLAUDE.md](CLAUDE.md) - Overview architettura e convenzioni
 
 ### Guide Tecniche
+
+- [docs/GRAPHQL-API-KEYS.md](docs/GRAPHQL-API-KEYS.md) - API GraphQL, autenticazione API Key, esempi e limiti
 - [docs/CI-CD-SETUP.md](docs/CI-CD-SETUP.md) - Setup completo CI/CD con GitHub Actions
 - [docs/DOCKER_SETUP_GUIDE.md](docs/DOCKER_SETUP_GUIDE.md) - Guida Docker Compose
 - [docs/IMPLEMENTAZIONE_FORM_LEMMA_INTEGRATO.md](docs/IMPLEMENTAZIONE_FORM_LEMMA_INTEGRATO.md) - Form multi-step custom

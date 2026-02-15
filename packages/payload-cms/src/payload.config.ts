@@ -27,9 +27,10 @@ import itTranslations from './translations/it.json'
 export default buildConfig({
   serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3000',
   rateLimit: {
-    max: 10000, // Aumentato per permettere migrazione
+    max: Number(process.env.RATE_LIMIT_MAX) || 500,
     window: 60000, // 1 minuto
   },
+  maxDepth: 5, // Limita profondita' relazioni GraphQL/REST (default Payload: 10)
   admin: {
     bundler: webpackBundler(),
     meta: {
@@ -74,6 +75,8 @@ export default buildConfig({
   },
   graphQL: {
     schemaOutputFile: path.resolve(__dirname, 'generated-schema.graphql'),
+    maxComplexity: 1000, // Limita query complesse
+    disablePlaygroundInProduction: true, // No playground in prod
   },
   db: postgresAdapter({
     pool: {
@@ -83,6 +86,7 @@ export default buildConfig({
   }),
   cors: [
     process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001',
+    ...(process.env.CORS_ALLOWED_ORIGINS?.split(',') || []),
   ].filter(Boolean),
   csrf: [
     process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001',
