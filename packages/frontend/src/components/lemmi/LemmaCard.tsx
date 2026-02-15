@@ -8,6 +8,7 @@ interface LemmaCardProps {
   definitionPreview?: string
   defCount?: number
   fontiCount?: number
+  cfrCount?: number
 }
 
 export function LemmaCard({
@@ -18,6 +19,7 @@ export function LemmaCard({
   definitionPreview,
   defCount = 0,
   fontiCount = 0,
+  cfrCount = 0,
 }: LemmaCardProps) {
   const isLatino = tipo === 'latino'
 
@@ -42,6 +44,7 @@ export function LemmaCard({
         <div className="label-uppercase text-[var(--color-text-muted)] mb-3">
           {defCount} def.
           {fontiCount > 0 && <> &middot; {fontiCount} fonti</>}
+          {cfrCount > 0 && <> &middot; {cfrCount} cfr.</>}
         </div>
 
         {/* Definition preview */}

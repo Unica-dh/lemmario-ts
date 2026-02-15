@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { getLemmarioBySlug, getLemmi, getDefinizioniByLemma, getRicorrenzeByDefinizioniIds } from '@/lib/payload-api'
+import { getLemmarioBySlug, getLemmi, getDefinizioniByLemma, getRicorrenzeByDefinizioniIds, getCrossReferenceMap } from '@/lib/payload-api'
 import { SearchWithOverlay } from '@/components/search/SearchWithOverlay'
 import { Pagination } from '@/components/search/Pagination'
 import { LemmaCard } from '@/components/lemmi/LemmaCard'
@@ -137,6 +137,9 @@ export default async function LemmarioPage({ params, searchParams }: PageProps) 
     ? await getRicorrenzeByDefinizioniIds(allDefIds)
     : new Map()
 
+  // Fetch cross-references for all lemmi
+  const crossRefMap = await getCrossReferenceMap()
+
   const fontiCountMap = new Map<number, number>()
   for (const preview of previews) {
     const fontiSet = new Set<number>()
@@ -173,7 +176,7 @@ export default async function LemmarioPage({ params, searchParams }: PageProps) 
           </h1>
           <p className="label-uppercase text-[var(--color-text-muted)]">
             {letteraAttiva && !searchQuery && <>Sezione: {letteraAttiva} &mdash; </>}
-            <AnimatedCount value={totalFiltered} suffix="lemmi catalogati" />
+            <AnimatedCount value={allLemmi.length} suffix="lemmi catalogati" />
           </p>
         </header>
 
@@ -217,6 +220,7 @@ export default async function LemmarioPage({ params, searchParams }: PageProps) 
                       definitionPreview={preview?.preview}
                       defCount={preview?.defCount || 0}
                       fontiCount={fontiCountMap.get(lemma.id) || 0}
+                      cfrCount={(crossRefMap.get(lemma.id) || []).length}
                     />
                   </div>
                 )
