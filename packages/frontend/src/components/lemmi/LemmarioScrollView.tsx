@@ -86,7 +86,10 @@ export function LemmarioScrollView({
       {/* Main content */}
       <div className="container mx-auto px-4 md:px-20 py-8 md:py-12 relative z-10">
         {/* Search bar - sticky below nav */}
-        <div className="sticky top-[2.75rem] z-20 pb-4 pt-2 -mx-4 px-4 md:-mx-20 md:px-20 mb-4 backdrop-blur-sm">
+        <div
+          className="sticky top-[2.75rem] z-20 pb-4 pt-2 -mx-4 px-4 md:-mx-20 md:px-20 mb-4"
+          style={{ background: 'linear-gradient(to bottom, var(--color-bg) 50%, transparent)' }}
+        >
           <SearchBar
             sampleTerms={sampleTerms}
             onSearchChange={handleSearchChange}
