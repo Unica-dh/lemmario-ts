@@ -5,6 +5,7 @@ import { Pagination } from '@/components/search/Pagination'
 import { LemmaCard } from '@/components/lemmi/LemmaCard'
 import { AlphabetSidebar } from '@/components/ui/AlphabetSidebar'
 import { AlphabetDrawer } from '@/components/ui/AlphabetDrawer'
+import { AnimatedCount } from '@/components/animations/AnimatedCount'
 import type { Metadata } from 'next'
 import type { Definizione } from '@/types/payload'
 
@@ -149,14 +150,6 @@ export default async function LemmarioPage({ params, searchParams }: PageProps) 
     fontiCountMap.set(preview.lemmaId, fontiSet.size)
   }
 
-  // Subtitle text
-  const subtitleParts: string[] = []
-  if (letteraAttiva && !searchQuery) {
-    subtitleParts.push(`Sezione: ${letteraAttiva}`)
-  }
-  subtitleParts.push(`${totalFiltered} lemmi catalogati`)
-  const subtitle = subtitleParts.join(' \u2014 ')
-
   return (
     <div className="relative">
       {/* Alphabet sidebar (desktop) */}
@@ -179,7 +172,8 @@ export default async function LemmarioPage({ params, searchParams }: PageProps) 
             {lemmario.titolo}
           </h1>
           <p className="label-uppercase text-[var(--color-text-muted)]">
-            {subtitle}
+            {letteraAttiva && !searchQuery && <>Sezione: {letteraAttiva} &mdash; </>}
+            <AnimatedCount value={totalFiltered} suffix="lemmi catalogati" />
           </p>
           <div className="mt-6 border-t border-[var(--color-border)]" />
         </header>

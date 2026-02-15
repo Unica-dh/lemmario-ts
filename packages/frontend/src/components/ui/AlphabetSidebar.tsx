@@ -10,6 +10,9 @@ interface AlphabetSidebarProps {
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
 
+// 26 letters, 3s total → ~115ms stagger between each
+const STAGGER_DELAY = 3 / ALPHABET.length
+
 export function AlphabetSidebar({ lettereDisponibili, letteraAttiva }: AlphabetSidebarProps) {
   const router = useRouter()
   const pathname = usePathname()
@@ -27,25 +30,20 @@ export function AlphabetSidebar({ lettereDisponibili, letteraAttiva }: AlphabetS
     router.push(`${pathname}?${params.toString()}`, { scroll: false })
   }
 
-  const MotionAside = shouldReduceMotion ? 'aside' : motion.aside
-
   return (
-    <MotionAside
+    <aside
       className="fixed left-3 top-3 hidden lg:block z-[60]"
       data-testid="alphabet-sidebar"
-      {...(!shouldReduceMotion && {
-        initial: { opacity: 0, x: -20 },
-        animate: { opacity: 1, x: 0 },
-        transition: { duration: 0.5, delay: 0.3, ease: 'easeOut' },
-      })}
     >
       <nav className="flex flex-col space-y-0.5" aria-label="Filtro alfabetico">
-        {ALPHABET.map((letter) => {
+        {ALPHABET.map((letter, index) => {
           const isDisabled = !lettereDisponibili.includes(letter)
           const isActive = letteraAttiva === letter
 
+          const MotionOrButton = shouldReduceMotion ? 'button' : motion.button
+
           return (
-            <button
+            <MotionOrButton
               key={letter}
               onClick={() => handleLetterClick(letter)}
               disabled={isDisabled}
@@ -61,12 +59,21 @@ export function AlphabetSidebar({ lettereDisponibili, letteraAttiva }: AlphabetS
               `}
               aria-label={`Filtra per lettera ${letter}`}
               aria-current={isActive ? 'true' : undefined}
+              {...(!shouldReduceMotion && {
+                initial: { opacity: 0, x: -12 },
+                animate: { opacity: 1, x: 0 },
+                transition: {
+                  duration: 0.3,
+                  delay: index * STAGGER_DELAY,
+                  ease: 'easeOut',
+                },
+              })}
             >
               {letter}
-            </button>
+            </MotionOrButton>
           )
         })}
       </nav>
-    </MotionAside>
+    </aside>
   )
 }
