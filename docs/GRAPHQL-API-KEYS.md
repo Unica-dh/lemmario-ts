@@ -241,16 +241,62 @@ Lo script stampa la API key generata. Assegnare poi i lemmari necessari tramite 
 
 ## Testing
 
-I test E2E per l'API GraphQL sono in `packages/frontend/e2e/graphql-api.spec.ts`. Verificano:
+I test E2E per l'API GraphQL sono in `packages/frontend/e2e/graphql-api.spec.ts`. Usano il `request` context di Playwright (chiamate HTTP dirette, senza browser) per simulare un consumatore esterno.
 
-1. **Accesso pubblico**: query senza autenticazione ritornano dati pubblici
-2. **Chiave sbagliata**: con API key invalida, il sistema si comporta come non autenticato (accesso solo ai dati pubblici)
-3. **Chiave valida**: con API key corretta, l'utente accede anche ai dati privati (es. collection Utenti)
-4. **Dati privati senza auth**: query verso collections protette ritornano errore 403
+### Cosa verificano
 
-Per eseguire i test:
+| Scenario | Comportamento atteso |
+| --- | --- |
+| Query pubblica senza auth | Ritorna dati (lemmi, fonti) |
+| Query privata senza auth | Errore 403 Forbidden |
+| API key invalida su dati pubblici | Fallback a non autenticato, dati pubblici accessibili |
+| API key invalida su dati privati | Errore 403 Forbidden |
+| API key valida su dati pubblici | Dati accessibili |
+| API key valida su dati privati | Dati accessibili (es. collection Utenti) |
+| GraphQL con variabili | Query parametrizzata funziona |
+| REST API con API key | `/api/lemmi` e `/api/utenti/me` funzionano |
+
+### Prerequisiti
+
+- **Payload CMS in esecuzione** con dati (almeno un lemma pubblicato e una fonte)
+- **Utente admin** con email `admin@lemmario.dev` e password `password` (o configurare le variabili d'ambiente `E2E_ADMIN_EMAIL` e `E2E_ADMIN_PASSWORD`)
+- Il frontend **non e' necessario** (i test usano solo chiamate HTTP verso Payload)
+
+```bash
+# Avvia solo Payload + PostgreSQL
+gl up payload
+# oppure
+docker compose up postgres payload -d
+```
+
+### Eseguire i test
 
 ```bash
 cd packages/frontend
+
+# Esegui solo i test GraphQL API
 pnpm test:e2e -- graphql-api
+
+# Con npx (piu' controllo sui parametri)
+npx playwright test e2e/graphql-api.spec.ts --project=chromium
+
+# Report HTML interattivo dopo l'esecuzione
+npx playwright show-report
+```
+
+### Variabili d'ambiente
+
+| Variabile | Default | Descrizione |
+| --- | --- | --- |
+| `E2E_API_URL` | `http://localhost:3000` | URL base di Payload CMS |
+| `E2E_ADMIN_EMAIL` | `admin@lemmario.dev` | Email utente admin per setup |
+| `E2E_ADMIN_PASSWORD` | `password` | Password utente admin |
+
+Per testare contro un'istanza remota:
+
+```bash
+E2E_API_URL=https://glossari.dh.unica.it \
+E2E_ADMIN_EMAIL=admin@lemmario.dev \
+E2E_ADMIN_PASSWORD=la-password \
+npx playwright test e2e/graphql-api.spec.ts --project=chromium
 ```

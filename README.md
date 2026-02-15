@@ -302,6 +302,10 @@ Authorization: utenti API-Key <LA_TUA_API_KEY>
 
 Le API key vengono abilitate dal super_admin nel profilo utente dall'admin panel. La chiave eredita i permessi (ruolo e lemmari assegnati) dell'utente associato.
 
+![Attivazione API Key nell'admin panel](docs/images/admin-utente-apikey-abilitata.png)
+
+*Il super_admin abilita "Enable API Key" nel profilo utente. Payload genera automaticamente la chiave da copiare e usare nell'header `Authorization`.*
+
 Per documentazione completa con esempi, limiti e CORS: **[docs/GRAPHQL-API-KEYS.md](docs/GRAPHQL-API-KEYS.md)**
 
 ## Funzionalità Principali
