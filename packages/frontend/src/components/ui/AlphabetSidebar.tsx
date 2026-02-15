@@ -1,6 +1,7 @@
 'use client'
 
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
+import { motion, useReducedMotion } from 'framer-motion'
 
 interface AlphabetSidebarProps {
   lettereDisponibili: string[]
@@ -9,15 +10,18 @@ interface AlphabetSidebarProps {
 
 const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')
 
+// 26 letters, 6s total → ~230ms stagger between each
+const STAGGER_DELAY = 6 / ALPHABET.length
+
 export function AlphabetSidebar({ lettereDisponibili, letteraAttiva }: AlphabetSidebarProps) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const shouldReduceMotion = useReducedMotion()
 
   const handleLetterClick = (letter: string) => {
     const params = new URLSearchParams(searchParams.toString())
     if (letteraAttiva === letter) {
-      // Toggle off: clicking active letter removes filter
       params.delete('lettera')
     } else {
       params.set('lettera', letter)
@@ -27,14 +31,19 @@ export function AlphabetSidebar({ lettereDisponibili, letteraAttiva }: AlphabetS
   }
 
   return (
-    <aside className="fixed left-3 top-3 hidden lg:block z-[60]" data-testid="alphabet-sidebar">
+    <aside
+      className="fixed left-3 top-3 hidden lg:block z-[60]"
+      data-testid="alphabet-sidebar"
+    >
       <nav className="flex flex-col space-y-0.5" aria-label="Filtro alfabetico">
-        {ALPHABET.map((letter) => {
+        {ALPHABET.map((letter, index) => {
           const isDisabled = !lettereDisponibili.includes(letter)
           const isActive = letteraAttiva === letter
 
+          const MotionOrButton = shouldReduceMotion ? 'button' : motion.button
+
           return (
-            <button
+            <MotionOrButton
               key={letter}
               onClick={() => handleLetterClick(letter)}
               disabled={isDisabled}
@@ -50,9 +59,18 @@ export function AlphabetSidebar({ lettereDisponibili, letteraAttiva }: AlphabetS
               `}
               aria-label={`Filtra per lettera ${letter}`}
               aria-current={isActive ? 'true' : undefined}
+              {...(!shouldReduceMotion && {
+                initial: { opacity: 0 },
+                animate: { opacity: 1 },
+                transition: {
+                  duration: 0.3,
+                  delay: index * STAGGER_DELAY,
+                  ease: 'easeOut',
+                },
+              })}
             >
               {letter}
-            </button>
+            </MotionOrButton>
           )
         })}
       </nav>

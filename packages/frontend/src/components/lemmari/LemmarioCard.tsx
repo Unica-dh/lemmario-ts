@@ -1,26 +1,35 @@
-/**
- * Lemmario Card Component
- * Displays a single lemmario in the homepage grid with optional photo
- */
+'use client'
 
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import type { Lemmario, PayloadMedia } from '@/types/payload'
 import { getMediaUrl } from '@/lib/media-url'
+import { useCountUp } from '@/hooks/useCountUp'
 
 interface LemmarioCardProps {
   lemmario: Lemmario & { _count?: { lemmi?: number } }
 }
 
+function LemmiCount({ count: targetCount }: { count: number }) {
+  const { count, ref } = useCountUp(targetCount, { duration: 1500 })
+
+  return (
+    <span ref={ref}>
+      {count} lemmi
+    </span>
+  )
+}
+
 export function LemmarioCard({ lemmario }: LemmarioCardProps) {
   const foto = typeof lemmario.foto === 'object' ? lemmario.foto as PayloadMedia : null
   const fotoUrl = foto ? getMediaUrl(foto.sizes?.card?.url || foto.url) : null
+  const lemmiCount = lemmario._count?.lemmi || 0
 
   return (
     <Link
       href={`/${lemmario.slug}`}
-      className="group block transition-colors duration-200 hover:bg-[var(--color-bg-subtle)]"
+      className="group block transition-all duration-200 hover:bg-[var(--color-bg-subtle)] hover:-translate-y-1 hover:shadow-lg"
       data-testid="lemmario-card"
     >
       {/* Foto */}
@@ -60,7 +69,7 @@ export function LemmarioCard({ lemmario }: LemmarioCardProps) {
         </h2>
 
         <p className="label-uppercase text-xs text-[var(--color-text-muted)] mb-3">
-          {lemmario._count?.lemmi || 0} lemmi
+          <LemmiCount count={lemmiCount} />
         </p>
 
         {lemmario.descrizione && (

@@ -1,10 +1,11 @@
 import { notFound } from 'next/navigation'
-import { getLemmarioBySlug, getLemmi, getDefinizioniByLemma, getRicorrenzeByDefinizioniIds } from '@/lib/payload-api'
-import { SearchBar } from '@/components/search/SearchBar'
+import { getLemmarioBySlug, getLemmi, getDefinizioniByLemma, getRicorrenzeByDefinizioniIds, getCrossReferenceMap } from '@/lib/payload-api'
+import { SearchWithOverlay } from '@/components/search/SearchWithOverlay'
 import { Pagination } from '@/components/search/Pagination'
 import { LemmaCard } from '@/components/lemmi/LemmaCard'
 import { AlphabetSidebar } from '@/components/ui/AlphabetSidebar'
 import { AlphabetDrawer } from '@/components/ui/AlphabetDrawer'
+import { AnimatedCount } from '@/components/animations/AnimatedCount'
 import type { Metadata } from 'next'
 import type { Definizione } from '@/types/payload'
 
@@ -64,6 +65,10 @@ export default async function LemmarioPage({ params, searchParams }: PageProps) 
   const lettereDisponibili = [...new Set(
     allLemmi.map((l) => l.termine[0].toUpperCase())
   )].sort()
+
+  // Pick random sample terms for typewriter placeholder
+  const shuffled = [...allLemmi].sort(() => Math.random() - 0.5)
+  const sampleTerms = shuffled.slice(0, 6).map((l) => l.termine)
 
   // For search in definitions, fetch definitions for all lemmi
   // Only when user is actually searching (to avoid unnecessary API calls)
@@ -132,6 +137,9 @@ export default async function LemmarioPage({ params, searchParams }: PageProps) 
     ? await getRicorrenzeByDefinizioniIds(allDefIds)
     : new Map()
 
+  // Fetch cross-references for all lemmi
+  const crossRefMap = await getCrossReferenceMap()
+
   const fontiCountMap = new Map<number, number>()
   for (const preview of previews) {
     const fontiSet = new Set<number>()
@@ -144,14 +152,6 @@ export default async function LemmarioPage({ params, searchParams }: PageProps) 
     }
     fontiCountMap.set(preview.lemmaId, fontiSet.size)
   }
-
-  // Subtitle text
-  const subtitleParts: string[] = []
-  if (letteraAttiva && !searchQuery) {
-    subtitleParts.push(`Sezione: ${letteraAttiva}`)
-  }
-  subtitleParts.push(`${totalFiltered} lemmi catalogati`)
-  const subtitle = subtitleParts.join(' \u2014 ')
 
   return (
     <div className="relative">
@@ -175,67 +175,69 @@ export default async function LemmarioPage({ params, searchParams }: PageProps) 
             {lemmario.titolo}
           </h1>
           <p className="label-uppercase text-[var(--color-text-muted)]">
-            {subtitle}
+            {letteraAttiva && !searchQuery && <>Sezione: {letteraAttiva} &mdash; </>}
+            <AnimatedCount value={allLemmi.length} suffix="lemmi catalogati" />
           </p>
-          <div className="mt-6 border-t border-[var(--color-border)]" />
         </header>
 
-        {/* Search */}
-        <div className="mb-8 md:mb-12">
-          <SearchBar />
-        </div>
+        {/* Search + Results with loading overlay */}
+        <SearchWithOverlay
+          sampleTerms={sampleTerms}
+          filterKey={`${letteraAttiva || 'all'}-${page}-${searchQuery || ''}`}
+        >
+          {/* Search results info */}
+          {searchQuery && (
+            <div className="text-center mb-8 text-sm text-[var(--color-text-muted)]">
+              {totalFiltered > 0 ? (
+                <>
+                  Trovati <span className="font-semibold">{totalFiltered}</span> risultati
+                  per &ldquo;<span className="font-semibold">{searchQuery}</span>&rdquo;
+                </>
+              ) : (
+                <>
+                  Nessun risultato per &ldquo;
+                  <span className="font-semibold">{searchQuery}</span>&rdquo;
+                </>
+              )}
+            </div>
+          )}
 
-        {/* Search results info */}
-        {searchQuery && (
-          <div className="text-center mb-8 text-sm text-[var(--color-text-muted)]">
-            {totalFiltered > 0 ? (
-              <>
-                Trovati <span className="font-semibold">{totalFiltered}</span> risultati
-                per &ldquo;<span className="font-semibold">{searchQuery}</span>&rdquo;
-              </>
-            ) : (
-              <>
-                Nessun risultato per &ldquo;
-                <span className="font-semibold">{searchQuery}</span>&rdquo;
-              </>
-            )}
-          </div>
-        )}
+          {/* Lemma grid */}
+          {paginatedLemmi.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 md:gap-x-12 gap-y-0 divide-y divide-[var(--color-border)] md:divide-y-0">
+              {paginatedLemmi.map((lemma) => {
+                const preview = previewMap.get(lemma.id)
+                return (
+                  <div
+                    key={lemma.id}
+                    className="border-b border-[var(--color-border)] md:border-b-0 md:border-b md:border-[var(--color-border)]"
+                  >
+                    <LemmaCard
+                      termine={lemma.termine}
+                      slug={lemma.slug}
+                      tipo={lemma.tipo}
+                      lemmarioSlug={lemmario.slug}
+                      definitionPreview={preview?.preview}
+                      defCount={preview?.defCount || 0}
+                      fontiCount={fontiCountMap.get(lemma.id) || 0}
+                      cfrCount={(crossRefMap.get(lemma.id) || []).length}
+                    />
+                  </div>
+                )
+              })}
+            </div>
+          ) : (
+            <EmptyState searchQuery={searchQuery} letteraAttiva={letteraAttiva} />
+          )}
 
-        {/* Lemma grid */}
-        {paginatedLemmi.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 md:gap-x-12 gap-y-0 divide-y divide-[var(--color-border)] md:divide-y-0">
-            {paginatedLemmi.map((lemma) => {
-              const preview = previewMap.get(lemma.id)
-              return (
-                <div
-                  key={lemma.id}
-                  className="border-b border-[var(--color-border)] md:border-b-0 md:border-b md:border-[var(--color-border)]"
-                >
-                  <LemmaCard
-                    termine={lemma.termine}
-                    slug={lemma.slug}
-                    tipo={lemma.tipo}
-                    lemmarioSlug={lemmario.slug}
-                    definitionPreview={preview?.preview}
-                    defCount={preview?.defCount || 0}
-                    fontiCount={fontiCountMap.get(lemma.id) || 0}
-                  />
-                </div>
-              )
-            })}
-          </div>
-        ) : (
-          <EmptyState searchQuery={searchQuery} letteraAttiva={letteraAttiva} />
-        )}
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <Pagination
-            currentPage={page}
-            totalPages={totalPages}
-          />
-        )}
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={page}
+              totalPages={totalPages}
+            />
+          )}
+        </SearchWithOverlay>
       </div>
     </div>
   )
