@@ -45,25 +45,24 @@ export default async function MainNav({ lemmarioSlug, lemmarioId, lemmarioTitolo
     <nav className="main-nav bg-[var(--color-bg)] sticky z-40 transition-[top] duration-300 ease-in-out" aria-label="Navigazione principale">
       <div className="container mx-auto px-4 py-3 border-b border-[var(--color-border)]">
         <div className="flex items-center justify-center relative">
-          {/* Compact logos - visible only when scrolled (CSS controlled) */}
-          <div className="compact-logos absolute left-0 items-center gap-2 hidden">
-            <img
-              src="/logos/unica-logo.svg"
-              alt=""
-              className="h-3.5 w-auto dark:invert"
-              aria-hidden="true"
-            />
-            <span className="text-[var(--color-border)] text-xs" aria-hidden="true">&middot;</span>
-            <img
-              src="/logos/dh-logo.svg"
-              alt=""
-              className="h-4 w-auto dark:invert"
-              aria-hidden="true"
-            />
-          </div>
-
           {/* Desktop Navigation Links - centered */}
           <div className="hidden md:flex items-center space-x-6">
+            {/* Compact logos - visible only when scrolled (CSS controlled) */}
+            <div className="compact-logos items-center gap-2 hidden mr-2">
+              <img
+                src="/logos/unica-logo.svg"
+                alt=""
+                className="h-3.5 w-auto dark:invert"
+                aria-hidden="true"
+              />
+              <span className="text-[var(--color-border)] text-xs" aria-hidden="true">&middot;</span>
+              <img
+                src="/logos/dh-logo.svg"
+                alt=""
+                className="h-4 w-auto dark:invert"
+                aria-hidden="true"
+              />
+            </div>
             <Link
               href="/"
               className="label-uppercase link-clean text-[var(--color-text-muted)] hover:text-[var(--color-text)]"

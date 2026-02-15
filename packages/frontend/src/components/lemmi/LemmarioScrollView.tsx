@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react'
 import { useActiveLetterOnScroll } from '@/hooks/useActiveLetterOnScroll'
 import { ParallaxLetter } from '@/components/ui/ParallaxLetter'
 import { AlphabetSidebar } from '@/components/ui/AlphabetSidebar'
@@ -25,7 +25,20 @@ export function LemmarioScrollView({
   totalCount,
 }: LemmarioScrollViewProps) {
   const [searchQuery, setSearchQuery] = useState('')
+  const [isStuck, setIsStuck] = useState(false)
+  const sentinelRef = useRef<HTMLDivElement>(null)
   const { activeLetter, registerSection } = useActiveLetterOnScroll(lettereDisponibili)
+
+  useEffect(() => {
+    const sentinel = sentinelRef.current
+    if (!sentinel) return
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsStuck(!entry.isIntersecting),
+      { threshold: 0 }
+    )
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [])
 
   const filteredGroups = useMemo(() => {
     if (!searchQuery) return letterGroups
@@ -85,10 +98,12 @@ export function LemmarioScrollView({
 
       {/* Main content */}
       <div className="container mx-auto px-4 md:px-20 py-8 md:py-12 relative z-10">
+        {/* Sentinel to detect sticky state */}
+        <div ref={sentinelRef} className="h-0" aria-hidden="true" />
         {/* Search bar - sticky below nav */}
         <div
-          className="sticky top-[2.75rem] z-20 pb-4 pt-2 -mx-4 px-4 md:-mx-20 md:px-20 mb-4"
-          style={{ background: 'linear-gradient(to bottom, var(--color-bg) 50%, transparent)' }}
+          className="sticky top-[calc(2.75rem+15px)] z-20 pb-4 pt-2 -mx-4 px-4 md:-mx-20 md:px-20 mb-4"
+          style={isStuck ? { background: 'linear-gradient(to bottom, var(--color-bg) 50%, transparent)' } : undefined}
         >
           <SearchBar
             sampleTerms={sampleTerms}

@@ -41,7 +41,7 @@ export function AlphabetDrawer({ lettereDisponibili, activeLetter, onLetterClick
       {/* FAB trigger */}
       <MotionButton
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 lg:hidden z-40 w-14 h-14 rounded-full bg-[var(--color-bg-inverse)] text-[var(--color-text-inverse)] shadow-lg flex items-center justify-center label-uppercase text-xs"
+        className="fixed bottom-6 right-6 lg:hidden z-40 w-14 h-14 rounded-full bg-[var(--color-bg-inverse)] text-[var(--color-text-inverse)] shadow-lg flex items-center justify-center label-uppercase text-xs dark:border dark:border-[var(--color-border)]"
         aria-label="Apri navigazione alfabetica"
         data-testid="alphabet-fab"
         {...(!shouldReduceMotion && {
