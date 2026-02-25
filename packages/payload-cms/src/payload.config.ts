@@ -27,7 +27,7 @@ import itTranslations from './translations/it.json'
 export default buildConfig({
   serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3000',
   rateLimit: {
-    max: Number(process.env.RATE_LIMIT_MAX) || 5000, // TEMP: aumentato per migrazione — ripristinare 500 dopo import
+    max: Number(process.env.RATE_LIMIT_MAX) || 500,
     window: 60000, // 1 minuto
   },
   maxDepth: 5, // Limita profondita' relazioni GraphQL/REST (default Payload: 10)

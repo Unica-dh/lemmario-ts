@@ -19,7 +19,7 @@ export const VariantiGrafiche: CollectionConfig = {
     description: 'Varianti grafiche dei lemmi',
   },
   access: {
-    create: public_, // TEMP: per migrazione — ripristinare authenticated dopo import
+    create: authenticated,
     read: () => true,
     update: hasLemmarioAccess,
     delete: hasLemmarioAccess,

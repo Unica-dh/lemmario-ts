@@ -1,5 +1,5 @@
 import { CollectionConfig } from 'payload/types'
-import { hasLemmarioAccess, public_ } from '../access'
+import { hasLemmarioAccess } from '../access'
 
 /**
  * Collection: LivelliRazionalita
@@ -20,7 +20,7 @@ export const LivelliRazionalita: CollectionConfig = {
     description: 'Livelli di razionalità (specifici per lemmario)',
   },
   access: {
-    create: public_, // TEMP: per migrazione — ripristinare hasLemmarioAccess dopo import
+    create: hasLemmarioAccess,
     read: () => true,
     update: hasLemmarioAccess,
     delete: hasLemmarioAccess,
