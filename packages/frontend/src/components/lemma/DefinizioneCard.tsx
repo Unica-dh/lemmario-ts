@@ -34,10 +34,12 @@ export function DefinizioneCard({ definizione, numero, lemmarioSlug }: Definizio
         {definizione.testo}
       </p>
 
-      {/* Ricorrenze */}
+      {/* Ricorrenze (ordinate per campo ordine) */}
       {definizione.ricorrenze && definizione.ricorrenze.length > 0 && (
         <div className="space-y-5 mb-2">
-          {definizione.ricorrenze.map((ricorrenza, idx) => {
+          {[...definizione.ricorrenze]
+            .sort((a, b) => (a.ordine ?? 0) - (b.ordine ?? 0))
+            .map((ricorrenza, idx) => {
             const fonte = typeof ricorrenza.fonte === 'object' ? ricorrenza.fonte : null
             return (
               <div
@@ -60,6 +62,13 @@ export function DefinizioneCard({ definizione, numero, lemmarioSlug }: Definizio
                       {fonte.titolo || fonte.shorthand_id}
                     </Link>
                     {ricorrenza.pagina_raw && <>, {ricorrenza.pagina_raw}</>}
+                  </p>
+                )}
+
+                {/* Datazione del documento */}
+                {fonte?.anno && (
+                  <p className="mt-1 text-xs text-[var(--color-text-muted)] text-right">
+                    Datazione: {fonte.anno}
                   </p>
                 )}
               </div>

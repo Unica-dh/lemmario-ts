@@ -403,6 +403,7 @@ export async function getRicorrenzeByDefinizioniIds(definizioneIds: number[]): P
       params: {
         limit: 1000,
         depth: 2,
+        sort: 'ordine',
       },
     })
 

@@ -138,6 +138,13 @@ export const Ricorrenze: CollectionConfig = {
         description: 'Note sulla ricorrenza',
       },
     },
+    {
+      name: 'ordine',
+      type: 'number',
+      admin: {
+        description: 'Ordine progressivo per la visualizzazione (basato sulla posizione nel file sorgente)',
+      },
+    },
   ],
   timestamps: true,
 }

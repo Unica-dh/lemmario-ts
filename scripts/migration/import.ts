@@ -309,7 +309,8 @@ async function importLemmi(): Promise<PendingCrossRef[]> {
           stats.definizioni.imported++
           lemmaDetail.definizioni_importate++
 
-          // Importa ricorrenze per questa definizione
+          // Importa ricorrenze per questa definizione (con ordine progressivo)
+          let ordineRicorrenza = 1
           for (const ric of def.ricorrenze) {
             try {
               const fonteId = fontiMap.get(ric.shorthand_id)
@@ -326,6 +327,7 @@ async function importLemmi(): Promise<PendingCrossRef[]> {
                 fonte: fonteId,
                 testo_originale: ric.citazione_originale,
                 note: ric.note_filologiche,
+                ordine: ordineRicorrenza++,
                 // Campi riferimento strutturati
                 pagina_raw: ric.pagina_raw,
                 tipo_riferimento: ric.tipo_riferimento,

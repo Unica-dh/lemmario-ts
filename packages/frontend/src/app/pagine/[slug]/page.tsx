@@ -38,16 +38,6 @@ export default async function ContenutoStaticoPage({ params }: PageProps) {
           <h1 className="font-serif text-4xl md:text-5xl font-bold text-[var(--color-text)] mb-4">
             {contenuto.titolo}
           </h1>
-          {contenuto.updatedAt && (
-            <p className="label-uppercase text-[var(--color-text-muted)]">
-              Ultimo aggiornamento:{' '}
-              {new Date(contenuto.updatedAt).toLocaleDateString('it-IT', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
-            </p>
-          )}
         </header>
 
         <LexicalRenderer
