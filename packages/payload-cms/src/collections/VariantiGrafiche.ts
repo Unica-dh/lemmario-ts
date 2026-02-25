@@ -1,5 +1,5 @@
 import { CollectionConfig } from 'payload/types'
-import { authenticated, hasLemmarioAccess, public_ } from '../access'
+import { authenticated, hasLemmarioAccess } from '../access'
 
 /**
  * Collection: VariantiGrafiche

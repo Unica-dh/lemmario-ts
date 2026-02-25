@@ -1,5 +1,5 @@
 import { CollectionConfig } from 'payload/types'
-import { authenticated, hasLemmarioAccess, public_ } from '../access'
+import { hasLemmarioAccess, public_ } from '../access' // TEMP: rimosso authenticated — ripristinare dopo import
 
 /**
  * Collection: Ricorrenze
