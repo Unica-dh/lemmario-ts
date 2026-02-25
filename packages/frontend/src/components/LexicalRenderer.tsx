@@ -115,8 +115,8 @@ function renderNode(node: LexicalNode, index: number): React.ReactNode {
     )
   }
 
-  // Link
-  if (node.type === 'link') {
+  // Link and Autolink
+  if (node.type === 'link' || node.type === 'autolink') {
     const url = node.fields?.url || '#'
     const newTab = node.fields?.newTab || url.startsWith('http')
     return (
@@ -130,6 +130,11 @@ function renderNode(node: LexicalNode, index: number): React.ReactNode {
         {node.children?.map((child, i) => renderNode(child, i))}
       </a>
     )
+  }
+
+  // Horizontal rule
+  if (node.type === 'horizontalrule') {
+    return <hr key={index} className="my-8 border-[var(--color-border)]" />
   }
 
   // Default: render children
