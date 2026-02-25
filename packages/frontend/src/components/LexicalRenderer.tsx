@@ -10,6 +10,12 @@ export interface LexicalNode {
   children?: LexicalNode[]
   format?: string | number
   version?: number
+  fields?: {
+    url?: string
+    linkType?: 'custom' | 'internal'
+    newTab?: boolean
+    doc?: { value: string; relationTo: string }
+  }
 }
 
 export interface LexicalContent {
@@ -109,20 +115,26 @@ function renderNode(node: LexicalNode, index: number): React.ReactNode {
     )
   }
 
-  // Link
-  if (node.type === 'link') {
-    const url = (node as unknown as { url?: string }).url || '#'
+  // Link and Autolink
+  if (node.type === 'link' || node.type === 'autolink') {
+    const url = node.fields?.url || '#'
+    const newTab = node.fields?.newTab || url.startsWith('http')
     return (
       <a
         key={index}
         href={url}
         className="text-[var(--color-text)] underline underline-offset-2 decoration-[var(--color-border)] hover:decoration-[var(--color-text)] transition-colors"
-        target={url.startsWith('http') ? '_blank' : undefined}
-        rel={url.startsWith('http') ? 'noopener noreferrer' : undefined}
+        target={newTab ? '_blank' : undefined}
+        rel={newTab ? 'noopener noreferrer' : undefined}
       >
         {node.children?.map((child, i) => renderNode(child, i))}
       </a>
     )
+  }
+
+  // Horizontal rule
+  if (node.type === 'horizontalrule') {
+    return <hr key={index} className="my-8 border-[var(--color-border)]" />
   }
 
   // Default: render children
