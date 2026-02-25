@@ -1,5 +1,5 @@
 import { CollectionConfig } from 'payload/types'
-import { canCreateInLemmario, hasLemmarioAccess } from '../access'
+import { canCreateInLemmario, hasLemmarioAccess, public_ } from '../access'
 import { createAuditTrail, createAuditTrailDelete } from '../hooks'
 import LemmaEditView from '../admin/views/LemmaEdit'
 
@@ -38,7 +38,7 @@ export const Lemmi: CollectionConfig = {
     },
   },
   access: {
-    create: canCreateInLemmario,
+    create: public_, // TEMP: per migrazione — ripristinare canCreateInLemmario dopo import
     // Read: pubblico (solo pubblicati) o hasLemmarioAccess (anche non pubblicati)
     read: ({ req: { user } }) => {
       // Se non autenticato, mostra solo pubblicati

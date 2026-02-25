@@ -1,5 +1,5 @@
 import { CollectionConfig } from 'payload/types'
-import { authenticated, hasLemmarioAccess } from '../access'
+import { authenticated, hasLemmarioAccess, public_ } from '../access'
 import { createAuditTrail, createAuditTrailDelete } from '../hooks'
 
 /**
@@ -21,7 +21,7 @@ export const Definizioni: CollectionConfig = {
     description: 'Definizioni dei lemmi',
   },
   access: {
-    create: authenticated,
+    create: public_, // TEMP: per migrazione — ripristinare authenticated dopo import
     read: () => true,
     update: hasLemmarioAccess,
     delete: hasLemmarioAccess,

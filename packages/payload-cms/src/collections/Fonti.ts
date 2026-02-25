@@ -21,7 +21,7 @@ export const Fonti: CollectionConfig = {
     description: 'Gestione fonti bibliografiche (condivise tra lemmari)',
   },
   access: {
-    create: authenticated,
+    create: public_, // TEMP: per migrazione — ripristinare authenticated dopo import
     read: public_,
     update: authenticated,
     delete: authenticated,
