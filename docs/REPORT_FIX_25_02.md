@@ -219,6 +219,53 @@ La catena relazionale `Fonte -> Ricorrenze -> Definizioni -> Lemmi` viene ora pe
 
 ---
 
+## Task 9: Logo lemmario nella pagina di dettaglio
+
+**Status:** Completato
+
+**Problema:** La pagina di dettaglio del lemmario mostrava solo il titolo centrato nell'hero section. Mancava il logo del progetto (es. "Redde Rationem") accanto al titolo. Inoltre non esisteva un campo dedicato per il logo nella collection Lemmari.
+
+**Fix applicato:**
+
+### 1. Backend: campo `logo` su Lemmari
+
+- Aggiunto campo `logo` (type: upload, relationTo: media) alla collection Lemmari
+- Supporta PNG e SVG (la collection Media li gestiva gia)
+- Posizionato nella sidebar dell'admin panel
+- Nessuna migrazione DB necessaria: il campo usa la tabella `lemmari_rels` gia esistente (stessa struttura del campo `foto`, distinto tramite colonna `path`)
+
+### 2. Frontend: tipo TypeScript
+
+- Aggiunto `logo?: number | PayloadMedia` all'interfaccia `Lemmario` in `payload.ts`
+
+### 3. Frontend: hero section pagina di dettaglio
+
+- Layout hero modificato: se presente un logo, diventa flex orizzontale (logo a sinistra, titolo a destra)
+- SVG: usa `<img>` con URL pubblico (`getPublicMediaUrl`) perche il browser deve caricare direttamente
+- PNG/raster: usa `next/image` con URL interno Docker (`getMediaUrl`) per ottimizzazione
+- Senza logo: fallback al layout centrato originale
+- Allineamento: logo allineato alla parte alta del titolo (`items-start`)
+- Responsive: su mobile logo sopra, titolo sotto; su desktop affiancati
+
+### 4. Utility: getPublicMediaUrl
+
+- Creata nuova funzione `getPublicMediaUrl` in `media-url.ts`
+- A differenza di `getMediaUrl`, non riscrive mai gli URL verso l'hostname Docker interno
+- Necessaria per `<img>` standard dove il browser fetcha direttamente l'immagine
+
+**File modificati:**
+
+- `packages/payload-cms/src/collections/Lemmari.ts` - Aggiunto campo `logo`
+- `packages/frontend/src/types/payload.ts` - Campo `logo` su interfaccia `Lemmario`
+- `packages/frontend/src/app/[lemmario-slug]/page.tsx` - Hero section con logo + titolo affiancati
+- `packages/frontend/src/lib/media-url.ts` - Nuova funzione `getPublicMediaUrl`
+
+**Nessuna migrazione database necessaria.** Il campo `logo` riusa la tabella relazionale `lemmari_rels` gia esistente.
+
+**Per produzione:** Deploy automatico con push su main. Dopo il deploy, caricare il logo SVG/PNG nell'admin panel del lemmario.
+
+---
+
 ## Riepilogo file modificati
 
 | File | Tipo modifica |
@@ -237,6 +284,9 @@ La catena relazionale `Fonte -> Ricorrenze -> Definizioni -> Lemmi` viene ora pe
 | `packages/frontend/src/components/bibliografia/BibliografiaSearch.tsx` | Riscritto (Task 7) |
 | `packages/frontend/src/app/[lemmario-slug]/livelli/page.tsx` | **Nuovo** (Task 8) |
 | `packages/frontend/src/components/MainNav.tsx` | Modificato (Task 8) |
+| `packages/payload-cms/src/collections/Lemmari.ts` | Modificato (Task 9) |
+| `packages/frontend/src/app/[lemmario-slug]/page.tsx` | Modificato (Task 9) |
+| `packages/frontend/src/lib/media-url.ts` | Modificato (Task 9) |
 
 ## Istruzioni per deploy in produzione
 
@@ -257,4 +307,4 @@ La catena relazionale `Fonte -> Ricorrenze -> Definizioni -> Lemmi` viene ora pe
    API_URL=http://localhost:3000/api LEMMARIO_ID=2 pnpm migrate
    ```
 
-**Nota:** I Task 2, 5, 7, 8 sono puramente frontend e non richiedono re-importazione dati. I Task 1 e 4b richiedono migrazione DB + re-import.
+**Nota:** I Task 2, 5, 7, 8, 9 sono puramente frontend/config e non richiedono re-importazione dati. I Task 1 e 4b richiedono migrazione DB + re-import. Il Task 9 richiede il caricamento manuale del logo nell'admin panel dopo il deploy.
