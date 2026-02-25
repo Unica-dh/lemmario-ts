@@ -34,6 +34,7 @@ export interface Lemmario {
   attivo?: boolean
   ordine?: number
   foto?: number | PayloadMedia
+  logo?: number | PayloadMedia
   configurazione?: Record<string, unknown>
   seo?: LemmarioSEO
   data_pubblicazione?: string

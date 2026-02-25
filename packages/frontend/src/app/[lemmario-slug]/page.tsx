@@ -1,7 +1,9 @@
 import { notFound } from 'next/navigation'
+import Image from 'next/image'
 import { getLemmarioBySlug, getLemmi, getAllDefinizioniGrouped, getRicorrenzeByDefinizioniIds, getCrossReferenceMap } from '@/lib/payload-api'
 import { LemmarioScrollView } from '@/components/lemmi/LemmarioScrollView'
 import { AnimatedCount } from '@/components/animations/AnimatedCount'
+import { getMediaUrl } from '@/lib/media-url'
 import type { Metadata } from 'next'
 import type { LetterGroup } from '@/components/lemmi/LetterSection'
 
@@ -111,17 +113,43 @@ export default async function LemmarioPage({ params }: PageProps) {
       }),
   }))
 
+  const logoObj = typeof lemmario.logo === 'object' ? lemmario.logo : null
+  const logoUrl = logoObj ? getMediaUrl(logoObj.url) : null
+  const isSvg = logoObj?.mimeType === 'image/svg+xml'
+
   return (
     <div className="relative">
       {/* Hero */}
       <div className="container mx-auto px-4 md:px-20 py-8 md:py-12">
-        <header className="mb-6 md:mb-8 text-center">
-          <h1 className="font-serif text-3xl md:text-5xl font-bold text-[var(--color-text)] mb-3">
-            {lemmario.titolo}
-          </h1>
-          <p className="label-uppercase text-[var(--color-text-muted)]">
-            <AnimatedCount value={allLemmi.length} suffix="lemmi catalogati" />
-          </p>
+        <header className={`mb-6 md:mb-8 ${logoUrl ? 'flex flex-col md:flex-row items-center md:items-center gap-4 md:gap-8' : 'text-center'}`}>
+          {logoObj && logoUrl && (
+            <div className="shrink-0 w-[80px] h-[80px] md:w-[120px] md:h-[120px] relative">
+              {isSvg ? (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={logoUrl}
+                  alt={logoObj.alt || `Logo ${lemmario.titolo}`}
+                  className="w-full h-full object-contain"
+                />
+              ) : (
+                <Image
+                  src={logoUrl}
+                  alt={logoObj.alt || `Logo ${lemmario.titolo}`}
+                  fill
+                  className="object-contain"
+                  sizes="(max-width: 768px) 80px, 120px"
+                />
+              )}
+            </div>
+          )}
+          <div className={logoUrl ? 'text-center md:text-left' : ''}>
+            <h1 className="font-serif text-3xl md:text-5xl font-bold text-[var(--color-text)] mb-3">
+              {lemmario.titolo}
+            </h1>
+            <p className="label-uppercase text-[var(--color-text-muted)]">
+              <AnimatedCount value={allLemmi.length} suffix="lemmi catalogati" />
+            </p>
+          </div>
         </header>
       </div>
 

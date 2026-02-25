@@ -111,6 +111,15 @@ export const Lemmari: CollectionConfig = {
       },
     },
     {
+      name: 'logo',
+      type: 'upload',
+      relationTo: 'media',
+      admin: {
+        description: 'Logo del lemmario (PNG o SVG). Mostrato nella pagina di dettaglio accanto al titolo.',
+        position: 'sidebar',
+      },
+    },
+    {
       name: 'configurazione',
       type: 'json',
       admin: {
