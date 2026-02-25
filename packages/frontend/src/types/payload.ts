@@ -125,6 +125,7 @@ export interface Ricorrenza {
   testo_originale: string
   pagina_raw?: string
   note?: string
+  ordine?: number
   updatedAt: string
   createdAt: string
 }

@@ -4,7 +4,59 @@ Questo documento descrive le modifiche effettuate per ciascun task, con i file c
 
 **Verifica:** `pnpm typecheck` e `pnpm lint` superati senza errori.
 
-**Per applicare in produzione:** Fare push su `main` per attivare la pipeline CI/CD automatica. Il Task 4b richiede anche una re-importazione dei dati.
+**Per applicare in produzione:** Fare push su `main` per attivare la pipeline CI/CD automatica. I Task 1 e 4b richiedono anche migrazione DB e re-importazione dei dati.
+
+---
+
+## Task 1: Ordine ricorrenze + datazione documento
+
+**Status:** Completato (codice) - Richiede migrazione DB + re-import dati in produzione
+
+**Problema:** Le ricorrenze nel database non avevano un campo `ordine`. Il frontend le mostrava nell'ordine di risposta del database, senza garanzia di corrispondenza con la struttura originale dei file HTML sorgente. Inoltre, la datazione del documento non era visibile nelle citazioni.
+
+**Indicazioni dalla riunione 25/02:**
+
+- L'ordine deve ripristinare la struttura originale del file HTML sorgente
+- La datazione del documento va in una riga dedicata sotto il riferimento bibliografico
+- Le citazioni multiple dalla stessa fonte devono restare come paragrafi separati (gia funzionante)
+
+**Fix applicato:**
+
+### 1. Backend: campo `ordine` su Ricorrenze
+
+- Aggiunto campo `ordine` (type: number) alla collection Ricorrenze
+- Creata migrazione Payload `20260225_150000.ts` che aggiunge la colonna `ordine` alla tabella `ricorrenze`
+
+### 2. Script di importazione
+
+- Aggiunto contatore `ordineRicorrenza` per definizione, parte da 1
+- Ogni ricorrenza riceve `ordine: ordineRicorrenza++` durante l'import
+- L'ordine segue la posizione del `<p>` nel file HTML (iterato in document order dal parser)
+
+### 3. Frontend: ordinamento e datazione
+
+- API: aggiunto `sort: 'ordine'` ai params della fetch in `getRicorrenzeByDefinizioniIds`
+- DefinizioneCard: sort client-side `[...ricorrenze].sort((a, b) => (a.ordine ?? 0) - (b.ordine ?? 0))`
+- DefinizioneCard: aggiunta riga dedicata per `fonte.anno` sotto il riferimento bibliografico
+- Tipo TypeScript `Ricorrenza`: aggiunto campo `ordine?: number`
+
+### 4. Separazione citazioni (gia funzionante)
+
+- Verificato: il parser (`htmlParser.ts:253`) itera `paragraphs.each((j, p) => ...)` creando una ricorrenza per ogni `<p>` dentro il `<li>` — le citazioni multiple sono gia separate correttamente
+
+**File creati:**
+
+- `packages/payload-cms/src/migrations/20260225_150000.ts` - Migrazione per colonna `ordine`
+
+**File modificati:**
+
+- `packages/payload-cms/src/collections/Ricorrenze.ts` - Aggiunto campo `ordine`
+- `scripts/migration/import.ts` - Contatore ordine progressivo per definizione
+- `packages/frontend/src/types/payload.ts` - Campo `ordine` su interfaccia `Ricorrenza`
+- `packages/frontend/src/lib/payload-api.ts` - Aggiunto `sort: 'ordine'` nella fetch ricorrenze
+- `packages/frontend/src/components/lemma/DefinizioneCard.tsx` - Sort per ordine + riga datazione
+
+**Per produzione:** Dopo il deploy, eseguire migrazione DB (`pnpm db:migrate`) e poi re-import completo dei dati.
 
 ---
 
@@ -171,10 +223,15 @@ La catena relazionale `Fonte -> Ricorrenze -> Definizioni -> Lemmi` viene ora pe
 
 | File | Tipo modifica |
 |------|--------------|
+| `packages/payload-cms/src/collections/Ricorrenze.ts` | Modificato (Task 1) |
+| `packages/payload-cms/src/migrations/20260225_150000.ts` | **Nuovo** (Task 1) |
+| `scripts/migration/import.ts` | Modificato (Task 1) |
+| `packages/frontend/src/types/payload.ts` | Modificato (Task 1) |
+| `packages/frontend/src/lib/payload-api.ts` | Modificato (Task 1) |
+| `packages/frontend/src/components/lemma/DefinizioneCard.tsx` | Modificato (Task 1, 5) |
 | `packages/frontend/src/components/lemma/RiferimentiIncrociati.tsx` | Modificato (Task 2) |
 | `old_website/lemmi/summa_vol.html` | Modificato (Task 4b) |
 | `packages/frontend/src/components/bibliografia/FonteCard.tsx` | Riscritto (Task 5, 7) |
-| `packages/frontend/src/components/lemma/DefinizioneCard.tsx` | Riscritto (Task 5) |
 | `packages/frontend/src/app/[lemmario-slug]/lemmi/[termine]/page.tsx` | Modificato (Task 5) |
 | `packages/frontend/src/app/[lemmario-slug]/bibliografia/page.tsx` | Riscritto (Task 7) |
 | `packages/frontend/src/components/bibliografia/BibliografiaSearch.tsx` | Riscritto (Task 7) |
@@ -185,12 +242,19 @@ La catena relazionale `Fonte -> Ricorrenze -> Definizioni -> Lemmi` viene ora pe
 
 1. **Push su main** per attivare la pipeline CI/CD
 2. La pipeline esegue: lint -> typecheck -> build Docker -> push GHCR -> deploy su VPN
-3. **Dopo il deploy**, per il Task 4b (summa ripetuta), eseguire re-importazione dati:
+3. **Dopo il deploy**, eseguire migrazione DB e re-importazione dati (necessari per Task 1 e 4b):
+
    ```bash
    ssh dhruby@90.147.144.147
-   cd /home/dhruby/lemmario-ts/scripts
+   cd /home/dhruby/lemmario-ts
+
+   # 1. Eseguire migrazione DB (aggiunge colonna ordine a ricorrenze)
+   docker compose exec payload pnpm db:migrate
+
+   # 2. Re-import completo dei dati
+   cd scripts
    source ~/.nvm/nvm.sh && nvm use 22
    API_URL=http://localhost:3000/api LEMMARIO_ID=2 pnpm migrate
    ```
 
-**Nota:** I Task 2, 5, 7, 8 sono puramente frontend e non richiedono re-importazione dati. Solo il Task 4b richiede re-import perche modifica il file HTML sorgente.
+**Nota:** I Task 2, 5, 7, 8 sono puramente frontend e non richiedono re-importazione dati. I Task 1 e 4b richiedono migrazione DB + re-import.

@@ -6,18 +6,30 @@
 
 ## I. Correzioni sui Dati e sulla Migrazione
 
-### TASK 1: Correggere l'ordine delle ricorrenze (ordinamento cronologico)
+### TASK 1: Correggere l'ordine delle ricorrenze + datazione + separazione citazioni
 
-**Problema:** Le ricorrenze nel database non hanno un campo `ordine`. L'ordine di inserimento segue quello del parsing HTML (ordine dei `<li>` e `<p>` nel file), ma non c'e garanzia che corrisponda all'ordine cronologico originale. Il frontend le mostra nell'ordine in cui le riceve dal database.
+**Status:** Completato (codice) - In attesa di re-import dati
 
-**Interventi necessari:**
-1. Aggiungere un campo `ordine` (number) alla collection `Ricorrenze` (`packages/payload-cms/src/collections/Ricorrenze.ts`)
-2. Creare migrazione Payload per la nuova colonna
-3. Aggiornare lo script di migrazione (`scripts/migration/import.ts`) per assegnare l'ordine progressivo durante l'import (basato sulla posizione nel file HTML)
-4. Aggiornare il frontend (`packages/frontend/src/components/lemma/DefinizioneCard.tsx`) per ordinare le ricorrenze per campo `ordine`
-5. Re-importare i dati
+**Problema originale:** Le ricorrenze nel database non hanno un campo `ordine`. Il frontend le mostra nell'ordine in cui le riceve dal database, senza garanzia di corrispondenza con l'ordine originale.
 
-**Ho tutti gli elementi?** Parzialmente. L'ordine nel file HTML (posizione dei `<li>` e `<p>`) corrisponde all'ordine cronologico voluto dal cliente? **Serve conferma** che l'ordine dei `<li>` nel sorgente HTML sia quello corretto, oppure se esiste un criterio cronologico diverso (per data della fonte, per anno dell'opera citata, ecc.).
+**Indicazioni dalla riunione 25/02:**
+
+- L'ordine deve ripristinare la struttura originale del file HTML sorgente (confermato)
+- Le citazioni multiple dalla stessa fonte devono restare come paragrafi separati (gia funzionante nel parser)
+- La datazione del documento va mostrata in una riga dedicata sotto il riferimento bibliografico
+- Necessario un nuovo giro di importazione per ripristinare l'ordine corretto
+
+**Interventi effettuati:**
+
+1. Aggiunto campo `ordine` (number) alla collection Ricorrenze
+2. Creata migrazione Payload (`20260225_150000.ts`) per la nuova colonna
+3. Aggiornato script di import con contatore ordine progressivo per definizione
+4. Aggiornato tipo TypeScript frontend con campo `ordine`
+5. Aggiunta ordinamento API (`sort: 'ordine'`) e sort client-side nel frontend
+6. Aggiunta riga dedicata per la datazione (`fonte.anno`) nel `DefinizioneCard`
+7. Verificato: la separazione citazioni (multiple `<p>` → ricorrenze separate) era gia funzionante nel parser
+
+**Da fare in produzione:** Deploy + eseguire migrazione DB + re-import completo dati
 
 ---
 
@@ -201,15 +213,15 @@
 
 | Task | Autonomo? | Info mancanti |
 |------|-----------|---------------|
-| 1. Ordine ricorrenze | Parziale | Conferma che l'ordine HTML = ordine cronologico |
-| 2. CFR bidirezionali | **Si** | - |
+| 1. Ordine ricorrenze + datazione | **Completato** | Confermato: ordine HTML = ordine voluto. In attesa di re-import |
+| 2. CFR bidirezionali | **Completato** | - |
 | 3. Normalizzazione lemmi | Parziale | Lista completa lemmi da normalizzare, conferma forme singolari |
 | 4a. Refuso raccionem | **No** | Nome esatto del lemma o URL pagina |
-| 4b. Summa ripetuta | **Si** | - |
-| 5. Titoli vs chiavi | **Si** | - |
+| 4b. Summa ripetuta | **Completato** | - |
+| 5. Titoli vs chiavi | **Completato** | - |
 | 6. Statuto Fiorentino | **No** | Logica di split Capitano/Podesta, formato sigle |
-| 7. Lemmi per fonte | **Si** | - |
-| 8. Pagina livelli | **Si** | - |
+| 7. Lemmi per fonte | **Completato** | - |
+| 8. Pagina livelli | **Completato** | - |
 | 9. Loghi e branding | **No** | File loghi, testi progetto, layout preferito |
 | 10. Pubblicazioni | **No** | Scelta opzione, campi richiesti, contenuti iniziali |
 
