@@ -214,7 +214,7 @@ export async function getLemmarioContenutiStatici(lemmarioId: number): Promise<C
 export async function getLemmarioBySlug(slug: string): Promise<Lemmario | null> {
   try {
     const response = await fetchFromPayload<PaginatedResponse<Lemmario>>('/lemmari', {
-      params: { where: JSON.stringify({ slug: { equals: slug } }), limit: 1 },
+      params: { where: JSON.stringify({ slug: { equals: slug } }), limit: 1, depth: 2 },
     })
     return response.docs[0] || null
   } catch {
