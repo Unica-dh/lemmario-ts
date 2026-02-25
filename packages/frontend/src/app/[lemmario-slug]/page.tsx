@@ -3,7 +3,7 @@ import Image from 'next/image'
 import { getLemmarioBySlug, getLemmi, getAllDefinizioniGrouped, getRicorrenzeByDefinizioniIds, getCrossReferenceMap } from '@/lib/payload-api'
 import { LemmarioScrollView } from '@/components/lemmi/LemmarioScrollView'
 import { AnimatedCount } from '@/components/animations/AnimatedCount'
-import { getMediaUrl } from '@/lib/media-url'
+import { getMediaUrl, getPublicMediaUrl } from '@/lib/media-url'
 import type { Metadata } from 'next'
 import type { LetterGroup } from '@/components/lemmi/LetterSection'
 
