@@ -114,8 +114,9 @@ export default async function LemmarioPage({ params }: PageProps) {
   }))
 
   const logoObj = typeof lemmario.logo === 'object' ? lemmario.logo : null
-  const logoUrl = logoObj ? getMediaUrl(logoObj.url) : null
   const isSvg = logoObj?.mimeType === 'image/svg+xml'
+  // SVGs use public URL (browser fetches directly); raster images use internal URL (Next.js optimizer)
+  const logoUrl = logoObj ? (isSvg ? getPublicMediaUrl(logoObj.url) : getMediaUrl(logoObj.url)) : null
 
   return (
     <div className="relative">

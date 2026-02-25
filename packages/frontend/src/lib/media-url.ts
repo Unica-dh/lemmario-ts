@@ -43,3 +43,28 @@ export function getMediaUrl(path: string | undefined): string | null {
     : (process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:3000')
   return `${base}${path}`
 }
+
+/**
+ * Returns a browser-accessible URL for media files.
+ * Unlike getMediaUrl, this never rewrites to Docker internal hostnames.
+ * Use for <img> tags where the browser fetches the image directly (e.g. SVGs).
+ */
+export function getPublicMediaUrl(path: string | undefined): string | null {
+  if (!path) return null
+
+  if (path.startsWith('http')) {
+    try {
+      const url = new URL(path)
+      if (url.pathname.startsWith('/media/')) {
+        const publicBase = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:3000'
+        return `${publicBase}${url.pathname}`
+      }
+    } catch {
+      // Invalid URL, return as-is
+    }
+    return path
+  }
+
+  const publicBase = process.env.NEXT_PUBLIC_API_URL?.replace('/api', '') || 'http://localhost:3000'
+  return `${publicBase}${path}`
+}
