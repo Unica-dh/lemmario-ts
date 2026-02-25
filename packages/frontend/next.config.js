@@ -41,6 +41,18 @@ const nextConfig = {
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
   },
 
+  async rewrites() {
+    return [
+      {
+        // Proxy /media/* requests to Payload CMS backend.
+        // Needed because nginx routes all non-/api, non-/admin traffic to the frontend,
+        // but media files are stored and served by Payload.
+        source: '/media/:path*',
+        destination: `${process.env.INTERNAL_API_URL?.replace('/api', '') || 'http://localhost:3000'}/media/:path*`,
+      },
+    ]
+  },
+
   async headers() {
     return [
       {
