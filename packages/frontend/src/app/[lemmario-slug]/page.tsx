@@ -124,7 +124,7 @@ export default async function LemmarioPage({ params }: PageProps) {
       <div className="container mx-auto px-4 md:px-20 py-8 md:py-12">
         <header className={`mb-6 md:mb-8 ${logoUrl ? 'flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-8' : 'text-center'}`}>
           {logoObj && logoUrl && (
-            <div className="shrink-0 w-[120px] md:w-[180px] relative mt-1">
+            <div className="shrink-0 w-[160px] md:w-[240px] relative mt-1">
               {isSvg ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img
