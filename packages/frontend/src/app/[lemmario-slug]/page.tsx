@@ -122,9 +122,9 @@ export default async function LemmarioPage({ params }: PageProps) {
     <div className="relative">
       {/* Hero */}
       <div className="container mx-auto px-4 md:px-20 py-8 md:py-12">
-        <header className={`mb-6 md:mb-8 ${logoUrl ? 'flex flex-col md:flex-row items-center md:items-center gap-4 md:gap-8' : 'text-center'}`}>
+        <header className={`mb-6 md:mb-8 ${logoUrl ? 'flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-8' : 'text-center'}`}>
           {logoObj && logoUrl && (
-            <div className="shrink-0 w-[80px] h-[80px] md:w-[120px] md:h-[120px] relative">
+            <div className="shrink-0 w-[120px] h-[120px] md:w-[180px] md:h-[180px] relative">
               {isSvg ? (
                 /* eslint-disable-next-line @next/next/no-img-element */
                 <img
@@ -138,7 +138,7 @@ export default async function LemmarioPage({ params }: PageProps) {
                   alt={logoObj.alt || `Logo ${lemmario.titolo}`}
                   fill
                   className="object-contain"
-                  sizes="(max-width: 768px) 80px, 120px"
+                  sizes="(max-width: 768px) 120px, 180px"
                 />
               )}
             </div>
