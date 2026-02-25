@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { getLemmarioBySlug, getAllFonti } from '@/lib/payload-api'
-import type { PaginatedResponse, Ricorrenza } from '@/types/payload'
+import type { PaginatedResponse, Ricorrenza, Definizione, Lemma } from '@/types/payload'
 import { BibliografiaSearch } from '@/components/bibliografia/BibliografiaSearch'
 
 export const dynamic = 'force-dynamic'
@@ -29,6 +29,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 }
 
+export interface LemmaRef {
+  id: number
+  slug: string
+  termine: string
+}
+
 export default async function BibliografiaPage({ params }: PageProps) {
   const lemmario = await getLemmarioBySlug(params['lemmario-slug'])
 
@@ -44,11 +50,11 @@ export default async function BibliografiaPage({ params }: PageProps) {
     a.shorthand_id.localeCompare(b.shorthand_id, 'it')
   )
 
-  // Fetch all ricorrenze to count per fonte
-  // We fetch all ricorrenze and group by fonte ID
+  // Fetch all ricorrenze with depth=2 to get definizione.lemma populated
   let ricorrenzePerFonte = new Map<number, number>()
+  let lemmiPerFonte = new Map<number, LemmaRef[]>()
   try {
-    const response = await fetch(`${API_URL}/ricorrenze?limit=2000&depth=0`, {
+    const response = await fetch(`${API_URL}/ricorrenze?limit=2000&depth=2`, {
       headers: { 'Content-Type': 'application/json' },
       next: { revalidate: process.env.NODE_ENV === 'production' ? 60 : 0 },
     })
@@ -56,20 +62,38 @@ export default async function BibliografiaPage({ params }: PageProps) {
       const data: PaginatedResponse<Ricorrenza> = await response.json()
       for (const r of data.docs) {
         const fonteId = typeof r.fonte === 'number' ? r.fonte : r.fonte?.id
-        if (fonteId) {
-          ricorrenzePerFonte.set(fonteId, (ricorrenzePerFonte.get(fonteId) || 0) + 1)
+        if (!fonteId) continue
+
+        // Count ricorrenze per fonte
+        ricorrenzePerFonte.set(fonteId, (ricorrenzePerFonte.get(fonteId) || 0) + 1)
+
+        // Extract lemma from definizione chain
+        const def = typeof r.definizione === 'object' ? r.definizione as Definizione : null
+        const lemma = def && typeof def.lemma === 'object' ? def.lemma as Lemma : null
+        if (lemma) {
+          const existing = lemmiPerFonte.get(fonteId) || []
+          if (!existing.some(l => l.id === lemma.id)) {
+            existing.push({ id: lemma.id, slug: lemma.slug, termine: lemma.termine })
+          }
+          lemmiPerFonte.set(fonteId, existing)
         }
       }
     }
   } catch {
-    // Fallback: no ricorrenze counts
     ricorrenzePerFonte = new Map()
+    lemmiPerFonte = new Map()
   }
 
-  // Build fonti with ricorrenze count
+  // Sort lemmi alphabetically per fonte
+  for (const [fonteId, lemmi] of lemmiPerFonte) {
+    lemmiPerFonte.set(fonteId, lemmi.sort((a, b) => a.termine.localeCompare(b.termine, 'it')))
+  }
+
+  // Build fonti with ricorrenze count and associated lemmi
   const fontiConRicorrenze = sortedFonti.map(fonte => ({
     fonte,
     ricorrenzeCount: ricorrenzePerFonte.get(fonte.id) || 0,
+    lemmiAssociati: lemmiPerFonte.get(fonte.id) || [],
   }))
 
   return (
@@ -97,7 +121,7 @@ export default async function BibliografiaPage({ params }: PageProps) {
       </header>
 
       {/* Client-side search + grouped list */}
-      <BibliografiaSearch fonti={fontiConRicorrenze} />
+      <BibliografiaSearch fonti={fontiConRicorrenze} lemmarioSlug={lemmario.slug} />
     </div>
   )
 }

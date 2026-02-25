@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import type { Definizione, LivelloRazionalita, Ricorrenza, Fonte } from '@/types/payload'
 
 interface DefinizioneCardProps {
@@ -6,9 +7,10 @@ interface DefinizioneCardProps {
     ricorrenze?: Array<Ricorrenza & { fonte?: Fonte }>
   }
   numero: number
+  lemmarioSlug: string
 }
 
-export function DefinizioneCard({ definizione, numero }: DefinizioneCardProps) {
+export function DefinizioneCard({ definizione, numero, lemmarioSlug }: DefinizioneCardProps) {
   const livello = typeof definizione.livello_razionalita === 'object'
     ? definizione.livello_razionalita
     : null
@@ -47,10 +49,16 @@ export function DefinizioneCard({ definizione, numero }: DefinizioneCardProps) {
                   &laquo;{ricorrenza.testo_originale}&raquo;
                 </p>
 
-                {/* Fonte: shorthand_id + pagina_raw */}
+                {/* Fonte: titolo cliccabile + pagina_raw */}
                 {fonte && (
                   <p className="mt-2 text-sm text-[var(--color-text-muted)] text-right">
-                    &mdash; {fonte.shorthand_id}
+                    &mdash;{' '}
+                    <Link
+                      href={`/${lemmarioSlug}/bibliografia#fonte-${fonte.id}`}
+                      className="hover:text-[var(--color-text)] transition-colors underline decoration-dotted underline-offset-2"
+                    >
+                      {fonte.titolo || fonte.shorthand_id}
+                    </Link>
                     {ricorrenza.pagina_raw && <>, {ricorrenza.pagina_raw}</>}
                   </p>
                 )}

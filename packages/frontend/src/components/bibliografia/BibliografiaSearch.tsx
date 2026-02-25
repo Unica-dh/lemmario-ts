@@ -4,16 +4,24 @@ import { useState, useEffect, useMemo } from 'react'
 import { FonteCard } from './FonteCard'
 import type { Fonte } from '@/types/payload'
 
+export interface LemmaRef {
+  id: number
+  slug: string
+  termine: string
+}
+
 interface FonteConRicorrenze {
   fonte: Fonte
   ricorrenzeCount: number
+  lemmiAssociati: LemmaRef[]
 }
 
 interface BibliografiaSearchProps {
   fonti: FonteConRicorrenze[]
+  lemmarioSlug: string
 }
 
-export function BibliografiaSearch({ fonti }: BibliografiaSearchProps) {
+export function BibliografiaSearch({ fonti, lemmarioSlug }: BibliografiaSearchProps) {
   const [searchValue, setSearchValue] = useState('')
   const [debouncedQuery, setDebouncedQuery] = useState('')
 
@@ -121,11 +129,13 @@ export function BibliografiaSearch({ fonti }: BibliografiaSearchProps) {
               <div className="flex-1 border-t border-[var(--color-border)]" />
             </div>
             <div className="divide-y divide-[var(--color-border)]">
-              {items.map(({ fonte, ricorrenzeCount }) => (
+              {items.map(({ fonte, ricorrenzeCount, lemmiAssociati }) => (
                 <FonteCard
                   key={fonte.id}
                   fonte={fonte}
                   ricorrenzeCount={ricorrenzeCount}
+                  lemmiAssociati={lemmiAssociati}
+                  lemmarioSlug={lemmarioSlug}
                 />
               ))}
             </div>

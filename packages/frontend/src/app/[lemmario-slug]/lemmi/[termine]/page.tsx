@@ -231,7 +231,7 @@ export default async function LemmaPage({ params, searchParams }: PageProps) {
                 .sort((a, b) => a.numero - b.numero)
                 .map((def) => (
                   <div key={def.id} className="py-8 first:pt-0">
-                    <DefinizioneCard definizione={def} numero={def.numero} />
+                    <DefinizioneCard definizione={def} numero={def.numero} lemmarioSlug={lemmario.slug} />
                   </div>
                 ))}
             </div>
