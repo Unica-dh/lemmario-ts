@@ -18,15 +18,8 @@ export function RiferimentiIncrociati({ riferimenti, lemmarioSlug, showLabel = t
     return null
   }
 
-  // Filtra auto_creato e raggruppa per tipo
-  const filtered = riferimenti.filter((rif) => !rif.auto_creato)
-
-  if (filtered.length === 0) {
-    return null
-  }
-
   const grouped = new Map<string, Array<RiferimentoIncrociato & { lemma_destinazione?: Lemma }>>()
-  for (const rif of filtered) {
+  for (const rif of riferimenti) {
     const tipo = rif.tipo_riferimento || 'CFR'
     const existing = grouped.get(tipo) || []
     existing.push(rif)

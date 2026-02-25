@@ -154,7 +154,7 @@
    - Logo Universita di Cagliari
    - Logo Universita di Firenze
    - Logo PRIN
-   - Titolo progetto "RedRazionem"
+   - Titolo progetto "Redde Rationem"
 2. Ottimizzare i loghi come immagini Next.js (componente `Image` con `priority` per above-the-fold)
 3. Aggiornare la pagina "Progetto" (contenuto statico) con i testi descrittivi
 
