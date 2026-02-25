@@ -130,7 +130,7 @@ export default async function LemmarioPage({ params }: PageProps) {
                 <img
                   src={logoUrl}
                   alt={logoObj.alt || `Logo ${lemmario.titolo}`}
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-contain dark:invert"
                 />
               ) : (
                 <Image
