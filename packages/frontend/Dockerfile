@@ -3,10 +3,12 @@ FROM node:20-alpine AS base
 # Build arguments for environment variables
 ARG NEXT_PUBLIC_SITE_URL=https://glossari.dh.unica.it
 ARG NEXT_PUBLIC_API_URL=https://glossari.dh.unica.it/api
+ARG INTERNAL_API_URL=http://payload:3000/api
 
 # Set as environment variables for build
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+ENV INTERNAL_API_URL=$INTERNAL_API_URL
 
 # Install pnpm
 RUN npm install -g pnpm@8.15.1
