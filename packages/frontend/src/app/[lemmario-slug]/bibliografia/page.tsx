@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { getLemmarioBySlug, getAllFonti } from '@/lib/payload-api'
+import { getBibliographySortKey } from '@/lib/sort-utils'
 import type { PaginatedResponse, Ricorrenza, Definizione, Lemma } from '@/types/payload'
 import { BibliografiaSearch } from '@/components/bibliografia/BibliografiaSearch'
 
@@ -45,9 +46,9 @@ export default async function BibliografiaPage({ params }: PageProps) {
   // Fetch all fonti (shared across lemmari)
   const fonti = await getAllFonti()
 
-  // Sort fonti alphabetically by shorthand_id
+  // Sort fonti alphabetically by the actual title of the work (ignoring author prefixes)
   const sortedFonti = [...fonti].sort((a, b) =>
-    a.shorthand_id.localeCompare(b.shorthand_id, 'it')
+    getBibliographySortKey(a.titolo).localeCompare(getBibliographySortKey(b.titolo), 'it')
   )
 
   // Fetch all ricorrenze with depth=2 to get definizione.lemma populated

@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { FonteCard } from './FonteCard'
 import type { Fonte } from '@/types/payload'
+import { getBibliographySortKey } from '@/lib/sort-utils'
 
 export interface LemmaRef {
   id: number
@@ -44,11 +45,12 @@ export function BibliografiaSearch({ fonti, lemmarioSlug }: BibliografiaSearchPr
     )
   }, [fonti, debouncedQuery])
 
-  // Group by first letter
+  // Group by first letter of the actual title (ignoring author prefixes)
   const grouped = useMemo(() => {
     const groups = new Map<string, FonteConRicorrenze[]>()
     for (const item of filteredFonti) {
-      const letter = item.fonte.shorthand_id[0]?.toUpperCase() || '#'
+      const sortKey = getBibliographySortKey(item.fonte.titolo)
+      const letter = sortKey[0]?.toUpperCase() || '#'
       const existing = groups.get(letter) || []
       existing.push(item)
       groups.set(letter, existing)
