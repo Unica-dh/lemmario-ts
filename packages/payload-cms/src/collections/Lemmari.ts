@@ -120,6 +120,34 @@ export const Lemmari: CollectionConfig = {
       },
     },
     {
+      name: 'loghi_partner',
+      type: 'array',
+      label: 'Loghi Partner',
+      admin: {
+        description: 'Loghi di università o enti partner, mostrati nella homepage del lemmario sotto il logo principale.',
+      },
+      fields: [
+        {
+          name: 'immagine',
+          type: 'upload',
+          relationTo: 'media',
+          required: true,
+          admin: {
+            description: 'Logo partner (PNG o SVG)',
+          },
+        },
+        {
+          name: 'alt',
+          type: 'text',
+          required: true,
+          admin: {
+            description: 'Testo alternativo per accessibilità',
+            placeholder: 'Università degli Studi di Firenze',
+          },
+        },
+      ],
+    },
+    {
       name: 'configurazione',
       type: 'json',
       admin: {
