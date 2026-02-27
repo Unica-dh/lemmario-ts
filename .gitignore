@@ -48,3 +48,5 @@ coverage/
 .worktrees/
 .security-key
 logs/security/
+.playwright-mcp/
+tsconfig.tsbuildinfo
