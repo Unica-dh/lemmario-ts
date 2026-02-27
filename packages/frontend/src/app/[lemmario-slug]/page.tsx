@@ -134,24 +134,23 @@ export default async function LemmarioPage({ params }: PageProps) {
           {hasLogos && (
             <div className="shrink-0 w-[160px] md:w-[240px] flex flex-col gap-3 mt-1">
               {logoObj && logoUrl && (
-                <div className="relative">
-                  {isSvg ? (
-                    /* eslint-disable-next-line @next/next/no-img-element */
-                    <img
-                      src={logoUrl}
-                      alt={logoObj.alt || `Logo ${lemmario.titolo}`}
-                      className="w-full h-full object-contain dark:invert"
-                    />
-                  ) : (
-                    <Image
-                      src={logoUrl}
-                      alt={logoObj.alt || `Logo ${lemmario.titolo}`}
-                      fill
-                      className="object-contain"
-                      sizes="(max-width: 768px) 120px, 180px"
-                    />
-                  )}
-                </div>
+                isSvg ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={logoUrl}
+                    alt={logoObj.alt || `Logo ${lemmario.titolo}`}
+                    className="w-full object-contain dark:invert"
+                  />
+                ) : (
+                  <Image
+                    src={logoUrl}
+                    alt={logoObj.alt || `Logo ${lemmario.titolo}`}
+                    width={logoObj.width || 240}
+                    height={logoObj.height || 180}
+                    className="w-full h-auto object-contain"
+                    sizes="(max-width: 768px) 160px, 240px"
+                  />
+                )
               )}
               {loghiPartner?.map((partner, index) => {
                 const img = typeof partner.immagine === 'object' ? partner.immagine : null
