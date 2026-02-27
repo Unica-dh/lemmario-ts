@@ -122,28 +122,36 @@ export default async function LemmarioPage({ params }: PageProps) {
     <div className="relative">
       {/* Hero */}
       <div className="container mx-auto px-4 md:px-20 py-8 md:py-12">
-        <header className={`mb-6 md:mb-8 ${logoUrl ? 'flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-8' : 'text-center'}`}>
-          {logoObj && logoUrl && (
-            <div className="shrink-0 w-[160px] md:w-[240px] relative mt-1">
-              {isSvg ? (
-                /* eslint-disable-next-line @next/next/no-img-element */
-                <img
-                  src={logoUrl}
-                  alt={logoObj.alt || `Logo ${lemmario.titolo}`}
-                  className="w-full h-full object-contain dark:invert"
-                />
-              ) : (
-                <Image
-                  src={logoUrl}
-                  alt={logoObj.alt || `Logo ${lemmario.titolo}`}
-                  fill
-                  className="object-contain"
-                  sizes="(max-width: 768px) 120px, 180px"
-                />
-              )}
-            </div>
-          )}
-          <div className={logoUrl ? 'text-center md:text-left' : ''}>
+        <header className="mb-6 md:mb-8 flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-8">
+          <div className="shrink-0 w-[160px] md:w-[240px] flex flex-col gap-3 mt-1">
+            {logoObj && logoUrl && (
+              <div className="relative">
+                {isSvg ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={logoUrl}
+                    alt={logoObj.alt || `Logo ${lemmario.titolo}`}
+                    className="w-full h-full object-contain dark:invert"
+                  />
+                ) : (
+                  <Image
+                    src={logoUrl}
+                    alt={logoObj.alt || `Logo ${lemmario.titolo}`}
+                    fill
+                    className="object-contain"
+                    sizes="(max-width: 768px) 120px, 180px"
+                  />
+                )}
+              </div>
+            )}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/logos/Logo_universita_firenze.svg"
+              alt="Università degli Studi di Firenze"
+              className="w-[75%] object-contain"
+            />
+          </div>
+          <div className="text-center md:text-left">
             <h1 className="font-serif text-3xl md:text-5xl font-bold text-[var(--color-text)] mb-3">
               {lemmario.titolo}
             </h1>
