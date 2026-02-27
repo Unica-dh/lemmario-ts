@@ -164,7 +164,7 @@ export default async function LemmarioPage({ params }: PageProps) {
                     key={index}
                     src={partnerUrl}
                     alt={partner.alt}
-                    className="w-[75%] object-contain"
+                    className="w-[75%] object-contain dark:invert"
                   />
                 ) : (
                   <Image
@@ -173,7 +173,7 @@ export default async function LemmarioPage({ params }: PageProps) {
                     alt={partner.alt}
                     width={180}
                     height={60}
-                    className="w-[75%] h-auto object-contain"
+                    className="w-[75%] h-auto object-contain dark:invert"
                   />
                 )
               })}
