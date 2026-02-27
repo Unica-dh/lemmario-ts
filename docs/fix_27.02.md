@@ -61,40 +61,6 @@
 
 ## Modifiche e Migliorie (Evolutive)
 
-### 3. Aggiornamento Label "Livelli di Razionalità"
-
-**Descrizione:** I nomi attuali dei livelli (es. "uso specialistico generico") non corrispondono alla terminologia corretta del progetto.
-
-**Specifiche:** Aggiornare i nomi nel backend affinché si riflettano su tutto il sito.
-
-**Esempi:** Il livello 1 deve diventare "Concetti astratti" (non "uso corrente"); il livello 2 "Operazioni"; il livello 6 "Istituzioni".
-
-**Analisi tecnica:**
-- I livelli sono record nel DB, collection `livelli-razionalita`
-- Lo script di seed (`scripts/migration/seed-livelli-razionalita.ts`) usa GIÀ i nomi corretti:
-  1. Concetti astratti
-  2. Operazioni
-  3. Modi di argomentare
-  4. Elementi tecnici
-  5. Giudizi di valore
-  6. Istituzioni
-- Esiste uno script seed più vecchio (`packages/payload-cms/src/seed/index.ts`) con nomi diversi ("Livello 1 - Operazioni" ecc.)
-
-**Domande aperte:**
-- I livelli in produzione hanno già i nomi corretti (seed di migrazione) oppure quelli vecchi (seed iniziale)?
-- Se sono già corretti in produzione, il task è già risolto?
-- Confermare la mappatura completa: i 6 nomi nello script di seed (`Concetti astratti`, `Operazioni`, `Modi di argomentare`, `Elementi tecnici`, `Giudizi di valore`, `Istituzioni`) sono ESATTI?
-
-**Intervento richiesto (se necessario):**
-1. Verificare i nomi attuali in produzione (`GET /api/livelli-razionalita`)
-2. Se non corrispondono, aggiornare via PATCH per ogni livello
-3. Allineare lo script seed in `packages/payload-cms/src/seed/index.ts` allo standard
-
-**Priorità:** Media
-**Stima complessità:** Bassa
-
----
-
 ### 4. Sdoppiamento fonte "Statuti della Repubblica Fiorentina"
 
 **Descrizione:** La fonte bibliografica attuale accorpa due manoscritti distinti, creando conflitti con le abbreviazioni "C" (Capitano) e "P" (Podestà) che vengono confuse con "carta" o "pagina".
@@ -196,10 +162,8 @@
 **Descrizione:** Miglioramento dell'estetica e dell'identità visiva del sito.
 
 **Specifiche:**
-- Aggiungere il logo dell'Università di Firenze nella pagina progetto o nel footer, mantenendo il logo del progetto e di Cagliari come principali.
-- Sostituire l'immagine placeholder della Home (generata da AI) con una riproduzione autentica.
+- Aggiungere il logo dell'Università di Firenze nella pagina progetto o nel footer, mantenendo il logo del progetto e di Cagliari come principali. Il logo deve essere visibile solo nella pagina del so lemmaria insieme al campo "logo" che c'è già
 
-**Esempio:** Utilizzare il dettaglio dei due personaggi che contano con le dita dalla copertina del primo libro del progetto (affresco di Palazzo Trinci a Foligno).
 
 **Analisi tecnica:**
 - Logo UniCa + DH già presenti in `InstitutionalBar.tsx` (barra superiore sticky)
