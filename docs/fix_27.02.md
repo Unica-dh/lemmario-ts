@@ -72,9 +72,9 @@ done
 
 ### 2. Bug salvataggio Livelli di Razionalità nel Backend
 
-**Descrizione:** Modificando il livello di razionalità dal menu a tendina all'interno del form di un lemma, la modifica non viene recepita dal database nonostante il messaggio di successo.
+**Descrizione:** Modificando il livello di razionalità dal menu a tendina all'interno del form di un lemma nel backend, la modifica non viene recepita dal database nonostante il messaggio di successo.
 
-**Specifiche:** Il problema nasce dal fatto che il menu richiama l'oggetto "definizione" che è esterno al form del lemma.
+**Specifiche:** Il problema nasce dal fatto che il menu richiama l'oggetto "definizione" che è esterno al form del lemma, ovvero è una entità referenziata esterna al lemma.
 
 **Esempio:** Tentativo di modifica del livello per il lemma "camarlingato".
 

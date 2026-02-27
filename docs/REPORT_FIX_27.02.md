@@ -9,7 +9,7 @@ Documento di tracciamento per i task definiti in [`fix_27.02.md`](fix_27.02.md).
 | 1 | Definizioni vuote e sfasamento numerico | Completato | L + P | 2026-02-27 |
 | 2 | Bug salvataggio Livelli di Razionalità | Da fare | - | - |
 | 4 | Sdoppiamento fonte Statuti Fiorentina | Completato | L + P | 2026-02-27 |
-| 5 | Filtro Voci Bibliografiche vuote | Completato | L | 2026-02-27 |
+| 5 | Filtro Voci Bibliografiche vuote | Completato | L + P | 2026-02-27 |
 | 6 | Download Database SQL | Completato | L + P | 2026-02-27 |
 | 7 | Aggiornamento Loghi | Completato | L + P | 2026-02-27 |
 | 8 | Contenuto ignorato dal Parser (5 Lemmi) | Da fare | - | - |
