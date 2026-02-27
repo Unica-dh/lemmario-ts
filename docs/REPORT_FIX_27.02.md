@@ -135,7 +135,9 @@ Nessuno sostanziale. Il piano prevedeva le stesse operazioni. Non è stata aggiu
 
 - [x] Typecheck (`pnpm typecheck`) superato — 0 errori
 - [x] Lint (`pnpm lint`) superato — 0 errori (solo warning preesistenti)
-- [ ] Test manuale con Docker (richiede rebuild container con `docker compose build payload`)
+- [x] Endpoint senza auth → 403 (corretto)
+- [x] Endpoint con JWT super_admin → 200, dump SQL valido (~12.000 righe), headers `Content-Disposition: attachment`
+- [x] Webpack admin panel compilato con successo (componente `ExportDatabase` incluso nel bundle)
 - [ ] Deploy in produzione (al prossimo push su main)
 
 ---

@@ -1,22 +1,30 @@
-import React, { useState, useCallback } from 'react'
-import { useAuth } from 'payload/components/utilities'
+import React, { useState, useEffect } from 'react'
 
 const ExportDatabase: React.FC = () => {
-  const { user } = useAuth()
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false)
   const [downloading, setDownloading] = useState(false)
 
-  const handleDownload = useCallback(async () => {
-    setDownloading(true)
-    try {
-      window.location.href = '/api/admin/export/database'
-    } finally {
-      // Reset after a delay to allow the download to start
-      setTimeout(() => setDownloading(false), 3000)
-    }
+  useEffect(() => {
+    fetch('/api/utenti/me', { credentials: 'include' })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.user?.ruolo === 'super_admin') {
+          setIsSuperAdmin(true)
+        }
+      })
+      .catch(() => {
+        // ignore - user not authenticated or fetch failed
+      })
   }, [])
 
-  if (!user || (user as any).ruolo !== 'super_admin') {
+  if (!isSuperAdmin) {
     return null
+  }
+
+  const handleDownload = () => {
+    setDownloading(true)
+    window.location.href = '/api/admin/export/database'
+    setTimeout(() => setDownloading(false), 3000)
   }
 
   return (
