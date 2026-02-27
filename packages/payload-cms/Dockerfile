@@ -34,8 +34,9 @@ RUN pnpm build && npx payload build
 # Production stage
 FROM node:20-alpine AS production
 
-# Install pnpm
-RUN npm install -g pnpm@8.15.1
+# Install pnpm and postgresql-client (for pg_dump export endpoint)
+RUN npm install -g pnpm@8.15.1 && \
+    apk add --no-cache postgresql16-client
 
 WORKDIR /app
 
