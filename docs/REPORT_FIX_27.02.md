@@ -10,7 +10,7 @@ Documento di tracciamento per i task definiti in [`fix_27.02.md`](fix_27.02.md).
 | 2 | Bug salvataggio Livelli di Razionalità | Da fare | - | - |
 | 4 | Sdoppiamento fonte Statuti Fiorentina | Da fare | - | - |
 | 5 | Filtro Voci Bibliografiche vuote | Completato | L | 2026-02-27 |
-| 6 | Download Database SQL | Da fare | - | - |
+| 6 | Download Database SQL | Completato | L | 2026-02-27 |
 | 7 | Aggiornamento Loghi | Da fare | - | - |
 | 8 | Contenuto ignorato dal Parser (5 Lemmi) | Da fare | - | - |
 
@@ -91,6 +91,51 @@ Nessuno. Il piano prevedeva anche l'opzione di un toggle UI ("Mostra tutte / Sol
 - [x] 61 fonti mostrate in pagina (su 86 totali nel DB)
 - [x] Nessuna fonte con 0 ricorrenze visibile nella pagina renderizzata
 - [x] 86 fonti ancora presenti nel DB (nessuna eliminata)
+- [ ] Deploy in produzione (al prossimo push su main)
+
+---
+
+## Task 6 - Implementazione Download Database SQL
+
+**Data completamento:** 2026-02-27
+
+**Ambiente:** Locale (in produzione al prossimo deploy)
+
+**File modificati:**
+
+- `packages/payload-cms/src/server.ts` — Aggiunto endpoint Express `GET /api/admin/export/database` con autenticazione super_admin, esecuzione `pg_dump` via `child_process.spawn` e streaming della risposta
+- `packages/payload-cms/src/admin/components/ExportDatabase.tsx` — Nuovo componente React per la dashboard admin con pulsante di download (visibile solo ai super_admin)
+- `packages/payload-cms/src/payload.config.ts` — Registrato componente `ExportDatabase` come `afterDashboard`
+- `packages/payload-cms/Dockerfile` — Aggiunto `postgresql16-client` allo stage di produzione
+- `packages/payload-cms/Dockerfile.dev` — Aggiunto `postgresql16-client` allo stage di sviluppo
+
+**Intervento effettuato:**
+
+1. **Endpoint Express (`/api/admin/export/database`):**
+   - Verifica autenticazione JWT Payload: solo utenti con `ruolo === 'super_admin'` possono accedere (403 altrimenti)
+   - Parsing di `DATABASE_URI` per estrarre host, porta, utente e database
+   - Esecuzione di `pg_dump` via `child_process.spawn` con password passata via variabile d'ambiente `PGPASSWORD`
+   - Streaming diretto dello stdout di pg_dump nella risposta HTTP con headers `Content-Disposition: attachment` e `Content-Type: application/sql`
+   - Gestione errori: stderr loggato, errori di avvio e codice di uscita non-zero gestiti
+
+2. **Componente Admin (`ExportDatabase.tsx`):**
+   - Visibile solo se `user.ruolo === 'super_admin'`
+   - Pulsante "Scarica Database SQL" che naviga all'endpoint di download
+   - Stato `downloading` con feedback visivo durante il download
+   - Registrato in `payload.config.ts` come componente `afterDashboard`
+
+3. **Dockerfile:**
+   - Aggiunto `apk add --no-cache postgresql16-client` sia nel Dockerfile di produzione (stage `production`) che in quello di sviluppo
+
+**Scostamenti dal piano:**
+
+Nessuno sostanziale. Il piano prevedeva le stesse operazioni. Non è stata aggiunta documentazione sulla procedura di importazione locale (punto opzionale) — questo potrà essere aggiunto in seguito se necessario.
+
+**Verifiche:**
+
+- [x] Typecheck (`pnpm typecheck`) superato — 0 errori
+- [x] Lint (`pnpm lint`) superato — 0 errori (solo warning preesistenti)
+- [ ] Test manuale con Docker (richiede rebuild container con `docker compose build payload`)
 - [ ] Deploy in produzione (al prossimo push su main)
 
 ---

@@ -4,6 +4,9 @@ import { postgresAdapter } from '@payloadcms/db-postgres'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
 
+// Import admin components
+import ExportDatabase from './admin/components/ExportDatabase'
+
 // Import all collections
 import {
   Lemmari,
@@ -37,6 +40,9 @@ export default buildConfig({
       titleSuffix: '- Lemmario CMS',
       favicon: '/favicon.ico',
       ogImage: '/og-image.jpg',
+    },
+    components: {
+      afterDashboard: [ExportDatabase],
     },
   },
   i18n: {
