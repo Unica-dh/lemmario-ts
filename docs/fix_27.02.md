@@ -1,5 +1,16 @@
 # Fix e Task - Riunione 27/02/2026
 
+## Tracking implementazione
+
+Man mano che ogni task viene completato, documentare l'intervento effettivo in [`docs/REPORT_FIX_27.02.md`](REPORT_FIX_27.02.md) con:
+
+- Numero e titolo del task
+- Data di completamento
+- File modificati (con link)
+- Descrizione sintetica dell'intervento
+- Eventuali note o scostamenti rispetto al piano originale
+- Esito dei test / verifiche effettuate
+
 ## Bug (Errori di sistema o di dati)
 
 ### 1. Definizioni vuote e sfasamento numerico
@@ -23,6 +34,39 @@
 
 **Priorità:** Alta
 **Stima complessità:** Bassa (correzione dati)
+
+**Verifica completamento:**
+
+```bash
+# 1. Verificare che le definizioni 22, 24, 26 di "ragione" NON siano vuote
+API_URL="http://localhost:3000/api"  # o https://glossari.dh.unica.it/api
+
+# Recupera il lemma "ragione" (volgare)
+LEMMA_ID=$(curl -s "$API_URL/lemmi?where[termine][equals]=ragione&where[tipo][equals]=volgare" | jq '.docs[0].id')
+
+# Recupera TUTTE le definizioni del lemma
+curl -s "$API_URL/definizioni?where[lemma][equals]=$LEMMA_ID&sort=numero&limit=50" | \
+  jq '.docs[] | {numero, testo: (.testo[0:80] // "VUOTA!")}'
+
+# ATTESO: tutte le definizioni dalla 21 in poi devono avere testo non vuoto
+# FALLITO SE: definizioni 22, 24 o 26 mostrano "VUOTA!"
+```
+
+```bash
+# 2. Verificare la sequenza numerica (nessun duplicato)
+curl -s "$API_URL/definizioni?where[lemma][equals]=$LEMMA_ID&sort=numero&limit=50" | \
+  jq '[.docs[].numero] | if (. | unique | length) == (. | length) then "OK: nessun duplicato" else "ERRORE: numeri duplicati trovati" end'
+```
+
+```bash
+# 3. Verificare che le ricorrenze delle definizioni 22+ siano associate correttamente
+for DEF_NUM in 22 24 26; do
+  DEF_ID=$(curl -s "$API_URL/definizioni?where[lemma][equals]=$LEMMA_ID&where[numero][equals]=$DEF_NUM" | jq '.docs[0].id')
+  COUNT=$(curl -s "$API_URL/ricorrenze?where[definizione][equals]=$DEF_ID" | jq '.totalDocs')
+  echo "Definizione $DEF_NUM (id=$DEF_ID): $COUNT ricorrenze"
+done
+# ATTESO: ogni definizione deve avere ≥1 ricorrenza (verificare con file HTML sorgente)
+```
 
 ---
 
@@ -56,6 +100,47 @@
 
 **Priorità:** Alta
 **Stima complessità:** Media (refactor error handling in useSync.ts)
+
+**Verifica completamento:**
+
+```bash
+# 1. Verifica statica: ogni fetch in useSync.ts deve avere un check response.ok
+FILE="packages/payload-cms/src/admin/views/LemmaEdit/hooks/useSync.ts"
+
+# Conta i fetch e i response.ok — devono corrispondere
+FETCH_COUNT=$(grep -c 'await fetch(' "$FILE")
+CHECK_COUNT=$(grep -c 'response\.ok\|res\.ok\|\.ok ===' "$FILE")
+echo "Fetch calls: $FETCH_COUNT | Response checks: $CHECK_COUNT"
+# ATTESO: CHECK_COUNT >= FETCH_COUNT
+```
+
+```bash
+# 2. Verifica che non esista più il pattern "fetch senza check"
+# Cerca blocchi fetch seguiti da uso diretto senza controllo errore
+grep -n -A3 'await fetch(' "$FILE" | grep -v 'ok\|throw\|error\|Error'
+# ATTESO: nessun risultato (ogni fetch è seguito da gestione errore)
+```
+
+```bash
+# 3. Verifica che index.tsx gestisca errori nel catch
+grep -A5 'catch' "packages/payload-cms/src/admin/views/LemmaEdit/index.tsx"
+# ATTESO: il catch mostra un messaggio di errore specifico, NON solo "Errore generico"
+```
+
+**Test manuale (Admin UI):**
+
+1. Aprire <http://localhost:3000/admin> → Lemmi → "camarlingato"
+2. Nella sezione Definizioni, cambiare il `livello_razionalita` da menu a tendina
+3. Salvare il lemma
+4. **Ricaricare la pagina** (F5)
+5. ATTESO: il livello di razionalità è quello appena selezionato
+6. FALLITO SE: il livello è tornato al valore precedente
+
+**Test errore (simulazione):**
+
+1. Aprire DevTools → Network
+2. Modificare un campo e salvare
+3. ATTESO: se una PATCH fallisce (es. 409), l'utente vede un messaggio di errore rosso specifico (NON "Lemma salvato con successo!")
 
 ---
 
@@ -102,6 +187,59 @@
 **Priorità:** Media-Alta
 **Stima complessità:** Media (script automatico ~100 righe)
 
+**Verifica completamento:**
+
+```bash
+API_URL="http://localhost:3000/api"  # o https://glossari.dh.unica.it/api
+
+# 1. Verificare che le 2 nuove fonti esistano
+curl -s "$API_URL/fonti?where[shorthand_id][equals]=Firenze.Statuti.1355.volg.C" | \
+  jq '{found: (.totalDocs > 0), titolo: .docs[0].titolo}'
+# ATTESO: found=true, titolo contiene "Capitano del Popolo"
+
+curl -s "$API_URL/fonti?where[shorthand_id][equals]=Firenze.Statuti.1355.volg.P" | \
+  jq '{found: (.totalDocs > 0), titolo: .docs[0].titolo}'
+# ATTESO: found=true, titolo contiene "Podestà"
+```
+
+```bash
+# 2. Verificare che la fonte originale sia stata eliminata
+curl -s "$API_URL/fonti?where[shorthand_id][equals]=Firenze.Statuti.1355.volg&limit=5" | \
+  jq '.totalDocs'
+# ATTESO: 0 (fonte originale rimossa)
+# NOTA: le fonti .C e .P NON devono matchare (equals, non contains)
+```
+
+```bash
+# 3. Contare le ricorrenze riassegnate per ciascuna nuova fonte
+FONTE_C=$(curl -s "$API_URL/fonti?where[shorthand_id][equals]=Firenze.Statuti.1355.volg.C" | jq '.docs[0].id')
+FONTE_P=$(curl -s "$API_URL/fonti?where[shorthand_id][equals]=Firenze.Statuti.1355.volg.P" | jq '.docs[0].id')
+
+RIC_C=$(curl -s "$API_URL/ricorrenze?where[fonte][equals]=$FONTE_C&limit=0" | jq '.totalDocs')
+RIC_P=$(curl -s "$API_URL/ricorrenze?where[fonte][equals]=$FONTE_P&limit=0" | jq '.totalDocs')
+
+echo "Capitano: $RIC_C ricorrenze (attese ~43)"
+echo "Podestà: $RIC_P ricorrenze (attese ~101)"
+echo "Totale: $(($RIC_C + $RIC_P)) (atteso ~144)"
+# ATTESO: totale ≈144, nessuna ricorrenza rimasta orfana
+```
+
+```bash
+# 4. Verificare che nessuna ricorrenza punti ancora alla fonte originale
+# (se la fonte è stata eliminata, questo conferma che non ci sono orfani)
+curl -s "$API_URL/ricorrenze?where[fonte][equals]=null&limit=5" | jq '.totalDocs'
+# ATTESO: 0 ricorrenze orfane
+```
+
+```bash
+# 5. Verificare il caso anomalo (ragionare.html: "» c. 146r.")
+LEMMA_RAG=$(curl -s "$API_URL/lemmi?where[termine][equals]=ragionare" | jq '.docs[0].id')
+# Verificare che le ricorrenze di "ragionare" con fonte Statuti siano assegnate a .C
+curl -s "$API_URL/ricorrenze?where[fonte][equals]=$FONTE_C&depth=2&limit=200" | \
+  jq '[.docs[] | select(.definizione.lemma.termine == "ragionare")] | length'
+# ATTESO: ≥1 (il caso anomalo è stato gestito)
+```
+
 ---
 
 ### 5. Filtro Voci Bibliografiche vuote
@@ -129,6 +267,43 @@
 
 **Priorità:** Media
 **Stima complessità:** Bassa (poche righe di filtro)
+
+**Verifica completamento:**
+
+```bash
+API_URL="http://localhost:3000/api"  # o https://glossari.dh.unica.it/api
+
+# 1. Contare le fonti con 0 ricorrenze (devono esistere nel DB ma non nella pagina)
+TOTAL_FONTI=$(curl -s "$API_URL/fonti?limit=0" | jq '.totalDocs')
+echo "Fonti totali nel DB: $TOTAL_FONTI"
+# Questo numero deve essere > delle fonti mostrate in pagina
+```
+
+**Test automatico (curl sulla pagina):**
+
+```bash
+# 2. Verificare che la pagina bibliografia non mostri fonti vuote
+# La pagina server-rendered deve contenere solo fonti con ricorrenze
+SLUG="lemmario-italiano-di-matematica-e-economia"  # slug del lemmario
+curl -s "http://localhost:3001/$SLUG/bibliografia" | grep -c 'data-ricorrenze="0"'
+# ATTESO: 0 (nessuna fonte con 0 ricorrenze visibile nella pagina)
+```
+
+**Test manuale (Browser):**
+
+1. Aprire la pagina Bibliografia del lemmario
+2. Scorrere tutte le voci: nessuna deve mostrare "(0 ricorrenze)" o essere priva di lemmi associati
+3. ATTESO: ogni voce visibile ha almeno 1 lemma collegato
+4. Se implementato toggle: verificare che "Mostra tutte" riveli le fonti vuote, e che il default sia "Solo con ricorrenze"
+
+**Verifica integrità dati:**
+
+```bash
+# 3. Le fonti vuote devono ancora esistere nel DB (NON eliminate)
+curl -s "$API_URL/fonti?limit=500" | \
+  jq '[.docs[].shorthand_id] | length'
+# ATTESO: uguale a $TOTAL_FONTI (nessuna fonte eliminata)
+```
 
 ---
 
@@ -166,6 +341,60 @@
 **Priorità:** Media
 **Stima complessità:** Media
 
+**Verifica completamento:**
+
+```bash
+# 1. Verificare che postgresql-client sia installato nel container Payload
+docker compose exec payload pg_dump --version
+# ATTESO: pg_dump (PostgreSQL) 16.x
+# FALLITO SE: command not found
+```
+
+```bash
+# 2. Verificare che l'endpoint esista e richieda autenticazione
+curl -s -o /dev/null -w "%{http_code}" "http://localhost:3000/api/admin/export/database"
+# ATTESO: 401 o 403 (accesso negato senza autenticazione)
+# FALLITO SE: 404 (endpoint non creato) o 200 (nessuna auth!)
+```
+
+```bash
+# 3. Verificare il download con autenticazione super_admin
+# Login per ottenere token
+TOKEN=$(curl -s -X POST "http://localhost:3000/api/utenti/login" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@lemmario.dev","password":"password"}' | jq -r '.token')
+
+# Scaricare il dump
+curl -s -D- "http://localhost:3000/api/admin/export/database" \
+  -H "Authorization: JWT $TOKEN" -o /tmp/test_dump.sql
+
+# Verificare headers
+# ATTESO: Content-Disposition: attachment; filename=lemmario_backup_*.sql
+# ATTESO: Content-Type: application/sql o application/octet-stream
+```
+
+```bash
+# 4. Verificare che il dump SQL sia valido
+head -5 /tmp/test_dump.sql
+# ATTESO: deve iniziare con commenti pg_dump (--) e comandi SET/CREATE
+# FALLITO SE: file vuoto, HTML, o messaggio di errore JSON
+
+wc -l /tmp/test_dump.sql
+# ATTESO: migliaia di righe (dump completo)
+```
+
+```bash
+# 5. Verificare che un utente NON super_admin non possa scaricare
+# (se esiste un utente redattore di test)
+TOKEN_RED=$(curl -s -X POST "http://localhost:3000/api/utenti/login" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"redattore@test.it","password":"password"}' | jq -r '.token')
+
+curl -s -o /dev/null -w "%{http_code}" "http://localhost:3000/api/admin/export/database" \
+  -H "Authorization: JWT $TOKEN_RED"
+# ATTESO: 403 (solo super_admin può scaricare)
+```
+
 ---
 
 ### 7. Aggiornamento Loghi
@@ -192,6 +421,38 @@
 
 **Priorità:** Media-Bassa
 **Stima complessità:** Bassa
+
+**Verifica completamento:**
+
+```bash
+# 1. Verificare che il file SVG esista in public/logos/
+ls -la packages/frontend/public/logos/Logo_universita_firenze.svg
+# ATTESO: file presente, dimensione ~215 KB
+```
+
+```bash
+# 2. Verificare che il logo sia referenziato nel codice della home page
+grep -n "Logo_universita_firenze\|firenze\|unifi" \
+  packages/frontend/src/app/\[lemmario-slug\]/page.tsx
+# ATTESO: almeno 1 riferimento al logo Firenze
+```
+
+**Test automatico (pagina renderizzata):**
+
+```bash
+# 3. Verificare che la pagina home del lemmario includa il logo Firenze
+SLUG="lemmario-italiano-di-matematica-e-economia"
+curl -s "http://localhost:3001/$SLUG" | grep -c "Logo_universita_firenze"
+# ATTESO: ≥1 (logo presente nell'HTML renderizzato)
+```
+
+**Test manuale (Browser):**
+
+1. Aprire la home page del lemmario (es. `http://localhost:3001/lemmario-italiano-di-matematica-e-economia`)
+2. ATTESO: il logo dell'Università di Firenze è visibile accanto al logo del lemmario
+3. Verificare responsive: su mobile il logo deve essere visibile e non sovrapporsi
+4. ATTESO: il logo NON appare nella home globale (`/`) né in altre pagine (lemmi, bibliografia, ecc.)
+5. ATTESO: il logo NON appare nella barra istituzionale (quella resta con UniCa + DH)
 
 ---
 
@@ -227,3 +488,58 @@ Totale: 17 elementi ignorati su ~850 ricorrenze importate (98% success rate).
 
 **Priorità:** Bassa
 **Stima complessità:** Bassa (lavoro manuale, ~30 min)
+
+**Verifica completamento:**
+
+```bash
+API_URL="http://localhost:3000/api"  # o https://glossari.dh.unica.it/api
+
+# 1. Verificare il conteggio ricorrenze per ciascun lemma problematico
+# I numeri attesi includono le ricorrenze originali + quelle aggiunte manualmente
+
+declare -A LEMMI_CHECK=(
+  ["forma-lat"]="latino"    # 6 ricorrenze mancanti
+  ["ragione"]="volgare"     # 8 ricorrenze mancanti
+  ["libro"]="volgare"       # 1 ricorrenza mancante
+  ["scritta"]="volgare"     # 1 ricorrenza mancante
+  ["trarre"]="volgare"      # 1 ricorrenza mancante
+)
+
+for SLUG in "${!LEMMI_CHECK[@]}"; do
+  TIPO="${LEMMI_CHECK[$SLUG]}"
+  TERMINE="${SLUG%-lat}"  # rimuovi suffisso -lat per il termine
+
+  LEMMA_ID=$(curl -s "$API_URL/lemmi?where[slug][equals]=$SLUG" | jq '.docs[0].id')
+
+  # Conta definizioni del lemma
+  DEF_IDS=$(curl -s "$API_URL/definizioni?where[lemma][equals]=$LEMMA_ID&limit=50" | jq '[.docs[].id]')
+
+  # Conta ricorrenze totali per tutte le definizioni
+  TOTAL=0
+  for DEF_ID in $(echo "$DEF_IDS" | jq '.[]'); do
+    COUNT=$(curl -s "$API_URL/ricorrenze?where[definizione][equals]=$DEF_ID&limit=0" | jq '.totalDocs')
+    TOTAL=$((TOTAL + COUNT))
+  done
+
+  echo "Lemma '$TERMINE' ($TIPO, slug=$SLUG): $TOTAL ricorrenze totali"
+done
+```
+
+**Conteggi attesi post-fix (ricorrenze originali + mancanti):**
+
+| Lemma | Mancanti | Verifica |
+| ----- | -------- | -------- |
+| forma (latino) | +6 | Contare e confrontare con pre-fix |
+| ragione (volgare) | +8 | Contare e confrontare con pre-fix |
+| libro (volgare) | +1 | Contare e confrontare con pre-fix |
+| scritta (volgare) | +1 | Contare e confrontare con pre-fix |
+| trarre (volgare) | +1 | Contare e confrontare con pre-fix |
+
+**Test manuale per ogni lemma:**
+
+1. Aprire il form admin Payload per ciascun lemma
+2. Verificare che le ricorrenze aggiunte abbiano:
+   - `testo_originale` compilato (anche se troncato per le citazioni incomplete)
+   - `fonte` correttamente associata
+   - `pagina_raw` compilato per i riferimenti non standard (scritta, trarre)
+3. Aprire la pagina pubblica del lemma nel frontend e verificare che le nuove ricorrenze siano visibili
