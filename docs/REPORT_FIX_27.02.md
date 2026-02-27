@@ -11,7 +11,7 @@ Documento di tracciamento per i task definiti in [`fix_27.02.md`](fix_27.02.md).
 | 4 | Sdoppiamento fonte Statuti Fiorentina | Completato | L + P | 2026-02-27 |
 | 5 | Filtro Voci Bibliografiche vuote | Completato | L | 2026-02-27 |
 | 6 | Download Database SQL | Completato | L + P | 2026-02-27 |
-| 7 | Aggiornamento Loghi | Da fare | - | - |
+| 7 | Aggiornamento Loghi | Completato | L + P | 2026-02-27 |
 | 8 | Contenuto ignorato dal Parser (5 Lemmi) | Da fare | - | - |
 
 ---
@@ -195,6 +195,62 @@ Nessuno sostanziale. Il piano prevedeva le stesse operazioni. Non è stata aggiu
 - [x] Caso anomalo ragionare: ricorrenza id=4110 con `pagina_raw="Capitano. 146r."` correttamente assegnata a Capitano
 - [x] Verifica visiva frontend: "terminatore" mostra `Statuti della Repubblica fiorentina, Capitano. 42v.` e `...Podestà. 15v.`
 - [x] Esecuzione in produzione: 157 ricorrenze (54 C + 103 P), fonti id=173/174, verificato su glossari.dh.unica.it
+
+---
+
+## Task 7 - Aggiornamento Loghi
+
+**Data completamento:** 2026-02-27
+
+**Ambiente:** Locale + Produzione
+
+**File modificati:**
+
+- `packages/payload-cms/src/collections/Lemmari.ts` — Aggiunto campo array `loghi_partner` con sottocampi `immagine` (upload media) e `alt` (testo accessibilità)
+- `packages/payload-cms/src/migrations/20260227_230000.ts` — Migrazione per creare tabelle `lemmari_loghi_partner` e `lemmari_loghi_partner_rels`
+- `packages/frontend/src/app/[lemmario-slug]/page.tsx` — Rendering dinamico dei loghi partner dal CMS; fix bug pre-esistente su `<Image fill>` senza altezza esplicita
+
+**Intervento effettuato:**
+
+1. **Campo CMS `loghi_partner`:**
+   - Aggiunto campo `array` alla collection `Lemmari` con due sottocampi: `immagine` (upload `media`, required) e `alt` (testo accessibilità, required)
+   - Approccio CMS scelto per flessibilità: ogni lemmario può avere i propri loghi partner, gestiti dall'admin panel senza modifiche al codice
+
+2. **Migrazione database (`20260227_230000.ts`):**
+   - Tabella `lemmari_loghi_partner`: id varchar (Payload genera ObjectID-style per array items), `_order`, `_parent_id` (FK → lemmari), `alt`
+   - Tabella `lemmari_loghi_partner_rels`: relazione con collection `media` per il campo `immagine`
+   - Indici e foreign keys con cascading delete
+
+3. **Frontend (`page.tsx`):**
+   - Lettura dinamica del campo `loghi_partner` dal lemmario corrente
+   - Supporto SVG (rendering diretto con `<img>`) e raster (ottimizzazione Next.js con `<Image>`)
+   - Loghi partner mostrati sotto il logo principale nella colonna sinistra, al 75% della larghezza
+   - Fix bug pre-esistente: logo non-SVG usava `<Image fill>` senza altezza parent → sostituto con `width`/`height` espliciti
+
+4. **Deploy produzione:**
+   - PR #58 creata e mergiata su main
+   - CI/CD completato con successo
+   - Migrazione SQL eseguita direttamente sul DB di produzione (Payload migrate non funziona nel container prod)
+   - Container Payload riavviato per caricare il nuovo schema
+
+**Scostamenti dal piano:**
+
+- Il piano originale prevedeva un file SVG statico (`public/logos/`). Si è scelto un approccio CMS con campo `loghi_partner` per permettere la gestione dei loghi da admin panel senza deploy di codice.
+- Scoperto e corretto un bug pre-esistente: il logo principale non-SVG usava `<Image fill>` all'interno di un div senza altezza esplicita, risultando in 0px di rendering.
+- La migrazione Payload (`pnpm payload migrate:create`) si è bloccata su un prompt interattivo Drizzle; la migrazione è stata scritta manualmente in SQL.
+- Le tabelle array di Payload v2 usano `varchar` come tipo per la colonna `id` (ObjectID MongoDB-style), non `serial` — errore iniziale corretto dopo test.
+
+**Verifiche:**
+
+- [x] Typecheck (`pnpm typecheck`) superato
+- [x] Lint (`pnpm lint`) superato
+- [x] CI GitHub Actions (lint, typecheck, build) superato
+- [x] CD deploy su server VPN completato
+- [x] Migrazione SQL eseguita in produzione
+- [x] API produzione: campo `loghi_partner` presente e funzionante (array vuoto, pronto per upload)
+- [x] Frontend produzione: nessun errore di rendering
+
+**Nota:** Il logo dell'Università di Firenze va caricato tramite admin panel Payload (`/admin`) nella sezione "Loghi Partner" del lemmario desiderato.
 
 ---
 
