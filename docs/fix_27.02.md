@@ -65,31 +65,42 @@
 
 **Descrizione:** La fonte bibliografica attuale accorpa due manoscritti distinti, creando conflitti con le abbreviazioni "C" (Capitano) e "P" (Podestà) che vengono confuse con "carta" o "pagina".
 
-**Specifiche:** Duplicare la voce bibliografica in due entità separate ("Capitano" e "Podestà") e riassociare correttamente le circa 157 ricorrenze in base ai marcatori "C" e "P".
+**Specifiche:** Duplicare la voce bibliografica in due entità separate ("Capitano" e "Podestà") e riassociare correttamente le ricorrenze in base ai marcatori "c." e "p.".
 
 **Esempio:** Il lemma "Terminatore" utilizza questi riferimenti.
 
 **Analisi tecnica:**
-- In `old_website/bibliografia.json` esiste una sola voce: `Firenze.Statuti.1355.volg` ("Statuti della Repubblica fiorentina", 1355)
-- Collection Fonti: `packages/payload-cms/src/collections/Fonti.ts` — campo `shorthand_id` è unique
-- Le ricorrenze collegano a fonti via relationship field `fonte` in collection `Ricorrenze`
+- Fonte originale in DB: `shorthand_id = "Firenze.Statuti.1355.volg"`
+- Nei file HTML sorgente, le citazioni usano `c.` (Capitano) e `p.` (Podestà) come prefisso del riferimento:
+  - `c. 42v.`, `c. 54r.`, `c. 150r.` → Statuto del Capitano del Popolo (**43 citazioni**)
+  - `p. 15v.`, `p. 77v.`, `p. 104r.` → Statuto del Podestà (**101 citazioni**)
+  - 1 citazione anomala senza trattino in `ragionare.html` (`» c. 146r.`)
+- Totale ricorrenze: ~144 (distribuite su 44 lemmi diversi)
 
-**Domande aperte — CRITICHE per implementazione:**
-1. Quali `shorthand_id` usare per le due nuove fonti? (es. `Firenze.Statuti.1355.Capitano` e `Firenze.Statuti.1355.Podesta`?)
-2. Quali sono i titoli completi e i riferimenti bibliografici per ciascuna delle due fonti separate?
-3. Come distinguere le 157 ricorrenze: il marcatore "C"/"P" è nel campo `pagina_raw` della ricorrenza? Esempio concreto del formato?
-4. Le ricorrenze del lemma "Terminatore" possono essere usate come campione di test?
-5. Dopo lo sdoppiamento, la fonte originale va eliminata o mantenuta come alias?
+**Decisioni prese:**
+
+| Aspetto | Decisione |
+| --- | --- |
+| **shorthand_id** | `Firenze.Statuti.1355.volg.C` (Capitano) e `Firenze.Statuti.1355.volg.P` (Podestà) |
+| **Titoli** | Generati automaticamente: "Statuti della Repubblica fiorentina - Statuto del Capitano del Popolo (1355)" e "...del Podestà (1355)" |
+| **Riferimento bibliografico** | Stesso testo per entrambi (dall'originale) |
+| **Fonte originale** | Eliminare dopo riassegnazione completa |
+| **Metodo** | Script automatico TypeScript |
 
 **Intervento richiesto:**
-1. Creare 2 nuove voci Fonti con shorthand_id distinti
-2. Query tutte le ricorrenze collegate alla fonte originale (`GET /api/ricorrenze?where[fonte][equals]=ID`)
-3. Per ogni ricorrenza, analizzare `pagina_raw` per determinare se contiene "C" o "P"
-4. PATCH ogni ricorrenza per puntare alla nuova fonte corretta
-5. Gestire la fonte originale (eliminare o disattivare)
+
+1. Creare script in `scripts/migration/` che:
+   - Crea le 2 nuove fonti via API con i `shorthand_id` sopra
+   - Query tutte le ricorrenze collegate alla fonte originale
+   - Analizza il campo `pagina_raw` di ogni ricorrenza per il prefisso `c.` o `p.`
+   - PATCH ogni ricorrenza per puntare alla fonte corretta (`.C` o `.P`)
+   - Gestisce il caso anomalo (ragionare.html: `» c. 146r.` senza trattino)
+   - Report finale con conteggio riassegnazioni e eventuali ricorrenze non classificabili
+2. Eliminare la fonte originale `Firenze.Statuti.1355.volg`
+3. Aggiornare `old_website/bibliografia.json` con le due nuove voci
 
 **Priorità:** Media-Alta
-**Stima complessità:** Media (richiede analisi manuale delle 157 ricorrenze)
+**Stima complessità:** Media (script automatico ~100 righe)
 
 ---
 
@@ -157,42 +168,30 @@
 
 ---
 
-### 7. Aggiornamento Loghi e Immagine Home Page
+### 7. Aggiornamento Loghi
 
-**Descrizione:** Miglioramento dell'estetica e dell'identità visiva del sito.
+**Descrizione:** Aggiungere il logo dell'Università di Firenze nella pagina del lemmario.
 
 **Specifiche:**
-- Aggiungere il logo dell'Università di Firenze nella pagina progetto o nel footer, mantenendo il logo del progetto e di Cagliari come principali. Il logo deve essere visibile solo nella pagina del so lemmaria insieme al campo "logo" che c'è già
-
+- Il logo di Firenze deve essere visibile solo nella home page del singolo lemmario (`/[lemmario-slug]`), accanto al campo "logo" del lemmario già esistente nel CMS
+- Il logo del progetto (UniCa) e DH restano nella barra istituzionale come ora
 
 **Analisi tecnica:**
-- Logo UniCa + DH già presenti in `InstitutionalBar.tsx` (barra superiore sticky)
 - Logo Firenze SVG disponibile in `docs/design/Logo_universita_firenze.svg` (215 KB, non ancora committato)
-- La home page globale (`packages/frontend/src/app/page.tsx`) mostra il titolo "Glossario" con un `hr` decorativo — attualmente nessuna immagine hero
-- Le home page dei singoli lemmari (`packages/frontend/src/app/[lemmario-slug]/page.tsx`) mostrano il logo del lemmario se presente nel CMS
-- Il footer (`packages/frontend/src/components/Footer.tsx`) attualmente non mostra loghi
-
-**Domande aperte:**
-1. Il logo di Firenze va nel footer (accanto a UniCa e DH) o in una pagina "Progetto" dedicata?
-2. L'immagine dell'affresco: è già disponibile in formato digitale? Chi fornisce il file?
-3. L'immagine va nella home globale (`/`) o nella home del lemmario specifico (`/matematica`)?
-4. Dimensioni/formato preferiti per l'immagine hero? (attualmente nessuno standard)
-5. Serve un componente banner/hero dedicato o basta un'immagine nel layout esistente?
+- La home page del lemmario (`packages/frontend/src/app/[lemmario-slug]/page.tsx`) mostra già il logo del lemmario caricato dal CMS
+- Il logo Firenze va aggiunto come asset statico e mostrato accanto a quello del lemmario
 
 **Intervento richiesto:**
+
 1. Committare `docs/design/Logo_universita_firenze.svg` e copiarlo in `packages/frontend/public/logos/`
-2. Aggiungere il logo Firenze nel footer o nella pagina progetto (da confermare)
-3. Ricevere il file immagine dell'affresco dal cliente
-4. Implementare il componente hero/banner nella home page
-5. Ottimizzare l'immagine per web (compressione, formati WebP/AVIF, responsive sizes)
+2. Modificare `packages/frontend/src/app/[lemmario-slug]/page.tsx` per mostrare il logo Firenze accanto al logo del lemmario
 
 **File coinvolti:**
-- `packages/frontend/src/components/Footer.tsx` o pagina "Progetto"
-- `packages/frontend/src/app/page.tsx` (home globale) o `app/[lemmario-slug]/page.tsx`
-- `packages/frontend/public/logos/` (nuovi asset)
+- `packages/frontend/src/app/[lemmario-slug]/page.tsx` (aggiunta logo)
+- `packages/frontend/public/logos/` (nuovo asset)
 
 **Priorità:** Media-Bassa
-**Stima complessità:** Bassa (quando i file immagine sono disponibili)
+**Stima complessità:** Bassa
 
 ---
 
