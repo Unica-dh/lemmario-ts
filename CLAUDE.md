@@ -258,6 +258,45 @@ Location: [packages/payload-cms/src/admin/views/LemmaEdit/](packages/payload-cms
 
 **Why it exists:** Default Payload UI requires navigating between separate collections to edit related entities. This form provides a streamlined workflow for lexicographers.
 
+### Database Export (Dashboard Component)
+
+A custom `afterDashboard` component that renders a "Scarica Database SQL" button, visible **only to `super_admin` users**.
+
+Location: [packages/payload-cms/src/admin/components/ExportDatabase.tsx](packages/payload-cms/src/admin/components/ExportDatabase.tsx)
+
+**How it works:**
+
+- The component fetches `/api/utenti/me` to check the user's role (avoids importing `payload/components/utilities` which crashes ts-node due to SVG loading in the barrel export)
+- Clicking the button navigates to `GET /api/admin/export/database`
+- The Express endpoint in [server.ts](packages/payload-cms/src/server.ts) authenticates via Payload JWT, then runs `pg_dump` via `child_process.spawn` and streams the SQL dump as a file download
+- Requires `postgresql-client` installed in the Docker container (added to both Dockerfile and Dockerfile.dev)
+
+**Access control:** `super_admin` only (403 for all other roles and unauthenticated requests)
+
+### Database Export - Local Import Procedure
+
+To replicate the production database locally:
+
+```bash
+# 1. Download the dump from the admin dashboard (super_admin only)
+#    or via curl:
+TOKEN=$(curl -s -X POST "https://glossari.dh.unica.it/api/utenti/login" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@lemmario.dev","password":"password"}' | jq -r '.token')
+
+curl -o lemmario_backup.sql "https://glossari.dh.unica.it/api/admin/export/database" \
+  -H "Authorization: JWT $TOKEN"
+
+# 2. Stop the local Payload container (to avoid conflicts)
+docker compose stop payload
+
+# 3. Import the dump into the local PostgreSQL
+docker compose exec -T postgres psql -U lemmario_user -d lemmario_db < lemmario_backup.sql
+
+# 4. Restart Payload
+docker compose start payload
+```
+
 ## Frontend
 
 ### Route Structure ([packages/frontend/src/app/](packages/frontend/src/app/))
