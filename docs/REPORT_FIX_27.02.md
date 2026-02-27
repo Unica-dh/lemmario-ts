@@ -9,7 +9,7 @@ Documento di tracciamento per i task definiti in [`fix_27.02.md`](fix_27.02.md).
 | 1 | Definizioni vuote e sfasamento numerico | Completato | L + P | 2026-02-27 |
 | 2 | Bug salvataggio Livelli di Razionalità | Da fare | - | - |
 | 4 | Sdoppiamento fonte Statuti Fiorentina | Da fare | - | - |
-| 5 | Filtro Voci Bibliografiche vuote | Da fare | - | - |
+| 5 | Filtro Voci Bibliografiche vuote | Completato | L | 2026-02-27 |
 | 6 | Download Database SQL | Da fare | - | - |
 | 7 | Aggiornamento Loghi | Da fare | - | - |
 | 8 | Contenuto ignorato dal Parser (5 Lemmi) | Da fare | - | - |
@@ -58,6 +58,40 @@ Documento di tracciamento per i task definiti in [`fix_27.02.md`](fix_27.02.md).
 - [x] Ogni definizione 21-30 ha almeno 1 ricorrenza associata
 - [x] Test superati in locale
 - [x] Test superati in produzione (`https://glossari.dh.unica.it`)
+
+---
+
+## Task 5 - Filtro Voci Bibliografiche vuote
+
+**Data completamento:** 2026-02-27
+
+**Ambiente:** Locale (in produzione al prossimo deploy)
+
+**File modificati:**
+
+- `packages/frontend/src/app/[lemmario-slug]/bibliografia/page.tsx` — Aggiunto filtro server-side per escludere le fonti con 0 ricorrenze dalla visualizzazione; aggiornato contatore nell'header
+
+**Intervento effettuato:**
+
+Aggiunta una singola riga di filtro dopo la costruzione dell'array `fontiConRicorrenze`:
+
+```typescript
+const fontiVisibili = fontiConRicorrenze.filter(f => f.ricorrenzeCount > 0)
+```
+
+Il contatore nell'header e il componente `BibliografiaSearch` ora ricevono `fontiVisibili` invece di `fontiConRicorrenze`. Le fonti con 0 ricorrenze restano nel database ma non vengono mostrate nella pagina.
+
+**Scostamenti dal piano:**
+
+Nessuno. Il piano prevedeva anche l'opzione di un toggle UI ("Mostra tutte / Solo con ricorrenze"), ma si è scelto il filtro server-side senza toggle, come indicato dal default "solo con ricorrenze".
+
+**Verifiche:**
+
+- [x] Typecheck (`pnpm --filter frontend typecheck`) superato
+- [x] 61 fonti mostrate in pagina (su 86 totali nel DB)
+- [x] Nessuna fonte con 0 ricorrenze visibile nella pagina renderizzata
+- [x] 86 fonti ancora presenti nel DB (nessuna eliminata)
+- [ ] Deploy in produzione (al prossimo push su main)
 
 ---
 

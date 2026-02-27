@@ -97,6 +97,9 @@ export default async function BibliografiaPage({ params }: PageProps) {
     lemmiAssociati: lemmiPerFonte.get(fonte.id) || [],
   }))
 
+  // Filter out fonti with no ricorrenze (likely import duplicates)
+  const fontiVisibili = fontiConRicorrenze.filter(f => f.ricorrenzeCount > 0)
+
   return (
     <div className="container mx-auto px-4 py-12 max-w-3xl">
       {/* Link torna al glossario */}
@@ -116,13 +119,13 @@ export default async function BibliografiaPage({ params }: PageProps) {
           Bibliografia
         </h1>
         <p className="label-uppercase text-[var(--color-text-muted)]">
-          {fonti.length} font{fonti.length === 1 ? 'e' : 'i'}
+          {fontiVisibili.length} font{fontiVisibili.length === 1 ? 'e' : 'i'}
         </p>
         <div className="mt-6 border-t border-[var(--color-border)]" />
       </header>
 
       {/* Client-side search + grouped list */}
-      <BibliografiaSearch fonti={fontiConRicorrenze} lemmarioSlug={lemmario.slug} />
+      <BibliografiaSearch fonti={fontiVisibili} lemmarioSlug={lemmario.slug} />
     </div>
   )
 }
