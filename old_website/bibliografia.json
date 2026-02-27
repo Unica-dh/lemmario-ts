@@ -509,10 +509,16 @@
         "reference": "Due libri mastri degli Alberti. Una grande compagnia di calmala, 1348-1358, a cura di R.A. Goldthwaite, E. Settesoldi, M. Spallanzani, Firenze, Cassa di Risparmio di Firenze, 1995."
         },
 
-    "Firenze.Statuti.1355.volg": {
+    "Firenze.Statuti.1355.volg.C": {
         "title": "Statuti della Repubblica fiorentina",
         "date": "1355",
         "reference": "Gli statuti della Repubblica fiorentina del 1355 in volgare, a cura di Federigo Bambi, Francesco Salvestrini, Lorenzo Tanzini, 3: Indici, a cura di Federigo Bambi e Piero Gualtieri, Firenze, Olschki, 2023."
-            }
-    
+    },
+
+    "Firenze.Statuti.1355.volg.P": {
+        "title": "Statuti della Repubblica fiorentina",
+        "date": "1355",
+        "reference": "Gli statuti della Repubblica fiorentina del 1355 in volgare, a cura di Federigo Bambi, Francesco Salvestrini, Lorenzo Tanzini, 3: Indici, a cura di Federigo Bambi e Piero Gualtieri, Firenze, Olschki, 2023."
+    }
+
 }

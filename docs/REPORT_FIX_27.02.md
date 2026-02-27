@@ -8,7 +8,7 @@ Documento di tracciamento per i task definiti in [`fix_27.02.md`](fix_27.02.md).
 | --- | --- | --- | --- | --- |
 | 1 | Definizioni vuote e sfasamento numerico | Completato | L + P | 2026-02-27 |
 | 2 | Bug salvataggio Livelli di Razionalità | Da fare | - | - |
-| 4 | Sdoppiamento fonte Statuti Fiorentina | Da fare | - | - |
+| 4 | Sdoppiamento fonte Statuti Fiorentina | Completato | L + P | 2026-02-27 |
 | 5 | Filtro Voci Bibliografiche vuote | Completato | L | 2026-02-27 |
 | 6 | Download Database SQL | Completato | L | 2026-02-27 |
 | 7 | Aggiornamento Loghi | Da fare | - | - |
@@ -139,6 +139,62 @@ Nessuno sostanziale. Il piano prevedeva le stesse operazioni. Non è stata aggiu
 - [x] Endpoint con JWT super_admin → 200, dump SQL valido (~12.000 righe), headers `Content-Disposition: attachment`
 - [x] Webpack admin panel compilato con successo (componente `ExportDatabase` incluso nel bundle)
 - [ ] Deploy in produzione (al prossimo push su main)
+
+---
+
+## Task 4 - Sdoppiamento fonte "Statuti della Repubblica Fiorentina"
+
+**Data completamento:** 2026-02-27
+
+**Ambiente:** Locale (in produzione: esecuzione manuale dello script da locale)
+
+**File modificati:**
+
+- `scripts/migration/split-fonte-statuti.ts` — Nuovo script TypeScript per lo sdoppiamento automatico della fonte
+- `old_website/bibliografia.json` — Sostituita voce `Firenze.Statuti.1355.volg` con le due nuove voci `.C` e `.P`
+
+**Intervento effettuato:**
+
+1. **Analisi dati:** La fonte originale (id=172) aveva 217 ricorrenze, tutte classificabili tramite il prefisso `pagina_raw`:
+   - `c.` → Statuto del Capitano del Popolo (74 ricorrenze)
+   - `p.` → Statuto del Podestà (143 ricorrenze)
+   - Nessuna ricorrenza non classificabile (il caso anomalo `ragionare.html` con `» c. 146r.` era già stato parsato correttamente con `pagina_raw="c. 146r."`)
+
+2. **Script `split-fonte-statuti.ts`:**
+   - Supporta `DRY_RUN=1` per simulazione
+   - Login JWT per autenticazione
+   - Crea le 2 nuove fonti con titolo "Statuti della Repubblica fiorentina" (idempotente: skip se già esistenti)
+   - PATCH ogni ricorrenza: riassegna alla fonte corretta e riscrive `pagina_raw` (`c. 42v.` → `Capitano. 42v.`, `p. 15v.` → `Podestà. 15v.`)
+   - Verifica post-riassegnazione (nessuna ricorrenza orfana)
+   - Elimina la fonte originale solo se tutto è andato a buon fine
+
+3. **Risultato esecuzione locale:**
+
+   | Fonte | shorthand_id | id | Ricorrenze |
+   | --- | --- | --- | --- |
+   | Capitano del Popolo | `Firenze.Statuti.1355.volg.C` | 173 | 74 |
+   | Podestà | `Firenze.Statuti.1355.volg.P` | 174 | 143 |
+   | **Totale** | | | **217** |
+
+4. **Aggiornamento `bibliografia.json`:** Rimossa la voce originale, aggiunte le due nuove voci `.C` e `.P` con titolo identico "Statuti della Repubblica fiorentina".
+
+5. **Formato citazione risultante:** `Statuti della Repubblica fiorentina, Capitano. 42v.` e `Statuti della Repubblica fiorentina, Podestà. 15v.`
+
+**Scostamenti dal piano:**
+
+- I numeri di ricorrenze sono diversi dal piano (217 totali invece di 144, 74 Capitano invece di ~43, 143 Podestà invece di ~101). Il piano era basato su un conteggio dei file HTML sorgente; il DB locale contiene più ricorrenze (probabilmente da importazioni successive).
+- Non è stato necessario gestire il caso anomalo di `ragionare.html` separatamente: il parser aveva già estratto `pagina_raw="c. 146r."` correttamente.
+
+**Verifiche:**
+
+- [x] Dry run: tutte le 217 ricorrenze classificate (0 non classificate)
+- [x] Nuove fonti create: `.C` (id=173) e `.P` (id=174)
+- [x] Fonte originale eliminata: `totalDocs=0` per `Firenze.Statuti.1355.volg`
+- [x] Conteggio ricorrenze: 74 (C) + 143 (P) = 217 totale
+- [x] Nessuna ricorrenza orfana (0 per id=172)
+- [x] Caso anomalo ragionare: ricorrenza id=4110 con `pagina_raw="Capitano. 146r."` correttamente assegnata a Capitano
+- [x] Verifica visiva frontend: "terminatore" mostra `Statuti della Repubblica fiorentina, Capitano. 42v.` e `...Podestà. 15v.`
+- [x] Esecuzione in produzione: 157 ricorrenze (54 C + 103 P), fonti id=173/174, verificato su glossari.dh.unica.it
 
 ---
 
