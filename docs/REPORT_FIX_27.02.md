@@ -10,7 +10,7 @@ Documento di tracciamento per i task definiti in [`fix_27.02.md`](fix_27.02.md).
 | 2 | Bug salvataggio Livelli di Razionalità | Da fare | - | - |
 | 4 | Sdoppiamento fonte Statuti Fiorentina | Completato | L + P | 2026-02-27 |
 | 5 | Filtro Voci Bibliografiche vuote | Completato | L | 2026-02-27 |
-| 6 | Download Database SQL | Completato | L | 2026-02-27 |
+| 6 | Download Database SQL | Completato | L + P | 2026-02-27 |
 | 7 | Aggiornamento Loghi | Da fare | - | - |
 | 8 | Contenuto ignorato dal Parser (5 Lemmi) | Da fare | - | - |
 
@@ -99,7 +99,7 @@ Nessuno. Il piano prevedeva anche l'opzione di un toggle UI ("Mostra tutte / Sol
 
 **Data completamento:** 2026-02-27
 
-**Ambiente:** Locale (in produzione al prossimo deploy)
+**Ambiente:** Locale + Produzione
 
 **File modificati:**
 
@@ -138,7 +138,7 @@ Nessuno sostanziale. Il piano prevedeva le stesse operazioni. Non è stata aggiu
 - [x] Endpoint senza auth → 403 (corretto)
 - [x] Endpoint con JWT super_admin → 200, dump SQL valido (~12.000 righe), headers `Content-Disposition: attachment`
 - [x] Webpack admin panel compilato con successo (componente `ExportDatabase` incluso nel bundle)
-- [ ] Deploy in produzione (al prossimo push su main)
+- [x] Deploy in produzione completato
 
 ---
 
