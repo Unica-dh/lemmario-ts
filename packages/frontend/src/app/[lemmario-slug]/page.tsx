@@ -118,40 +118,69 @@ export default async function LemmarioPage({ params }: PageProps) {
   // SVGs use public URL (browser fetches directly); raster images use internal URL (Next.js optimizer)
   const logoUrl = logoObj ? (isSvg ? getPublicMediaUrl(logoObj.url) : getMediaUrl(logoObj.url)) : null
 
+  // Partner logos from CMS
+  const loghiPartner = (lemmario as unknown as Record<string, unknown>).loghi_partner as Array<{
+    immagine: { url: string; mimeType: string; alt?: string } | number
+    alt: string
+  }> | undefined
+
+  const hasLogos = logoUrl || (loghiPartner && loghiPartner.length > 0)
+
   return (
     <div className="relative">
       {/* Hero */}
       <div className="container mx-auto px-4 md:px-20 py-8 md:py-12">
-        <header className="mb-6 md:mb-8 flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-8">
-          <div className="shrink-0 w-[160px] md:w-[240px] flex flex-col gap-3 mt-1">
-            {logoObj && logoUrl && (
-              <div className="relative">
-                {isSvg ? (
+        <header className={`mb-6 md:mb-8 ${hasLogos ? 'flex flex-col md:flex-row items-center md:items-start gap-4 md:gap-8' : 'text-center'}`}>
+          {hasLogos && (
+            <div className="shrink-0 w-[160px] md:w-[240px] flex flex-col gap-3 mt-1">
+              {logoObj && logoUrl && (
+                <div className="relative">
+                  {isSvg ? (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={logoUrl}
+                      alt={logoObj.alt || `Logo ${lemmario.titolo}`}
+                      className="w-full h-full object-contain dark:invert"
+                    />
+                  ) : (
+                    <Image
+                      src={logoUrl}
+                      alt={logoObj.alt || `Logo ${lemmario.titolo}`}
+                      fill
+                      className="object-contain"
+                      sizes="(max-width: 768px) 120px, 180px"
+                    />
+                  )}
+                </div>
+              )}
+              {loghiPartner?.map((partner, index) => {
+                const img = typeof partner.immagine === 'object' ? partner.immagine : null
+                if (!img?.url) return null
+                const partnerIsSvg = img.mimeType === 'image/svg+xml'
+                const partnerUrl = partnerIsSvg ? getPublicMediaUrl(img.url) : getMediaUrl(img.url)
+                if (!partnerUrl) return null
+                return partnerIsSvg ? (
                   /* eslint-disable-next-line @next/next/no-img-element */
                   <img
-                    src={logoUrl}
-                    alt={logoObj.alt || `Logo ${lemmario.titolo}`}
-                    className="w-full h-full object-contain dark:invert"
+                    key={index}
+                    src={partnerUrl}
+                    alt={partner.alt}
+                    className="w-[75%] object-contain"
                   />
                 ) : (
                   <Image
-                    src={logoUrl}
-                    alt={logoObj.alt || `Logo ${lemmario.titolo}`}
-                    fill
-                    className="object-contain"
-                    sizes="(max-width: 768px) 120px, 180px"
+                    key={index}
+                    src={partnerUrl}
+                    alt={partner.alt}
+                    width={180}
+                    height={60}
+                    className="w-[75%] h-auto object-contain"
                   />
-                )}
-              </div>
-            )}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/logos/Logo_universita_firenze.svg"
-              alt="Università degli Studi di Firenze"
-              className="w-[75%] object-contain"
-            />
-          </div>
-          <div className="text-center md:text-left">
+                )
+              })}
+            </div>
+          )}
+          <div className={hasLogos ? 'text-center md:text-left' : ''}>
             <h1 className="font-serif text-3xl md:text-5xl font-bold text-[var(--color-text)] mb-3">
               {lemmario.titolo}
             </h1>

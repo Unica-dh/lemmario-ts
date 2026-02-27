@@ -8,7 +8,7 @@ import { sql } from 'drizzle-orm'
 export async function up({ payload }: MigrateUpArgs): Promise<void> {
   await payload.db.drizzle.execute(sql`
     CREATE TABLE IF NOT EXISTS "lemmari_loghi_partner" (
-      "id" serial PRIMARY KEY NOT NULL,
+      "id" varchar PRIMARY KEY NOT NULL,
       "_order" integer NOT NULL,
       "_parent_id" integer NOT NULL,
       "alt" varchar NOT NULL
@@ -17,7 +17,7 @@ export async function up({ payload }: MigrateUpArgs): Promise<void> {
     CREATE TABLE IF NOT EXISTS "lemmari_loghi_partner_rels" (
       "id" serial PRIMARY KEY NOT NULL,
       "order" integer,
-      "parent_id" integer NOT NULL,
+      "parent_id" varchar NOT NULL,
       "path" varchar NOT NULL,
       "media_id" integer
     );
