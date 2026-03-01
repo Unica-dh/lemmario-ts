@@ -1,0 +1,50 @@
+graph TB
+    subgraph clients["CLIENT"]
+        browser["Browser Web"]
+        mobile["App Mobile<br/><i>(futuro)</i>"]
+        terzi["Siti Terzi<br/><i>(futuro)</i>"]
+    end
+
+    proxy["Reverse Proxy<br/>glossari.dh.unica.it"]
+
+    subgraph docker["INFRASTRUTTURA DOCKER"]
+        subgraph frontend["FRONTEND — Next.js 14"]
+            ssr["Pagine SSR<br/>Componenti React"]
+        end
+
+        subgraph backend["BACKEND — Payload CMS + Express"]
+            admin["Admin Panel<br/>(React)"]
+            hooks["Hooks &amp; Logic<br/>Audit trail<br/>Rif. bidirezionali"]
+            rest["API REST<br/>/api/*"]
+            graphql["API GraphQL<br/>/api/graphql"]
+        end
+
+        subgraph database["DATABASE — PostgreSQL 16"]
+            tables["13 collections<br/>Migrazioni Payload"]
+        end
+    end
+
+    browser --> proxy
+    mobile -.-> proxy
+    terzi -.-> proxy
+
+    proxy --> frontend
+    proxy --> backend
+
+    ssr -->|"consume API"| rest
+
+    admin --> hooks
+    rest --> tables
+    graphql --> tables
+    hooks --> tables
+
+    classDef clientBox fill:#f9f9f9,stroke:#999,color:#333
+    classDef proxyBox fill:#1a1a1a,stroke:#1a1a1a,color:#fff,font-weight:bold
+    classDef frontendBox fill:#e8f4f8,stroke:#2980b9,color:#333
+    classDef backendBox fill:#fef9e7,stroke:#f39c12,color:#333
+    classDef dbBox fill:#eafaf1,stroke:#27ae60,color:#333
+    classDef component fill:#fff,stroke:#bbb,color:#333
+
+    class browser,mobile,terzi clientBox
+    class proxy proxyBox
+    class ssr,admin,hooks,rest,graphql,tables component

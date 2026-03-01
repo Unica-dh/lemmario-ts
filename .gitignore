@@ -12,10 +12,9 @@ build/
 .payload/
 
 # Environment files
-.env
-.env.local
-.env.*.local
-.env.server
+.env*
+!.env.example
+!.env.production.example
 
 # Logs
 *.log
