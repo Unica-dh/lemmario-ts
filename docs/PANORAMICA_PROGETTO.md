@@ -4,7 +4,7 @@
 
 Il progetto **Glossari** nasce nell'ambito delle attività del Centro Interdipartimentale per l'Umanistica Digitale dell'Università degli Studi di Cagliari.
 
-L'obiettivo è la realizzazione di una piattaforma digitale per la registrazione, la gestione e la consultazione pubblica di glossari in lingua italiana. Il primo glossario ospitato dalla piattaforma . Il primo glossario ospitato è il *Glossario dei termini su Ordine, Calcolo e Ragione nell'Italia tardo-medievale* di terminologia storica italiana — in particolare lessico matematico, economico e giuridico del periodo tardo-medievale (secoli XIII–XVI), sviluppato nell'ambito del progetto PRIN "Redde Rationem" in collaborazione con l'Università degli Studi di Firenze.
+L'obiettivo è la realizzazione di una piattaforma digitale per la registrazione, la gestione e la consultazione pubblica di glossari in lingua italiana. Il primo glossario ospitato dalla piattaforma . Il primo glossario ospitato è il *Glossario dei termini su Ordine, Calcolo e Ragione nell'Italia tardo-medievale* di terminologia storica italiana — in particolare lessico matematico, economico e giuridico del periodo tardo-medievale (secoli XIII–XVI), sviluppato nell'ambito del progetto PRIN 2022 "Redde Rationem" dell'Università di Cagliari, dell'Università di Firenze, dell'Università di Milano e dell'Università di Siena.
 
 La piattaforma *Glossari* è stata progettata per rappresentare una soluzione dinamica, multi-tenancy e orientata alle API, con lo scopo di ospitare più glossari indipendenti sulla medesima infrastruttura.
 
@@ -182,7 +182,7 @@ Per disporre anche dei dati, gli utenti con permessi di super_admin possono **sc
 
 ## 10. Migrazione dati dal sito legacy
 
-I dati del precedente sito statico (lemmario.netlify.app) del primo glossario contenuto nell'applicativo sono stati importati attraverso script di migrazione in TypeScript che effettuano il parsing dei file HTML e JSON originali e li trasformano nelle entità del nuovo sistema tramite le API REST.
+I dati del precedente sito statico del primo glossario contenuto nell'applicativo sono stati importati attraverso script di migrazione in TypeScript che effettuano il parsing dei file HTML e JSON originali e li trasformano nelle entità del nuovo sistema tramite le API REST.
 
 La migrazione ha gestito:
 
@@ -210,6 +210,5 @@ Ogni voce è arricchita da definizioni classificate secondo una tassonomia a sei
 Tra gli sviluppi previsti e ipotizzati:
 
 - **Plugin di integrazione** per siti terzi, che consenta di creare automaticamente collegamenti ipertestuali tra le parole di una pagina web e le corrispondenti voci del glossario.
-- **Normalizzazione morfologica** dei lemmi (es. unificazione plurale/singolare nelle forme latine).
 - **Frontend dedicati** per singoli glossari, ospitati su domini indipendenti.
 - **Applicazioni mobile** per la consultazione dei glossari.
