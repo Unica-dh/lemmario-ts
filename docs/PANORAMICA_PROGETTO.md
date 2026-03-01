@@ -8,7 +8,7 @@ L'obiettivo è la realizzazione di una piattaforma digitale per la registrazione
 
 La piattaforma *Glossari* è stata progettata per rappresentare una soluzione dinamica, multi-tenancy e orientata alle API, con lo scopo di ospitare più glossari indipendenti sulla medesima infrastruttura.
 
-**Indirizzo di produzione:** <https://glossari.dh.unica.it>
+**Indirizzo di produzione:** [https://glossari.dh.unica.it](https://glossari.dh.unica.it)
 
 ---
 
@@ -34,11 +34,12 @@ L'architettura API-first è stata pensata anche per abilitare scenari di utilizz
 
 L'applicativo si compone di tre elementi principali, ciascuno con un ruolo ben definito:
 
-| Componente   | Tecnologia                              | Ruolo                                                               |
-| ------------ | --------------------------------------- | ------------------------------------------------------------------- |
+
+| Componente   | Tecnologia                             | Ruolo                                                                 |
+| -------------- | ---------------------------------------- | ----------------------------------------------------------------------- |
 | **Backend**  | Payload CMS 2.x (TypeScript) + Express | Gestione dei dati, pannello di amministrazione, esposizione delle API |
-| **Database** | PostgreSQL 16                           | Persistenza dei dati                                                |
-| **Frontend** | Next.js 14 (TypeScript)                 | Interfaccia pubblica di consultazione                               |
+| **Database** | PostgreSQL 16                          | Persistenza dei dati                                                  |
+| **Frontend** | Next.js 14 (TypeScript)                | Interfaccia pubblica di consultazione                                 |
 
 ![Diagramma dell'architettura del sistema](diagrams/architettura.svg)
 
@@ -116,6 +117,8 @@ Il backend offre:
 ## 7. Frontend: interfaccia pubblica
 
 ### Struttura e navigazione
+
+![](assets/20260301_191011_homepage_glossario_ordine.png)
 
 L'interfaccia pubblica si articola nelle seguenti sezioni:
 
