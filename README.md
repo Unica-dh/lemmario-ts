@@ -6,6 +6,12 @@
 
 **Glossari** è una piattaforma multi-tenancy di umanistica digitale per la gestione di glossari storici della terminologia italiana medievale e rinascimentale. Basata su **Payload CMS** e **Next.js 14**, permette a ricercatori e studiosi di creare, gestire e pubblicare dizionari specialistici con controllo granulare degli accessi e funzionalità avanzate di ricerca.
 
+---
+
+Per una panoramica generale dell'intero progetto vai alla pagina di dettaglio [docs/PANORAMICA_PROGETTO.md](docs/PANORAMICA_PROGETTO.md).
+
+---
+
 Il primo glossario ospitato è il **"Glossario dei termini su Ordine, Calcolo e Ragione nell'Italia"**, sviluppato nell'ambito del progetto PRIN in collaborazione con l'Università di Cagliari e l'Università di Firenze.
 
 > **Nota storica**: La cartella `/old_website` contiene il codice sorgente del sito web legacy https://lemmario.netlify.app/ che rappresenta l'applicazione in versione "statica" che è stata migrata ed evoluta in questa piattaforma dinamica.
@@ -120,6 +126,7 @@ cp .env.example .env.production
 ```
 
 **IMPORTANTE**: Modifica questi valori in produzione:
+
 - `DB_PASSWORD`: password sicura per PostgreSQL
 - `PAYLOAD_SECRET`: stringa random di almeno 32 caratteri
 - `PAYLOAD_PUBLIC_SERVER_URL`: URL pubblico del backend
@@ -215,40 +222,44 @@ ln -sf "$(pwd)/gl" ~/.local/bin/gl
 
 ### Docker
 
-| Comando                  | Descrizione                                                      |
-| ------------------------ | ---------------------------------------------------------------- |
-| `gl up`                  | Avvia tutti i servizi in dev mode (postgres+payload+frontend)    |
-| `gl up payload`          | Solo postgres + payload (per frontend locale)                    |
-| `gl up db`               | Solo PostgreSQL                                                  |
-| `gl stop [servizio]`     | Ferma container (senza rimuoverli)                               |
-| `gl down`                | Ferma e rimuove container e network                              |
-| `gl restart [servizio]`  | Riavvia tutto o un singolo servizio                              |
-| `gl build`               | Build immagini Docker                                            |
-| `gl build up`            | Build e avvia                                                    |
+
+| Comando                 | Descrizione                                                   |
+| ------------------------- | --------------------------------------------------------------- |
+| `gl up`                 | Avvia tutti i servizi in dev mode (postgres+payload+frontend) |
+| `gl up payload`         | Solo postgres + payload (per frontend locale)                 |
+| `gl up db`              | Solo PostgreSQL                                               |
+| `gl stop [servizio]`    | Ferma container (senza rimuoverli)                            |
+| `gl down`               | Ferma e rimuove container e network                           |
+| `gl restart [servizio]` | Riavvia tutto o un singolo servizio                           |
+| `gl build`              | Build immagini Docker                                         |
+| `gl build up`           | Build e avvia                                                 |
 
 ### Dev e Quality
 
+
 | Comando    | Descrizione                                                   |
-| ---------- | ------------------------------------------------------------- |
+| ------------ | --------------------------------------------------------------- |
 | `gl dev`   | Backend Docker + frontend locale con hot reload (consigliato) |
-| `gl check` | Esegue `pnpm typecheck` + `pnpm lint`                         |
+| `gl check` | Esegue`pnpm typecheck` + `pnpm lint`                          |
 | `gl test`  | Esegue Playwright E2E tests                                   |
 
 ### Logs e Stato
 
-| Comando                | Descrizione                        |
-| ---------------------- | ---------------------------------- |
-| `gl logs [servizio]`   | Logs in tempo reale (follow)       |
-| `gl status`            | Stato container + health check API |
+
+| Comando              | Descrizione                        |
+| ---------------------- | ------------------------------------ |
+| `gl logs [servizio]` | Logs in tempo reale (follow)       |
+| `gl status`          | Stato container + health check API |
 
 ### Operazioni Database
 
-| Comando          | Descrizione                                     |
-| ---------------- | ----------------------------------------------- |
-| `gl db backup`   | Backup PostgreSQL in `scripts/backups/`         |
-| `gl db reset`    | Reset database (richiede conferma interattiva)  |
-| `gl db migrate`  | Esegue Payload migrations                       |
-| `gl db seed`     | Seed dati iniziali                              |
+
+| Comando         | Descrizione                                    |
+| ----------------- | ------------------------------------------------ |
+| `gl db backup`  | Backup PostgreSQL in`scripts/backups/`         |
+| `gl db reset`   | Reset database (richiede conferma interattiva) |
+| `gl db migrate` | Esegue Payload migrations                      |
+| `gl db seed`    | Seed dati iniziali                             |
 
 ## Gestione Database
 
@@ -289,9 +300,10 @@ docker exec -i lemmario_db psql -U lemmario_user -d lemmario_db < backup_2026021
 
 La piattaforma espone API complete per consumatori esterni:
 
-| Tipo | Sviluppo | Produzione |
-| --- | --- | --- |
-| **REST** | `http://localhost:3000/api` | `https://glossari.dh.unica.it/api` |
+
+| Tipo        | Sviluppo                            | Produzione                                 |
+| ------------- | ------------------------------------- | -------------------------------------------- |
+| **REST**    | `http://localhost:3000/api`         | `https://glossari.dh.unica.it/api`         |
 | **GraphQL** | `http://localhost:3000/api/graphql` | `https://glossari.dh.unica.it/api/graphql` |
 
 **Dati pubblici** (lemmi pubblicati, fonti, definizioni) sono accessibili senza autenticazione. Per accedere a dati protetti, usare una API key:
@@ -313,6 +325,7 @@ Per documentazione completa con esempi, limiti e CORS: **[docs/GRAPHQL-API-KEYS.
 ### ✨ Caratteristiche Implementate
 
 #### Backend (Payload CMS)
+
 - ✅ **12 Collections** complete per modellare il dominio lessicografico
 - ✅ **Multi-tenancy** con isolamento dati per glossario
 - ✅ **Controllo accessi** granulare (super_admin, admin, redattore, lettore)
@@ -323,6 +336,7 @@ Per documentazione completa con esempi, limiti e CORS: **[docs/GRAPHQL-API-KEYS.
 - ✅ **Anteprima lemmi** nel pannello amministrativo
 
 #### Frontend (Next.js 14)
+
 - ✅ **Routing dinamico** per glossari multipli
 - ✅ **Pagine lemmi** con definizioni, varianti grafiche e ricorrenze
 - ✅ **Ricerca** con autocompletamento
@@ -331,6 +345,7 @@ Per documentazione completa con esempi, limiti e CORS: **[docs/GRAPHQL-API-KEYS.
 - ✅ **SEO ottimizzato** con metadata dinamici
 
 #### DevOps & Qualità
+
 - ✅ **CI/CD completo** con GitHub Actions
 - ✅ **Docker Compose** per sviluppo e produzione
 - ✅ **Backup automatico** database pre-deploy
@@ -357,17 +372,20 @@ API_URL=http://localhost:3000/api LEMMARIO_ID=2 pnpm migrate
 - ✅ **Riferimenti incrociati** tra lemmi correlati
 
 **Report di validazione**:
+
 - Integrità referenziale verificata al 100%
 - Nessun riferimento orfano rilevato
 - Tutti i lemmi collegati correttamente alle fonti
 
 Per dettagli completi, vedi:
+
 - [docs/MIGRATION.md](docs/MIGRATION.md) - Guida migrazione
 - [report_migration/](report_migration/) - Report dettagliati con statistiche
 
 ## Documentazione
 
 ### Guide Principali
+
 - [docs/PIANO_IMPLEMENTAZIONE.md](docs/PIANO_IMPLEMENTAZIONE.md) - Piano implementazione 6 fasi con stato avanzamento
 - [docs/MIGRATION.md](docs/MIGRATION.md) - Guida completa migrazione dati legacy
 - [docs/Lemmario - Requisiti struttura dati - AGGIORNATO.md](docs/Lemmario%20-%20Requisiti%20struttura%20dati%20-%20AGGIORNATO.md) - Modello dati (12 collections)
@@ -382,6 +400,7 @@ Per dettagli completi, vedi:
 - [docs/PIANO_SEO_IMPLEMENTATION.md](docs/PIANO_SEO_IMPLEMENTATION.md) - Strategia SEO
 
 ### Sviluppo e Contributi
+
 - [.github/copilot-instructions.md](.github/copilot-instructions.md) - Linee guida per sviluppatori
 - [docs/New_task_12.02.2026.md](docs/New_task_12.02.2026.md) - Ultime decisioni progettuali
 
@@ -438,7 +457,7 @@ pnpm typecheck
 <p>Visualizza la "definizione" del lemma</p>
 
 // ✅ Corretto: usa HTML entities
-<p>Visualizza la &ldquo;definizione&rdquo; del lemma</p>
+<p>Visualizza la “definizione” del lemma</p>
 ```
 
 #### 5. Reinstallazione pulita
@@ -491,23 +510,27 @@ La piattaforma **Glossari** utilizza un sistema completo di **Continuous Integra
 
 ### Workflow Disponibili
 
-| Workflow | Trigger | Descrizione |
-|----------|---------|-------------|
-| **ci.yml** | Push/PR | Lint, typecheck, build |
-| **deploy.yml** | Push `main` | Deploy completo in produzione |
-| **setup-admin.yml** | Manuale | Inizializza utente admin |
-| **reset-db.yml** | Manuale | Reset database (con conferma) |
-| **data-migration.yml** | Manuale | Import dati legacy |
+
+| Workflow               | Trigger    | Descrizione                   |
+| ------------------------ | ------------ | ------------------------------- |
+| **ci.yml**             | Push/PR    | Lint, typecheck, build        |
+| **deploy.yml**         | Push`main` | Deploy completo in produzione |
+| **setup-admin.yml**    | Manuale    | Inizializza utente admin      |
+| **reset-db.yml**       | Manuale    | Reset database (con conferma) |
+| **data-migration.yml** | Manuale    | Import dati legacy            |
 
 ### Deployment Manuale
 
 # Deploy versione specifica
+
 cd /home/dhruby/lemmario-ts
 ./scripts/deploy/deploy-lemmario.sh <commit-sha>
 
 # Rollback a versione precedente
+
 docker images ghcr.io/unica-dh/lemmario-payload  # Lista versioni
 ./scripts/deploy/deploy-lemmario.sh <previous-sha>
+
 ```
 
 ### Monitoraggio e Logs
