@@ -166,6 +166,8 @@ body {
 /* Institutional bar: normal state */
 .institutional-bar {
   min-height: 2.75rem; /* 44px = h-11 */
+  will-change: height, min-height, opacity;
+  contain: layout style;
 }
 
 @media (min-width: 768px) {
