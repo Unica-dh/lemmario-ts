@@ -15,6 +15,8 @@ services:
       - ./packages/payload-cms/tsconfig.json:/workspace/packages/payload-cms/tsconfig.json
       - ./tsconfig.json:/workspace/tsconfig.json
       - ./pnpm-workspace.yaml:/workspace/pnpm-workspace.yaml
+      # Media volume: staticDir '../media' resolves from src/ → /workspace/packages/payload-cms/media
+      - payload_media:/workspace/packages/payload-cms/media
       # Migration volumes
       - ./scripts:/workspace/scripts
       - ./old_website:/workspace/old_website

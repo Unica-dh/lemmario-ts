@@ -3,6 +3,19 @@
  * Converts Lexical JSON format to React elements with academic styling
  */
 
+import Image from 'next/image'
+import { getMediaUrl } from '@/lib/media-url'
+
+interface UploadValue {
+  id: number
+  alt?: string
+  url?: string
+  width?: number
+  height?: number
+  mimeType?: string
+  filename?: string
+}
+
 export interface LexicalNode {
   type: string
   tag?: string
@@ -10,6 +23,8 @@ export interface LexicalNode {
   children?: LexicalNode[]
   format?: string | number
   version?: number
+  value?: UploadValue
+  relationTo?: string
   fields?: {
     url?: string
     linkType?: 'custom' | 'internal'
@@ -129,6 +144,42 @@ function renderNode(node: LexicalNode, index: number): React.ReactNode {
       >
         {node.children?.map((child, i) => renderNode(child, i))}
       </a>
+    )
+  }
+
+  // Upload (image in rich text)
+  if (node.type === 'upload' && node.value) {
+    const { alt, url, width, height, mimeType } = node.value
+    const mediaUrl = getMediaUrl(url)
+    if (!mediaUrl) return null
+
+    const isSvg = mimeType === 'image/svg+xml'
+
+    if (isSvg) {
+      // SVGs: use <img> since Next.js Image can't optimize SVGs
+      return (
+        <figure key={index} className="my-6">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={mediaUrl}
+            alt={alt || ''}
+            className="max-w-full h-auto mx-auto"
+          />
+        </figure>
+      )
+    }
+
+    return (
+      <figure key={index} className="my-6">
+        <Image
+          src={mediaUrl}
+          alt={alt || ''}
+          width={width || 800}
+          height={height || 600}
+          className="max-w-full h-auto mx-auto"
+          sizes="(max-width: 768px) 100vw, 800px"
+        />
+      </figure>
     )
   }
 
