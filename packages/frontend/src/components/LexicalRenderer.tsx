@@ -4,7 +4,6 @@
  */
 
 import Image from 'next/image'
-import { getMediaUrl } from '@/lib/media-url'
 
 interface UploadValue {
   id: number
@@ -150,18 +149,29 @@ function renderNode(node: LexicalNode, index: number): React.ReactNode {
   // Upload (image in rich text)
   if (node.type === 'upload' && node.value) {
     const { alt, url, width, height, mimeType } = node.value
-    const mediaUrl = getMediaUrl(url)
-    if (!mediaUrl) return null
+    if (!url) return null
+
+    // Extract /media/... pathname from absolute URL — the Next.js rewrite
+    // in next.config.js proxies /media/* to the Payload backend, so relative
+    // paths work in both dev (Docker) and production without hostname issues.
+    let mediaSrc = url
+    try {
+      const parsed = new URL(url)
+      if (parsed.pathname.startsWith('/media/')) {
+        mediaSrc = parsed.pathname
+      }
+    } catch {
+      // If URL parsing fails, use as-is
+    }
 
     const isSvg = mimeType === 'image/svg+xml'
 
     if (isSvg) {
-      // SVGs: use <img> since Next.js Image can't optimize SVGs
       return (
         <figure key={index} className="my-6">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src={mediaUrl}
+            src={mediaSrc}
             alt={alt || ''}
             className="max-w-full h-auto mx-auto"
           />
@@ -172,7 +182,7 @@ function renderNode(node: LexicalNode, index: number): React.ReactNode {
     return (
       <figure key={index} className="my-6">
         <Image
-          src={mediaUrl}
+          src={mediaSrc}
           alt={alt || ''}
           width={width || 800}
           height={height || 600}
