@@ -49,11 +49,24 @@ BEGIN
     UPDATE livelli_razionalita SET numero = 5 WHERE id = v_level6_id;
     UPDATE livelli_razionalita SET numero = 6 WHERE id = v_level5_id;
 
+    -- Aggiorna prefisso nel nome
+    UPDATE livelli_razionalita SET nome = regexp_replace(nome, '^Livello \d+ - ', 'Livello 5 - ') WHERE id = v_level6_id;
+    UPDATE livelli_razionalita SET nome = regexp_replace(nome, '^Livello \d+ - ', 'Livello 6 - ') WHERE id = v_level5_id;
+
     RAISE NOTICE 'Livelli 5/6 scambiati: ID % (5->6), ID % (6->5)', v_level5_id, v_level6_id;
   ELSE
     RAISE NOTICE 'Swap livelli gia applicato (livello 5 = "%"), skip', v_level5_nome;
   END IF;
 END $$;
+
+-- ===========================================
+-- Fix prefisso nome livelli dopo swap (idempotente)
+-- Corregge "Livello 6 - Istituzioni" → "Livello 5 - Istituzioni" ecc.
+-- ===========================================
+UPDATE livelli_razionalita
+SET nome = 'Livello ' || numero || ' - ' || regexp_replace(nome, '^Livello \d+ - ', '')
+WHERE nome ~ '^Livello \d+ - '
+AND nome !~ ('^Livello ' || numero || ' - ');
 
 -- ===========================================
 -- Aggiornamenti futuri vanno aggiunti qui

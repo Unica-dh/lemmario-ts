@@ -31,10 +31,14 @@ export async function up({ payload }: MigrateUpArgs): Promise<void> {
         JOIN livelli_razionalita_rels lrr ON lrr.parent_id = lr.id AND lrr.path = 'lemmario'
         WHERE lr.numero = 6 AND lrr.lemmari_id = 1;
 
-        -- Swap con valore temporaneo
+        -- Swap numero con valore temporaneo
         UPDATE livelli_razionalita SET numero = 99 WHERE id = v_level5_id;
         UPDATE livelli_razionalita SET numero = 5 WHERE id = v_level6_id;
         UPDATE livelli_razionalita SET numero = 6 WHERE id = v_level5_id;
+
+        -- Aggiorna prefisso nel nome (es. "Livello 6 - Istituzioni" → "Livello 5 - Istituzioni")
+        UPDATE livelli_razionalita SET nome = regexp_replace(nome, '^Livello \d+ - ', 'Livello 5 - ') WHERE id = v_level6_id;
+        UPDATE livelli_razionalita SET nome = regexp_replace(nome, '^Livello \d+ - ', 'Livello 6 - ') WHERE id = v_level5_id;
 
         RAISE NOTICE 'Livelli scambiati: ID % (5->6), ID % (6->5)', v_level5_id, v_level6_id;
       ELSE
