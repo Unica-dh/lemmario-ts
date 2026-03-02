@@ -91,6 +91,11 @@ export default async function LivelliPage({ params }: PageProps) {
     (a.numero ?? a.ordine ?? 0) - (b.numero ?? b.ordine ?? 0)
   )
 
+  // Filtra livelli senza lemmi associati (pattern analogo a bibliografia)
+  const livelliVisibili = sortedLivelli.filter(livello =>
+    (lemmiPerLivello.get(livello.id) || []).length > 0
+  )
+
   return (
     <div className="container mx-auto px-4 py-12 max-w-3xl">
       {/* Link torna al glossario */}
@@ -118,7 +123,7 @@ export default async function LivelliPage({ params }: PageProps) {
 
       {/* Livelli list */}
       <div className="space-y-12">
-        {sortedLivelli.map((livello) => {
+        {livelliVisibili.map((livello) => {
           const lemmi = lemmiPerLivello.get(livello.id) || []
           const livelloNumero = livello.numero ?? livello.livello ?? livello.ordine
           const livelloNome = livello.nome?.replace(/^Livello \d+ - /, '') || `Livello ${livelloNumero}`
@@ -174,7 +179,7 @@ export default async function LivelliPage({ params }: PageProps) {
         })}
       </div>
 
-      {sortedLivelli.length === 0 && (
+      {livelliVisibili.length === 0 && (
         <div className="text-center py-16">
           <p className="font-serif italic text-[var(--color-text-muted)]">
             Nessun livello di razionalit&agrave; definito per questo lemmario.

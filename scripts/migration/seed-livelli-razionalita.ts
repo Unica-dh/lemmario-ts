@@ -34,14 +34,14 @@ const livelliRazionalita = [
   {
     lemmario: LEMMARIO_ID,
     numero: 5,
-    nome: 'Giudizi di valore',
-    descrizione: 'Giudizi di valore in ambito economico e commerciale',
+    nome: 'Istituzioni',
+    descrizione: 'Istituzioni economiche, commerciali e giuridiche',
   },
   {
     lemmario: LEMMARIO_ID,
     numero: 6,
-    nome: 'Istituzioni',
-    descrizione: 'Istituzioni economiche, commerciali e giuridiche',
+    nome: 'Giudizi di valore',
+    descrizione: 'Giudizi di valore in ambito economico e commerciale',
   },
 ]
 
