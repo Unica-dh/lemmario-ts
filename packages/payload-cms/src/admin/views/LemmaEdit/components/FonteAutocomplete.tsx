@@ -9,7 +9,7 @@ interface Fonte {
 }
 
 interface FonteAutocompleteProps {
-  value: string | number
+  value: string | number | Record<string, any>
   onChange: (value: string | number) => void
   placeholder?: string
 }
@@ -40,8 +40,24 @@ export const FonteAutocomplete: React.FC<FonteAutocompleteProps> = ({
   // Carica la fonte selezionata quando value cambia
   useEffect(() => {
     if (value && !selectedFonte) {
+      // Se value è un oggetto espanso (depth>0), usa direttamente i dati
+      if (typeof value === 'object' && value !== null) {
+        const fonteObj = value as Record<string, any>
+        setSelectedFonte({
+          id: fonteObj.id,
+          titolo: fonteObj.titolo || '',
+          shorthand_id: fonteObj.shorthand_id,
+          autore: fonteObj.autore,
+          anno: fonteObj.anno,
+        })
+        setSearchText(fonteObj.titolo || '')
+        return
+      }
       fetch(`/api/fonti/${value}`)
-        .then((res) => res.json())
+        .then((res) => {
+          if (!res.ok) throw new Error(`HTTP ${res.status}`)
+          return res.json()
+        })
         .then((data) => {
           setSelectedFonte(data)
           setSearchText(data.titolo || '')

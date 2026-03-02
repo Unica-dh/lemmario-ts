@@ -68,7 +68,10 @@ export const CreaFonteInline: React.FC<CreaFonteInlineProps> = ({ onFonteCreated
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.message || 'Errore durante la creazione della fonte')
+        const errorMsg = errorData.errors
+          ? errorData.errors.map((e: any) => e.message).join(', ')
+          : errorData.message || 'Errore durante la creazione della fonte'
+        throw new Error(errorMsg)
       }
 
       const result = await response.json()
