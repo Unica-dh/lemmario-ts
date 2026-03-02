@@ -28,6 +28,11 @@ export default async function MainNav({ lemmarioSlug, lemmarioId, lemmarioTitolo
 
   if (lemmarioSlug) {
     mobileLinks.push({
+      href: `/${lemmarioSlug}`,
+      label: 'Glossario',
+      isLemmarioSpecific: true,
+    })
+    mobileLinks.push({
       href: `/${lemmarioSlug}/livelli`,
       label: 'Livelli di razionalit\u00e0',
       isLemmarioSpecific: true,
@@ -88,6 +93,12 @@ export default async function MainNav({ lemmarioSlug, lemmarioId, lemmarioTitolo
             {lemmarioSlug && (
               <>
                 <span className="text-[var(--color-border)]" aria-hidden="true">&middot;</span>
+                <Link
+                  href={`/${lemmarioSlug}`}
+                  className="label-uppercase link-clean text-[var(--color-text)] hover:text-[var(--color-text-body)] font-medium"
+                >
+                  Glossario
+                </Link>
                 <Link
                   href={`/${lemmarioSlug}/livelli`}
                   className="label-uppercase link-clean text-[var(--color-text)] hover:text-[var(--color-text-body)] font-medium"

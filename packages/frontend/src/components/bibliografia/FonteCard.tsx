@@ -25,9 +25,16 @@ export function FonteCard({ fonte, ricorrenzeCount, lemmiAssociati, lemmarioSlug
           {fonte.riferimento_completo}
         </p>
       )}
+      {/*
       {ricorrenzeCount > 0 && (
         <p className="label-uppercase text-[var(--color-text-muted)] mt-2">
           {ricorrenzeCount} ricorrenz{ricorrenzeCount === 1 ? 'a' : 'e'}
+        </p>
+      )}
+      */}
+      {fonte.anno && (
+        <p className="label-uppercase text-[var(--color-text-muted)] mt-2">
+          Datazione: {fonte.anno}
         </p>
       )}
       {lemmiAssociati && lemmiAssociati.length > 0 && lemmarioSlug && (
