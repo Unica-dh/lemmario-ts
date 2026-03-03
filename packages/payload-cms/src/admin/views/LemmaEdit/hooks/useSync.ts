@@ -36,6 +36,8 @@ const checkedFetch = async (url: string, options?: RequestInit): Promise<any> =>
  */
 const cleanRelationship = (value: any): any => {
   if (value === '' || value === null) return undefined
+  const num = Number(value)
+  if (!isNaN(num)) return num
   return value
 }
 
