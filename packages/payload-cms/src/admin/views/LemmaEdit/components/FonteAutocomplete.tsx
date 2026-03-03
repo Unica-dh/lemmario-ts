@@ -14,12 +14,20 @@ interface FonteAutocompleteProps {
   placeholder?: string
 }
 
+/** Formatta il label di una fonte mostrando titolo + anno (se presente) */
+const formatFonteLabel = (fonte: Fonte): string => {
+  if (fonte.anno) {
+    return `${fonte.titolo} (${fonte.anno})`
+  }
+  return fonte.titolo
+}
+
 /**
  * Componente Autocomplete per selezione Fonte
  *
  * Specifiche:
  * - Ricerca su tutti i campi (titolo, shorthand_id, autore, anno, riferimento_completo)
- * - Visualizza solo titolo nei risultati
+ * - Visualizza titolo + anno nei risultati per disambiguare fonti omonime
  * - Minimo 2 caratteri per avviare ricerca
  * - Massimo 15 risultati
  * - Debounce 300ms per ottimizzare chiamate API
@@ -50,7 +58,11 @@ export const FonteAutocomplete: React.FC<FonteAutocompleteProps> = ({
           autore: fonteObj.autore,
           anno: fonteObj.anno,
         })
-        setSearchText(fonteObj.titolo || '')
+        setSearchText(formatFonteLabel({
+          id: fonteObj.id,
+          titolo: fonteObj.titolo || '',
+          anno: fonteObj.anno,
+        }))
         return
       }
       fetch(`/api/fonti/${value}`)
@@ -60,7 +72,7 @@ export const FonteAutocomplete: React.FC<FonteAutocompleteProps> = ({
         })
         .then((data) => {
           setSelectedFonte(data)
-          setSearchText(data.titolo || '')
+          setSearchText(formatFonteLabel(data))
         })
         .catch((err) => console.error('Errore caricamento fonte:', err))
     }
@@ -120,7 +132,7 @@ export const FonteAutocomplete: React.FC<FonteAutocompleteProps> = ({
 
   const handleSelect = (fonte: Fonte) => {
     setSelectedFonte(fonte)
-    setSearchText(fonte.titolo)
+    setSearchText(formatFonteLabel(fonte))
     setIsOpen(false)
     onChange(fonte.id)
   }
@@ -175,7 +187,7 @@ export const FonteAutocomplete: React.FC<FonteAutocompleteProps> = ({
               className="autocomplete-result-item"
               onClick={() => handleSelect(fonte)}
             >
-              {fonte.titolo}
+              {formatFonteLabel(fonte)}
             </li>
           ))}
         </ul>
