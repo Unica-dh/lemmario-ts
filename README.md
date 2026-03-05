@@ -2,7 +2,7 @@
 
 [![CI Status](https://github.com/Unica-dh/lemmario-ts/actions/workflows/ci.yml/badge.svg)](https://github.com/Unica-dh/lemmario-ts/actions/workflows/ci.yml)
 [![CD Status](https://github.com/Unica-dh/lemmario-ts/actions/workflows/deploy.yml/badge.svg)](https://github.com/Unica-dh/lemmario-ts/actions/workflows/deploy.yml)
-[![Version](https://img.shields.io/badge/version-v.0.2-blue.svg)](https://github.com/Unica-dh/lemmario-ts/releases/tag/v.0.2)
+[![Version](https://img.shields.io/badge/version-v.0.5-blue.svg)](https://github.com/Unica-dh/lemmario-ts/releases/tag/v.0.5)
 
 **Glossari** è una piattaforma multi-tenancy di umanistica digitale per la gestione di glossari storici della terminologia italiana medievale e rinascimentale. Basata su **Payload CMS** e **Next.js 14**, permette a ricercatori e studiosi di creare, gestire e pubblicare dizionari specialistici con controllo granulare degli accessi e funzionalità avanzate di ricerca.
 

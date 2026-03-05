@@ -4,7 +4,7 @@ import Link from 'next/link'
 export default function InstitutionalBar() {
   return (
     <div
-      className="institutional-bar bg-[var(--color-bg)] sticky top-0 z-50 transition-[height,min-height,opacity] duration-300 ease-in-out"
+      className="institutional-bar bg-[var(--color-bg)] sticky top-0 z-50 overflow-hidden"
       role="banner"
     >
       <Link

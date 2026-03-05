@@ -166,8 +166,9 @@ body {
 /* Institutional bar: normal state */
 .institutional-bar {
   min-height: 2.75rem; /* 44px = h-11 */
-  will-change: height, min-height, opacity;
-  contain: layout style;
+  will-change: transform, opacity;
+  overflow-anchor: none; /* Prevent Chrome scroll anchoring interference */
+  transition: transform 300ms ease-in-out, opacity 300ms ease-in-out;
 }
 
 @media (min-width: 768px) {
@@ -179,6 +180,7 @@ body {
 /* Main nav: positioned below institutional bar */
 .main-nav {
   top: 0;
+  transition: top 300ms ease-in-out;
 }
 
 @media (min-width: 768px) {
@@ -187,15 +189,14 @@ body {
   }
 }
 
-/* Scrolled state: collapse institutional bar, shift nav up */
+/* Scrolled state: slide institutional bar up (transform = no layout reflow) */
 html[data-scrolled] .institutional-bar {
-  height: 0;
-  min-height: 0;
+  transform: translateY(-100%);
   opacity: 0;
-  overflow: hidden;
   pointer-events: none;
 }
 
+/* Shift main nav up to fill the gap left by the hidden bar */
 html[data-scrolled] .main-nav {
   top: 0;
 }
