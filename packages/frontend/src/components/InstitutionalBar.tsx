@@ -21,7 +21,7 @@ export default function InstitutionalBar() {
         <span className="label-uppercase text-[var(--color-text-muted)] text-center md:whitespace-nowrap text-[0.5625rem] md:text-[0.6875rem]">
           Università degli Studi di Cagliari
           <span className="mx-1.5 md:mx-2" aria-hidden="true">·</span>
-          DH UNICA - Centro interdipartimentale per l'umanistica digitale
+          DH UNICA - Centro interdipartimentale per l&apos;umanistica digitale
         </span>
 
         {/* DH Logo - hidden on mobile */}
