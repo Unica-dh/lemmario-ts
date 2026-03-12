@@ -13,13 +13,13 @@ export default function Footer() {
             <h3 className="label-uppercase text-[var(--color-text-muted)] mb-2">Istituzione</h3>
             <p className="font-serif italic text-[var(--color-text-body)] text-lg leading-relaxed">
               Università degli Studi di Cagliari<br />
-              Centro Interdipartimentale per l&rsquo;Umanistica Digitale
+              DH UNICA - Centro interdipartimentale per l&rsquo;Umanistica Digitale
             </p>
           </div>
 
           {/* Column 2: Corrispondenza */}
           <div>
-            <h3 className="label-uppercase text-[var(--color-text-muted)] mb-2">Centro Interdipartimentale per l’Umanistica Digitale</h3>
+            <h3 className="label-uppercase text-[var(--color-text-muted)] mb-2">DH UNICA - Centro interdipartimentale per l’Umanistica Digitale</h3>
             <p className="text-[var(--color-text-body)]">
               <a
                 href="https://dh.unica.it"
