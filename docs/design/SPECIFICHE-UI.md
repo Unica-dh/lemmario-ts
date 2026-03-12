@@ -170,7 +170,7 @@ Il design ha un'impronta **accademica e tipografica**, minimalista, con ampio us
 
 | ISTITUZIONE | CORRISPONDENZA |
 | --- | --- |
-| Universita di Cagliari | info@unica-dh.it (link mailto) |
+| Universita di Cagliari | dh@unica.it (link mailto) |
 | *Dipartimento di Lettere, Lingue e Beni Culturali* | |
 | *Laboratorio di Digital Humanities per il Medioevo.* | |
 

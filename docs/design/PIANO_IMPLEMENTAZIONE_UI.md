@@ -640,10 +640,10 @@ export default async function Footer() {
               Corrispondenza
             </h3>
             <a 
-              href="mailto:info@unica-dh.it"
+              href="mailto:dh@unica.it"
               className="font-serif text-base text-text-body underline hover:text-text transition-colors"
             >
-              info@unica-dh.it
+              dh@unica.it
             </a>
           </div>
         </div>
