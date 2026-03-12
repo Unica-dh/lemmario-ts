@@ -55,7 +55,7 @@ nano /home/dhruby/deploy-lemmario.sh
 GHCR_REGISTRY="ghcr.io/MODIFICA_OWNER_QUI"
 
 # Sostituisci con il tuo GitHub username/org, esempio:
-GHCR_REGISTRY="ghcr.io/unica-dh"
+GHCR_REGISTRY="ghcr.io/dh-unica"
 
 # Salva e esci (Ctrl+X, Y, Enter)
 ```
@@ -215,8 +215,8 @@ docker images ghcr.io/<owner>/lemmario-payload
 
 # Output esempio:
 # REPOSITORY                              TAG         IMAGE ID       CREATED
-# ghcr.io/unica-dh/lemmario-payload      sha-abc123  xxx            2 hours ago
-# ghcr.io/unica-dh/lemmario-payload      sha-def456  yyy            1 day ago
+# ghcr.io/dh-unica/lemmario-payload      sha-abc123  xxx            2 hours ago
+# ghcr.io/dh-unica/lemmario-payload      sha-def456  yyy            1 day ago
 
 # 3. Rideploy versione precedente
 /home/dhruby/deploy-lemmario.sh def456

@@ -1,7 +1,7 @@
 # Sprint Setup - Nuovo Design UI
 
 **Data setup:** 13 febbraio 2026  
-**Epic:** [#29 - Nuovo Design UI Accademico-Tipografico](https://github.com/Unica-dh/lemmario-ts/issues/29)  
+**Epic:** [#29 - Nuovo Design UI Accademico-Tipografico](https://github.com/Dh-unica/lemmario-ts/issues/29)  
 **Feature branch:** `feature/new-ui-design`
 
 ---
@@ -10,17 +10,17 @@
 
 | Sprint | Issue | Titolo | Label |
 |--------|-------|--------|-------|
-| **Epic** | [#29](https://github.com/Unica-dh/lemmario-ts/issues/29) | 🎨 Epic: Nuovo Design UI Accademico-Tipografico | - |
-| **Sprint 1** | [#20](https://github.com/Unica-dh/lemmario-ts/issues/20) | Sprint 1.1: Design System Foundation | `sprint-1`, `design-system` |
-| **Sprint 1** | [#21](https://github.com/Unica-dh/lemmario-ts/issues/21) | Sprint 1.2: Componenti Core UI | `sprint-1`, `components` |
-| **Sprint 2** | [#19](https://github.com/Unica-dh/lemmario-ts/issues/19) | Sprint 2.1: Backend - Campo Foto Lemmari | `sprint-2`, `backend` |
-| **Sprint 2** | [#27](https://github.com/Unica-dh/lemmario-ts/issues/27) | Sprint 2.2: Homepage - Griglia Lemmari | `sprint-2`, `homepage` |
-| **Sprint 3** | [#24](https://github.com/Unica-dh/lemmario-ts/issues/24) | Sprint 3.1: Sidebar Alfabetica | `sprint-3`, `navigation` |
-| **Sprint 3** | [#22](https://github.com/Unica-dh/lemmario-ts/issues/22) | Sprint 3.2: Pagina Glossario | `sprint-3`, `search` |
-| **Sprint 4** | [#25](https://github.com/Unica-dh/lemmario-ts/issues/25) | Sprint 4: Pagina Dettaglio Lemma | `sprint-4`, `lemma-detail` |
-| **Sprint 5** | [#26](https://github.com/Unica-dh/lemmario-ts/issues/26) | Sprint 5: Pagine Statiche + Bibliografia | `sprint-5`, `static-pages` |
-| **Sprint 6** | [#28](https://github.com/Unica-dh/lemmario-ts/issues/28) | Sprint 6: Mobile + Accessibility | `sprint-6`, `mobile` |
-| **Sprint 7** | [#23](https://github.com/Unica-dh/lemmario-ts/issues/23) | Sprint 7: QA & Deploy | `sprint-7`, `qa` |
+| **Epic** | [#29](https://github.com/Dh-unica/lemmario-ts/issues/29) | 🎨 Epic: Nuovo Design UI Accademico-Tipografico | - |
+| **Sprint 1** | [#20](https://github.com/Dh-unica/lemmario-ts/issues/20) | Sprint 1.1: Design System Foundation | `sprint-1`, `design-system` |
+| **Sprint 1** | [#21](https://github.com/Dh-unica/lemmario-ts/issues/21) | Sprint 1.2: Componenti Core UI | `sprint-1`, `components` |
+| **Sprint 2** | [#19](https://github.com/Dh-unica/lemmario-ts/issues/19) | Sprint 2.1: Backend - Campo Foto Lemmari | `sprint-2`, `backend` |
+| **Sprint 2** | [#27](https://github.com/Dh-unica/lemmario-ts/issues/27) | Sprint 2.2: Homepage - Griglia Lemmari | `sprint-2`, `homepage` |
+| **Sprint 3** | [#24](https://github.com/Dh-unica/lemmario-ts/issues/24) | Sprint 3.1: Sidebar Alfabetica | `sprint-3`, `navigation` |
+| **Sprint 3** | [#22](https://github.com/Dh-unica/lemmario-ts/issues/22) | Sprint 3.2: Pagina Glossario | `sprint-3`, `search` |
+| **Sprint 4** | [#25](https://github.com/Dh-unica/lemmario-ts/issues/25) | Sprint 4: Pagina Dettaglio Lemma | `sprint-4`, `lemma-detail` |
+| **Sprint 5** | [#26](https://github.com/Dh-unica/lemmario-ts/issues/26) | Sprint 5: Pagine Statiche + Bibliografia | `sprint-5`, `static-pages` |
+| **Sprint 6** | [#28](https://github.com/Dh-unica/lemmario-ts/issues/28) | Sprint 6: Mobile + Accessibility | `sprint-6`, `mobile` |
+| **Sprint 7** | [#23](https://github.com/Dh-unica/lemmario-ts/issues/23) | Sprint 7: QA & Deploy | `sprint-7`, `qa` |
 
 ---
 
@@ -47,8 +47,8 @@
 4. Componenti core: InstitutionalBar, MainNav, Footer
 
 **Issue da completare:**
-- [ ] [#20 - Design System Foundation](https://github.com/Unica-dh/lemmario-ts/issues/20)
-- [ ] [#21 - Componenti Core UI](https://github.com/Unica-dh/lemmario-ts/issues/21)
+- [ ] [#20 - Design System Foundation](https://github.com/Dh-unica/lemmario-ts/issues/20)
+- [ ] [#21 - Componenti Core UI](https://github.com/Dh-unica/lemmario-ts/issues/21)
 
 ---
 
@@ -172,10 +172,10 @@ Ogni issue deve soddisfare:
 
 ## 🔗 Link Utili
 
-- [Epic #29](https://github.com/Unica-dh/lemmario-ts/issues/29)
+- [Epic #29](https://github.com/Dh-unica/lemmario-ts/issues/29)
 - [Piano Implementazione](./PIANO_IMPLEMENTAZIONE_UI.md)
 - [Specifiche UI](./SPECIFICHE-UI.md)
-- [GitHub Project Board](https://github.com/Unica-dh/lemmario-ts/issues) (filtro: label `sprint-1`)
+- [GitHub Project Board](https://github.com/Dh-unica/lemmario-ts/issues) (filtro: label `sprint-1`)
 - [Mockup Figma/PNG](./Dettaglio%20glossario.png)
 
 ---

@@ -1,8 +1,8 @@
 # Glossari - Piattaforma Multi-Tenancy per Glossari Storici
 
-[![CI Status](https://github.com/Unica-dh/lemmario-ts/actions/workflows/ci.yml/badge.svg)](https://github.com/Unica-dh/lemmario-ts/actions/workflows/ci.yml)
-[![CD Status](https://github.com/Unica-dh/lemmario-ts/actions/workflows/deploy.yml/badge.svg)](https://github.com/Unica-dh/lemmario-ts/actions/workflows/deploy.yml)
-[![Version](https://img.shields.io/badge/version-v.0.5-blue.svg)](https://github.com/Unica-dh/lemmario-ts/releases/tag/v.0.5)
+[![CI Status](https://github.com/Dh-unica/lemmario-ts/actions/workflows/ci.yml/badge.svg)](https://github.com/Dh-unica/lemmario-ts/actions/workflows/ci.yml)
+[![CD Status](https://github.com/Dh-unica/lemmario-ts/actions/workflows/deploy.yml/badge.svg)](https://github.com/Dh-unica/lemmario-ts/actions/workflows/deploy.yml)
+[![Version](https://img.shields.io/badge/version-v.0.5-blue.svg)](https://github.com/Dh-unica/lemmario-ts/releases/tag/v.0.5)
 
 **Glossari** è una piattaforma multi-tenancy di umanistica digitale per la gestione di glossari storici della terminologia italiana medievale e rinascimentale. Basata su **Payload CMS** e **Next.js 14**, permette a ricercatori e studiosi di creare, gestire e pubblicare dizionari specialistici con controllo granulare degli accessi e funzionalità avanzate di ricerca.
 
@@ -528,7 +528,7 @@ cd /home/dhruby/lemmario-ts
 
 # Rollback a versione precedente
 
-docker images ghcr.io/unica-dh/lemmario-payload  # Lista versioni
+docker images ghcr.io/dh-unica/lemmario-payload  # Lista versioni
 ./scripts/deploy/deploy-lemmario.sh <previous-sha>
 
 ```

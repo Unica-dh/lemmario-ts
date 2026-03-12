@@ -163,7 +163,7 @@ nano /home/dhruby/deploy-lemmario.sh
 GHCR_REGISTRY="ghcr.io/MODIFICA_OWNER_QUI"
 
 # Sostituisci con il tuo GitHub username o organization, esempio:
-GHCR_REGISTRY="ghcr.io/unica-dh"
+GHCR_REGISTRY="ghcr.io/dh-unica"
 
 # Salva: Ctrl+X, Y, Enter
 ```

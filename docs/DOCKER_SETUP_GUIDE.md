@@ -24,7 +24,7 @@ node --version           # >= 20.0
 
 ### 1. Clona il repository
 ```bash
-git clone https://github.com/Unica-dh/lemmario-ts.git
+git clone https://github.com/Dh-unica/lemmario-ts.git
 cd lemmario-ts
 ```
 

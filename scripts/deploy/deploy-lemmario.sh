@@ -13,7 +13,7 @@ BACKUP_DIR="/home/dhruby/backups/lemmario-$(date +%Y%m%d-%H%M%S)"
 COMPOSE_FILE="/home/dhruby/lemmario-ts/docker-compose.yml"
 COMPOSE_PROD_FILE="/home/dhruby/lemmario-ts/docker-compose.prod.yml"
 PROJECT_DIR="/home/dhruby/lemmario-ts"
-GHCR_REGISTRY="ghcr.io/unica-dh"  # es. ghcr.io/unica-dh
+GHCR_REGISTRY="ghcr.io/dh-unica"  # es. ghcr.io/dh-unica
 
 # Health check ottimizzati: prima veloci, poi lenti
 HEALTH_CHECK_FAST_RETRIES=6

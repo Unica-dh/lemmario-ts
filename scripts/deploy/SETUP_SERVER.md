@@ -14,7 +14,7 @@ Questa guida ti aiuta a configurare il server VPN per il primo deploy.
 ssh dhruby@90.147.144.147
 
 cd /home/dhruby
-git clone https://github.com/Unica-dh/lemmario-ts.git
+git clone https://github.com/Dh-unica/lemmario-ts.git
 cd lemmario-ts
 ```
 
@@ -139,7 +139,7 @@ mkdir actions-runner && cd actions-runner
 curl -o actions-runner-linux-x64-2.311.0.tar.gz -L \
   https://github.com/actions/runner/releases/download/v2.311.0/actions-runner-linux-x64-2.311.0.tar.gz
 tar xzf ./actions-runner-linux-x64-2.311.0.tar.gz
-./config.sh --url https://github.com/Unica-dh/lemmario-ts --token <TUO_TOKEN>
+./config.sh --url https://github.com/Dh-unica/lemmario-ts --token <TUO_TOKEN>
 ./run.sh
 ```
 
@@ -149,7 +149,7 @@ tar xzf ./actions-runner-linux-x64-2.311.0.tar.gz
 
 Dopo il push su `main`, vai su GitHub:
 
-https://github.com/Unica-dh/lemmario-ts/actions
+https://github.com/Dh-unica/lemmario-ts/actions
 
 Verifica che il workflow "CD - Build and Deploy" funzioni.
 
@@ -264,7 +264,7 @@ docker system df
 
 ## Link Utili
 
-- **Repository**: https://github.com/Unica-dh/lemmario-ts
-- **GitHub Actions**: https://github.com/Unica-dh/lemmario-ts/actions
+- **Repository**: https://github.com/Dh-unica/lemmario-ts
+- **GitHub Actions**: https://github.com/Dh-unica/lemmario-ts/actions
 - **Documentazione CI/CD**: [docs/CI-CD-SETUP.md](../docs/CI-CD-SETUP.md)
 - **Deploy Scripts**: [scripts/deploy/README.md](./README.md)

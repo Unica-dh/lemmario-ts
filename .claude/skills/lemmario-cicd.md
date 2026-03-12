@@ -284,8 +284,8 @@ backup_database() {
 
 # 2. Pull nuove immagini
 pull_images() {
-  docker pull ghcr.io/unica-dh/lemmario-payload:sha-$SHA
-  docker pull ghcr.io/unica-dh/lemmario-frontend:sha-$SHA
+  docker pull ghcr.io/dh-unica/lemmario-payload:sha-$SHA
+  docker pull ghcr.io/dh-unica/lemmario-frontend:sha-$SHA
 }
 
 # 3. Stop servizi (preserva DB)
@@ -295,7 +295,7 @@ stop_services() {
 
 # 4. Update docker-compose con nuovi tag
 update_compose() {
-  sed -i "s|image:.*lemmario-payload.*|image: ghcr.io/unica-dh/lemmario-payload:sha-$SHA|" docker-compose.prod.yml
+  sed -i "s|image:.*lemmario-payload.*|image: ghcr.io/dh-unica/lemmario-payload:sha-$SHA|" docker-compose.prod.yml
 }
 
 # 5. Start e health check
@@ -450,7 +450,7 @@ sudo systemctl restart actions.runner.<service-name>.service
 docker login ghcr.io -u <username>
 
 # Verifica immagini esistono
-docker pull ghcr.io/unica-dh/lemmario-payload:latest
+docker pull ghcr.io/dh-unica/lemmario-payload:latest
 ```
 
 ---

@@ -263,7 +263,7 @@ Critical rules derived from development patterns to prevent common errors:
 
 ## CI/CD Pipeline
 
-### GitHub Actions Workflows ([.github/workflows/](https://github.com/Unica-dh/lemmario-ts/tree/main/.github/workflows))
+### GitHub Actions Workflows ([.github/workflows/](https://github.com/Dh-unica/lemmario-ts/tree/main/.github/workflows))
 - **ci.yml**: Lint + typecheck on push/PR
 - **deploy.yml**: Build Docker images → GHCR → deploy to VPN server (self-hosted runner with label `vpn`)
   - Calls [scripts/deploy/deploy-lemmario.sh](scripts/deploy/deploy-lemmario.sh) on server
